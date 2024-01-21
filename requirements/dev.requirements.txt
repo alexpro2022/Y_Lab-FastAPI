@@ -1,0 +1,14 @@
+alembic
+asyncpg
+email-validator
+fastapi
+httpx
+'uvicorn[standard]'
+
+pre-commit
+
+pydantic
+pydantic-settings
+
+redis
+SQLAlchemy
