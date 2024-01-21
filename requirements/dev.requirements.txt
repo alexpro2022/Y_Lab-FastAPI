@@ -1,14 +1,10 @@
 alembic
 asyncpg
-email-validator
 fastapi
 httpx
-'uvicorn[standard]'
-
-pre-commit
+uvicorn[standard]
 
 pydantic
 pydantic-settings
 
-redis
 SQLAlchemy

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 # from app import schemas
-from app.core import settings
+from app.core.config import settings
 
 # from fastapi.encoders import jsonable_encoder
 
