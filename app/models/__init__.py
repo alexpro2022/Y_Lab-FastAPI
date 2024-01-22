@@ -1,3 +1,2 @@
 from .base import Base  # noqa
-
-# from .models import some_models
+from .models import Dish, Menu, Submenu  # noqa
