@@ -1,10 +1,6 @@
 alembic
 asyncpg
 fastapi
-httpx
-uvicorn[standard]
-
-pydantic
 pydantic-settings
-
 SQLAlchemy
+uvicorn[standard]

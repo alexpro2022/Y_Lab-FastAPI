@@ -1,11 +1,13 @@
 from fastapi import APIRouter
 
-from app.api.endpoints import example
+from app.api.endpoints import dish, menu, submenu
 
 main_router = APIRouter()
 
 
 for router in (
-    example.router,
+    dish.router,
+    menu.router,
+    submenu.router,
 ):
     main_router.include_router(router)

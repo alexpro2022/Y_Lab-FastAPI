@@ -38,6 +38,7 @@
 [![Alembic](https://img.shields.io/badge/-Alembic-464646?logo=alembic)](https://alembic.sqlalchemy.org/en/latest/)
 [![Uvicorn](https://img.shields.io/badge/-Uvicorn-464646?logo=Uvicorn)](https://www.uvicorn.org/)
 [![docker_compose](https://img.shields.io/badge/-Docker%20Compose-464646?logo=docker)](https://docs.docker.com/compose/)
+[![Nginx](https://img.shields.io/badge/-NGINX-464646?logo=NGINX)](https://nginx.org/ru/)
 
 [⬆️Оглавление](#оглавление)
 
@@ -83,7 +84,6 @@ docker --version && docker-compose --version
 ```
 <h1></h1></details>
 
-<!--details><summary>Локальный запуск</summary-->
 <br>
 
 Клонируйте репозиторий с GitHub и введите данные для переменных окружения (значения даны для примера, но их можно оставить):
