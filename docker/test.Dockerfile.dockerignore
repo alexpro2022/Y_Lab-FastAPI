@@ -1,0 +1,9 @@
+*
+!requirements/test.requirements.txt
+!alembic.ini
+!alembic
+!app
+!tests
+!setup.cfg
+!.coveragerc
+!packages

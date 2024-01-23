@@ -1,0 +1,25 @@
+alembic
+email-validator
+fastapi
+pydantic-settings
+redis
+SQLAlchemy
+uvicorn[standard]
+
+# tests
+aiosqlite
+httpx
+
+factory-boy
+Faker
+fakeredis
+
+flake8
+pep8-naming
+flake8-broken-line
+flake8-return
+flake8-isort
+
+pytest
+pytest-asyncio
+pytest-cov

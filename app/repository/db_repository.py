@@ -1,9 +1,12 @@
 from typing import Annotated, Any
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.models import Dish, Menu, Submenu
-from .generic_db_repo.generic_db_repository import CRUDBaseRepository, get_async_session
+
+from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository
+from packages.generic_db_repo.session import get_async_session
 
 session = Annotated[AsyncSession, Depends(get_async_session)]
 

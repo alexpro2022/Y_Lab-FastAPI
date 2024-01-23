@@ -1,20 +1,10 @@
-from typing import Any, AsyncGenerator, Generic
+from typing import Any, Generic
 
 from fastapi import HTTPException, status
 from sqlalchemy import exc, select
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import CreateSchemaType, ModelType, UpdateSchemaType
-from app.core.config import settings
-
-engine = create_async_engine(settings.database_url)
-AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
-
-
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as async_session:
-        yield async_session
+from .base import CreateSchemaType, ModelType, UpdateSchemaType
 
 
 class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
