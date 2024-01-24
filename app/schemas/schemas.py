@@ -1,6 +1,10 @@
 from decimal import Decimal
+from typing import Generic
 
+# from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.models.models import uuid_str
 
 # constants for examples
 TITLE = 'My menu/submenu/dish #1'
@@ -8,9 +12,10 @@ DESCRIPTION = 'My menu/submenu/dish description #1'
 PRICE = '12.50'
 
 
-class IdMixin(BaseModel):
-    id: str
-    model_config = ConfigDict(from_attributes=True)
+class IdMixin(Generic[uuid_str], BaseModel):
+    id: uuid_str
+    model_config = ConfigDict(arbitrary_types_allowed=True,
+                              from_attributes=True)
 
 
 class TitleDescriptionMixin(BaseModel):
@@ -20,6 +25,7 @@ class TitleDescriptionMixin(BaseModel):
 
 class DishIn(TitleDescriptionMixin):
     price: str = Field(example=PRICE)
+    # price: Decimal = Field(decimal_places=3)
 
     @field_validator('price')
     def validate_price_gte_zero(cls, price: str):

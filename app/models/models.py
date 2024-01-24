@@ -1,15 +1,18 @@
-from uuid import uuid4
+from typing import TypeVar
+from uuid import UUID, uuid4
 
-from sqlalchemy import UUID, ForeignKey, String
+from sqlalchemy import ForeignKey, String, Uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from packages.generic_db_repo.base import Base
+
+uuid_str = TypeVar('uuid_str', UUID, str)
 
 
 class Common(Base):
     __abstract__ = True
 
-    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=uuid4)
+    id: Mapped[uuid_str] = mapped_column(Uuid(), primary_key=True, default=lambda: str(uuid4()))
     title: Mapped[str] = mapped_column(String(256), unique=True, index=True)
     description: Mapped[str] = mapped_column(String(2000))
 
@@ -41,7 +44,7 @@ class Menu(Common):
 
 
 class Submenu(Common):
-    menu_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('menu.id'))
+    menu_id: Mapped[uuid_str] = mapped_column(Uuid(), ForeignKey('menu.id'))
     menu: Mapped['Menu'] = relationship(back_populates='submenus')
     dishes: Mapped[list['Dish']] = relationship(
         back_populates='submenu',
@@ -58,7 +61,7 @@ class Submenu(Common):
 
 
 class Dish(Common):
-    submenu_id: Mapped[str] = mapped_column(UUID(as_uuid=False), ForeignKey('submenu.id'))
+    submenu_id: Mapped[uuid_str] = mapped_column(Uuid(), ForeignKey('submenu.id'))
     submenu: Mapped['Submenu'] = relationship(back_populates='dishes')
     price: Mapped[str] = mapped_column(default='0')
 

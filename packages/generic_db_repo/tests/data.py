@@ -1,15 +1,22 @@
 from datetime import datetime as dt
 
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from .conftest import Base, CRUDBaseRepository
+from ..generic_db_repository import CRUDBaseRepository
 
 MIN_LEN = 3
 MAX_LEN = 50
 
 
+class Base(DeclarativeBase):
+    pass
+
+
 class Model(Base):
+    __tablename__ = 'model'
+
+    id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str]
     optional_field: Mapped[dt | None]

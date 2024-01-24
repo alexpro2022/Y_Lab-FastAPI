@@ -1,11 +1,10 @@
-from .conftest import Base
-
-
-class BaseTest(Base):
-    pass
+from ..base import Base
 
 
 def test_base():
+    class BaseTest(Base):
+        pass
+
     base = BaseTest()
     assert base.__tablename__ == 'basetest'
     assert hasattr(base, 'id')
