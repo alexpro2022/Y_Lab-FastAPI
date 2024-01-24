@@ -1,8 +1,6 @@
 alembic
-email-validator
 fastapi
 pydantic-settings
-redis
 SQLAlchemy
 uvicorn[standard]
 

@@ -17,7 +17,6 @@ class Settings(BaseSettings):
     app_title: str = DEFAULT_STR
     app_description: str = DEFAULT_STR
     secret_key: SecretStr = DEFAULT_STR
-    database_url: str = 'sqlite+aiosqlite:///./fastapi.db'  # for GitHub tests
 
 
 settings = Settings()
