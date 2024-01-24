@@ -5,8 +5,8 @@ import pytest_asyncio
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from ..base import Base
+from ..dependencies import AsyncSessionLocal, engine, get_async_session  # noqa
 from ..generic_db_repository import CRUDBaseRepository  # noqa
-from ..session import AsyncSessionLocal, engine, get_async_session  # noqa
 
 TEST_DB_URL = 'sqlite+aiosqlite:///./test.db'
 

@@ -1,7 +1,7 @@
 alembic
 fastapi
 pydantic-settings
-SQLAlchemy
+sqlalchemy
 uvicorn[standard]
 
 # tests
