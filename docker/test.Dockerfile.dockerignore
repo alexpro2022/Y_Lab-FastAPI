@@ -3,7 +3,7 @@
 !alembic.ini
 !alembic
 !app
-!tests
+# !tests
 !setup.cfg
 !.coveragerc
 !packages

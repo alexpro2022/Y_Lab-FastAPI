@@ -1,8 +1,7 @@
 from typing import TypeVar
-from uuid import uuid4
 
 from pydantic import BaseModel
-from sqlalchemy import UUID, MetaData, Uuid
+from sqlalchemy import MetaData
 from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
                             mapped_column)
 
@@ -20,9 +19,7 @@ class Base(DeclarativeBase):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    id: Mapped[UUID | str] = mapped_column(Uuid(), primary_key=True, default=uuid4)
-    # id: Mapped[str] = mapped_column(Uuid(as_uuid=False, native_uuid=True),
-    #                                 primary_key=True, default=lambda: str(uuid4()))
+    id: Mapped[int] = mapped_column(primary_key=True)
 
     def __repr__(self) -> str:
         return f'\nid: {self.id}'
