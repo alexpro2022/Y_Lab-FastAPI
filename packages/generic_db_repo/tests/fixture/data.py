@@ -1,19 +1,16 @@
 from datetime import datetime as dt
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from ..generic_db_repository import CRUDBaseRepository
-
-MIN_LEN = 3
-MAX_LEN = 50
+from ...generic_db_repository import CRUDBaseRepository
 
 
-class Base(DeclarativeBase):
+class BaseTest(DeclarativeBase):
     pass
 
 
-class Model(Base):
+class Model(BaseTest):
     __tablename__ = 'model'
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -22,18 +19,14 @@ class Model(Base):
     optional_field: Mapped[dt | None]
 
 
-class BaseModelConfig(BaseModel):
-    model_config = ConfigDict(str_min_length=MIN_LEN)
+class SchemaCreate(BaseModel):
+    title: str
+    description: str
 
 
-class SchemaCreate(BaseModelConfig):
-    title: str = Field(max_length=MAX_LEN)
-    description: str = Field(max_length=MAX_LEN)
-
-
-class SchemaUpdate(BaseModelConfig):
-    title: str | None = Field(None, max_length=MAX_LEN)
-    description: str | None = Field(None, max_length=MAX_LEN)
+class SchemaUpdate(BaseModel):
+    title: str | None
+    description: str | None
 
 
 class Data:
@@ -46,9 +39,5 @@ class Data:
 
 
 class CRUD(CRUDBaseRepository):
-
-    def is_update_allowed(self, obj, payload) -> None:
-        pass
-
-    def is_delete_allowed(self, obj) -> None:
-        pass
+    is_delete_allowed_not_in_use = True
+    is_update_allowed_not_in_use = True

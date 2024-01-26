@@ -1,4 +1,4 @@
-from typing import Annotated, Any
+from typing import Annotated
 
 from fastapi import Depends
 
@@ -8,33 +8,29 @@ from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository
 
 
 class CRUDRepository(CRUDBaseRepository):
-    # the methods are not in use in the project
-    def is_update_allowed(self, obj: Any, payload: dict[str, Any]) -> None:
-        pass
-
-    def is_delete_allowed(self, obj: Any) -> None:
-        pass
+    is_delete_allowed_not_in_use = True
+    is_update_allowed_not_in_use = True
 
 
 class MenuRepository(CRUDRepository):
-    NOT_FOUND = 'menu not found'
-    OBJECT_ALREADY_EXISTS = 'Меню с таким заголовком уже существует.'
+    msg_not_found = 'menu not found'
+    msg_already_exists = 'Меню с таким заголовком уже существует.'
 
     def __init__(self, session: async_session):
         super().__init__(Menu, session)
 
 
 class SubmenuRepository(CRUDRepository):
-    NOT_FOUND = 'submenu not found'
-    OBJECT_ALREADY_EXISTS = 'Подменю с таким заголовком уже существует.'
+    msg_not_found = 'submenu not found'
+    msg_already_exists = 'Подменю с таким заголовком уже существует.'
 
     def __init__(self, session: async_session):
         super().__init__(Submenu, session)
 
 
 class DishRepository(CRUDRepository):
-    NOT_FOUND = 'dish not found'
-    OBJECT_ALREADY_EXISTS = 'Блюдо с таким заголовком уже существует.'
+    msg_not_found = 'dish not found'
+    msg_already_exists = 'Блюдо с таким заголовком уже существует.'
 
     def __init__(self, session: async_session):
         super().__init__(Dish, session)

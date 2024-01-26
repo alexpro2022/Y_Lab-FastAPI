@@ -5,7 +5,7 @@ from fastapi import status
 
 from tests import conftest as c
 from tests.fixtures import data as d
-from tests.fixtures.endpoints_testlib import DONE
+from packages.endpoint_testing_lib.utils import DONE
 
 
 def _check_response(response_json: dict | list, expected_result: dict | list[dict]) -> str:
@@ -86,12 +86,6 @@ def get_crud(endpoint, *,
     return menu_repo
 
 
-def get_method(instance: typing.Any, method_name: str):
-    method = instance.__getattribute__(method_name)
-    assert isinstance(method, type(instance.__init__))
-    return method
-
-
 def compare(left: c.Base, right: c.Base) -> None:
     def _get_attrs(item) -> tuple[str]:
         assert item
@@ -103,11 +97,11 @@ def compare(left: c.Base, right: c.Base) -> None:
         return item_attrs
     diff = DeepDiff(_get_attrs(left), _get_attrs(right), ignore_order=True)
     assert not diff, diff
-    
+
 
 def compare_lists(left: list[c.Base], right: list[c.Base]) -> None:
     assert left
-    assert right    
+    assert right
     size_left = len(left)
     assert size_left == len(right)
     for i in range(size_left):

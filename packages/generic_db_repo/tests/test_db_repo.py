@@ -5,23 +5,21 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .conftest import CRUDBaseRepository, pytest_mark_anyio
-from .data import CRUD, Data, Model
-from .utils import check_exception_info, check_exception_info_not_found
+from .fixture.data import CRUD, Data, Model
+from .utils import get_regex, get_regex_not_found
 
 
 class TestCRUDBaseRepository(Data):
     """Тестовый класс для тестирования базового CRUD класса."""
-    msg_already_exists = 'Object with such a unique values already exists.'
-    msg_not_found = 'Object(s) not found.'
-    # base crud with not implemented hooks
-    crud_base_not_implemented: CRUDBaseRepository
-    # base crud with implemented hooks
-    crud_base_implemented: CRUD
+    msg_already_exists: str = 'Object with such a unique values already exists.'
+    msg_not_found: str = 'Object(s) not found.'
 
     @pytest.fixture(autouse=True)
     def init(self, get_test_session: AsyncSession) -> None:
-        self.crud_base_not_implemented = CRUDBaseRepository(self.model, get_test_session)
-        self.crud_base_implemented = CRUD(self.model, get_test_session)
+        # base crud with not implemented hooks
+        self.crud_base_not_implemented: CRUDBaseRepository = CRUDBaseRepository(self.model, get_test_session)
+        # base crud with bypassed hooks
+        self.crud_base_implemented: CRUD = CRUD(self.model, get_test_session)
 
     def test_init_fixture(self):
         assert isinstance(self.crud_base_not_implemented, CRUDBaseRepository)
@@ -64,9 +62,8 @@ class TestCRUDBaseRepository(Data):
         # returns None if NOT_FOUND and exception=False by default
         assert await method(title=title) is None
         # raises HTTPException if NOT_FOUND and exception=True
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(HTTPException, match=get_regex_not_found(self.msg_not_found)):
             await method(title=title, exception=True)
-        check_exception_info_not_found(exc_info, self.msg_not_found)
         # returns list of objects or object if FOUND
         await self._create_object()
         result = await method(title=title)
@@ -85,9 +82,8 @@ class TestCRUDBaseRepository(Data):
     async def test_get_or_404_method(self) -> None:
         """`get_or_404` should raise `HTTP_404_NOT_FOUND` or return object."""
         method = self.crud_base_not_implemented.get_or_404
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(HTTPException, match=get_regex_not_found(self.msg_not_found)):
             await method(1)
-        check_exception_info_not_found(exc_info, self.msg_not_found)
         await self._create_object()
         obj = await method(1)
         self._check_obj(obj)
@@ -97,9 +93,8 @@ class TestCRUDBaseRepository(Data):
         """`get_all` should raise `HTTP_404_NOT_FOUND` or return "None or object."""
         method = self.crud_base_not_implemented.get_all
         assert await method() is None
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(HTTPException, match=get_regex_not_found(self.msg_not_found)):
             await method(exception=True)
-        check_exception_info_not_found(exc_info, self.msg_not_found)
         await self._create_object()
         objs = await method()
         assert isinstance(objs, list)
@@ -140,9 +135,8 @@ class TestCRUDBaseRepository(Data):
     @pytest_mark_anyio
     async def test_save_method_raises_exception_on_unique(self) -> None:
         await self._create_object()
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(HTTPException, match=get_regex(self.msg_already_exists, status.HTTP_400_BAD_REQUEST)):
             await self._create_object()
-        check_exception_info(exc_info, self.msg_already_exists, status.HTTP_400_BAD_REQUEST)
 
     @pytest.mark.parametrize('method_name, args, expected_msg', (
         ('has_permission', (None, None), 'has_permission() must be implemented.'),
@@ -152,9 +146,8 @@ class TestCRUDBaseRepository(Data):
     def test_not_implemented_method_raises_exception(
         self, method_name: str, args: tuple[None, ...], expected_msg: str
     ) -> None:
-        with pytest.raises(NotImplementedError) as exc_info:
+        with pytest.raises(NotImplementedError, match=get_regex(expected_msg)):
             self.crud_base_not_implemented.__getattribute__(method_name)(*args)
-        check_exception_info(exc_info, expected_msg)
 
     @pytest_mark_anyio
     @pytest.mark.parametrize('method_name', ('update', 'delete'))
@@ -185,7 +178,6 @@ class TestCRUDBaseRepository(Data):
         args = (1,) if method_name == 'delete' else (1, self.update_schema(**self.update_payload))
         if func is not None:
             await func()
-        with pytest.raises(exc_type) as exc_info:
+        regex = get_regex_not_found(self.msg_not_found) if not_found else get_regex(expected_msg)
+        with pytest.raises(exc_type, match=regex):
             await method(*args, user=user)
-        (check_exception_info_not_found(exc_info, self.msg_not_found) if not_found else
-         check_exception_info(exc_info, expected_msg))

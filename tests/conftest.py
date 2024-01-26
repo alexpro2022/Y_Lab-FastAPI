@@ -4,21 +4,26 @@ import pytest
 import pytest_asyncio
 from fastapi import Request, Response  # noqa
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession  # noqa
 
-from app.core import settings
+from app.core import settings  # noqa
 from app.main import app
 from app.models import Dish, Menu, Submenu  # noqa
 from app.repositories.db_repository import DishRepository, MenuRepository, SubmenuRepository  # noqa
-#from app.repositories.base_db_repository import CRUDBaseRepository  # noqa
 from app.schemas.schemas import MenuIn, MenuOut  # noqa
-#from app.services import BaseService, DishService, MenuService, SubmenuService  # noqa
-#from app.celery_tasks.utils import FILE_PATH  # noqa
-#from app.repositories.generic_db_repo.tests.conftest import init_db, get_async_session, get_test_session, TestingSessionLocal
-from packages.generic_db_repo.tests.conftest import Base, get_async_session, get_test_session, init_db, TestingSessionLocal
-from .fixtures import data as d
+from packages.generic_db_repo.base import Base  # noqa
+from packages.generic_db_repo.dependencies import get_async_session
+from packages.generic_db_repo.tests.fixture.data import Model  # noqa
+from packages.generic_db_repo.tests.fixture.fixtures import get_test_session, test_session  # noqa
+from .fixtures.data import (
+    ENDPOINT_DISH, ENDPOINT_MENU, ENDPOINT_SUBMENU,
+    DISH_POST_PAYLOAD, MENU_POST_PAYLOAD, SUBMENU_POST_PAYLOAD,
+)
 
-# pytest_plugins = ['app.repository.generic_db_repo.tests.conftest']
+pytest_plugins = [
+    # 'packages.generic_db_repo.tests.fixture.data'
+    # 'packages.generic_db_repo.tests.fixture.fixtures'
+]
 
 pytest_mark_anyio = pytest.mark.asyncio
 # pytest_mark_anyio = pytest.mark.anyio
@@ -35,7 +40,7 @@ TestingSessionLocal = async_sessionmaker(expire_on_commit=False,
 
 
 async def override_get_async_session() -> Generator[Any, Any, None]:
-    async with TestingSessionLocal() as session:
+    async with test_session() as session:
         yield session
 
 app.dependency_overrides[get_async_session] = override_get_async_session
@@ -61,7 +66,7 @@ async def async_client() -> AsyncGenerator[AsyncClient, Any]:
 
 @pytest_asyncio.fixture
 async def menu(async_client: AsyncClient) -> Response:
-    menu = await async_client.post(d.ENDPOINT_MENU, json=d.MENU_POST_PAYLOAD)
+    menu = await async_client.post(ENDPOINT_MENU, json=MENU_POST_PAYLOAD)
     assert menu.status_code == 201, (menu.headers, menu.content)
     yield menu
 
@@ -69,7 +74,7 @@ async def menu(async_client: AsyncClient) -> Response:
 @pytest_asyncio.fixture
 async def submenu(async_client: AsyncClient, menu: Response) -> Response:
     assert menu.status_code == 201, (menu.headers, menu.content)
-    submenu = await async_client.post(d.ENDPOINT_SUBMENU, json=d.SUBMENU_POST_PAYLOAD)
+    submenu = await async_client.post(ENDPOINT_SUBMENU, json=SUBMENU_POST_PAYLOAD)
     assert submenu.status_code == 201, (submenu.headers, submenu.content)
     yield submenu
 
@@ -77,7 +82,7 @@ async def submenu(async_client: AsyncClient, menu: Response) -> Response:
 @pytest_asyncio.fixture
 async def dish(async_client: AsyncClient, submenu: Response) -> Response:
     assert submenu.status_code == 201, (submenu.headers, submenu.content)
-    dish = await async_client.post(d.ENDPOINT_DISH, json=d.DISH_POST_PAYLOAD)
+    dish = await async_client.post(ENDPOINT_DISH, json=DISH_POST_PAYLOAD)
     assert dish.status_code == 201, (dish.headers, dish.content)
     yield dish
 

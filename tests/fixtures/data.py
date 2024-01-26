@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+# from pydantic import BaseModel
+# from packages.generic_db_repo.tests.fixture.data import Model, SchemaCreate  # noqa
 
-# from tests.conftest import Base
-
+'''
 
 # class Model(Base):
 #    pass
@@ -10,7 +10,7 @@ from pydantic import BaseModel
 class Schema(BaseModel):
     title: str
     description: str
-
+'''
 
 # Endpoints
 ID = 1
