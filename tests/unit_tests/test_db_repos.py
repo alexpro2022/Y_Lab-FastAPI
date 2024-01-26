@@ -1,9 +1,5 @@
-from app.repositories.db_repository import (
-    CRUDRepository,
-    DishRepository,
-    MenuRepository,
-    SubmenuRepository,
-)
+from app.repositories.db_repository import (CRUDRepository, DishRepository,
+                                            MenuRepository, SubmenuRepository)
 from tests import conftest as c
 
 
@@ -14,7 +10,7 @@ class TestCRUDRepository:
         assert CRUDRepository.is_update_allowed_not_in_use
 
 
-def generic_test_repo(_self, repo: CRUDRepository, session: c.AsyncSession, model: c.Model) -> None:
+def generic_test_repo(_self, repo, session, model) -> None:
     repo = repo(session)
     assert isinstance(repo, CRUDRepository)
     assert repo.model == model, (repo.model, model)

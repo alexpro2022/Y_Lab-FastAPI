@@ -1,4 +1,4 @@
-from typing import Any, AsyncGenerator, Generator
+from typing import Any, AsyncGenerator
 
 import pytest
 import pytest_asyncio
@@ -9,21 +9,23 @@ from sqlalchemy.ext.asyncio import AsyncSession  # noqa
 from app.core import settings  # noqa
 from app.main import app
 from app.models import Dish, Menu, Submenu  # noqa
-from app.repositories.db_repository import DishRepository, MenuRepository, SubmenuRepository  # noqa
+from app.repositories.db_repository import DishRepository  # noqa
+from app.repositories.db_repository import MenuRepository  # noqa
+from app.repositories.db_repository import SubmenuRepository  # noqa
 from app.schemas.schemas import MenuIn, MenuOut  # noqa
 from packages.generic_db_repo.base import Base  # noqa
 from packages.generic_db_repo.dependencies import get_async_session
 from packages.generic_db_repo.tests.fixture.data import Model  # noqa
-from packages.generic_db_repo.tests.fixture.fixtures import get_test_session, test_session  # noqa
-from .fixtures.data import (
-    ENDPOINT_DISH, ENDPOINT_MENU, ENDPOINT_SUBMENU,
-    DISH_POST_PAYLOAD, MENU_POST_PAYLOAD, SUBMENU_POST_PAYLOAD,
-)
+from packages.generic_db_repo.tests.fixture.fixtures import (  # noqa
+    get_test_session, test_session)
 
-pytest_plugins = [
-    # 'packages.generic_db_repo.tests.fixture.data'
-    # 'packages.generic_db_repo.tests.fixture.fixtures'
-]
+from .fixtures.data import (DISH_POST_PAYLOAD, ENDPOINT_DISH, ENDPOINT_MENU,
+                            ENDPOINT_SUBMENU, MENU_POST_PAYLOAD,
+                            SUBMENU_POST_PAYLOAD)
+
+# pytest_plugins = [
+# 'packages.generic_db_repo.tests.fixture.data'
+# 'packages.generic_db_repo.tests.fixture.fixtures']
 
 pytest_mark_anyio = pytest.mark.asyncio
 # pytest_mark_anyio = pytest.mark.anyio
@@ -39,7 +41,7 @@ TestingSessionLocal = async_sessionmaker(expire_on_commit=False,
 '''
 
 
-async def override_get_async_session() -> Generator[Any, Any, None]:
+async def override_get_async_session() -> AsyncGenerator[Any, None]:
     async with test_session() as session:
         yield session
 
@@ -119,16 +121,22 @@ async def get_test_redis() -> AsyncGenerator[FakeRedis, Any]:
 
 
 @pytest_asyncio.fixture
-async def get_menu_service(get_test_session: AsyncSession, get_test_redis: FakeRedis) -> Generator[MenuService, Any, None]:
+async def get_menu_service(
+    get_test_session: AsyncSession, get_test_redis: FakeRedis
+) -> Generator[MenuService, Any, None]:
     yield MenuService(get_test_session, get_test_redis, None)
 
 
 @pytest_asyncio.fixture
-async def get_submenu_service(get_test_session: AsyncSession, get_test_redis: FakeRedis) -> Generator[SubmenuService, Any, None]:
+async def get_submenu_service(
+    get_test_session: AsyncSession, get_test_redis: FakeRedis
+) -> Generator[SubmenuService, Any, None]:
     yield SubmenuService(get_test_session, get_test_redis, None)
 
 
 @pytest_asyncio.fixture
-async def get_dish_service(get_test_session: AsyncSession, get_test_redis: FakeRedis) -> Generator[DishService, Any, None]:
+async def get_dish_service(
+    get_test_session: AsyncSession, get_test_redis: FakeRedis
+) -> Generator[DishService, Any, None]:
     yield DishService(get_test_session, get_test_redis, None)
 '''

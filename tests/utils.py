@@ -1,11 +1,10 @@
 import typing
 
 from deepdiff import DeepDiff
-from fastapi import status
 
+from packages.endpoint_testing_lib.utils import DONE
 from tests import conftest as c
 from tests.fixtures import data as d
-from packages.endpoint_testing_lib.utils import DONE
 
 
 def _check_response(response_json: dict | list, expected_result: dict | list[dict]) -> str:
@@ -87,7 +86,7 @@ def get_crud(endpoint, *,
 
 
 def compare(left: c.Base, right: c.Base) -> None:
-    def _get_attrs(item) -> tuple[str]:
+    def _get_attrs(item) -> dict[str, typing.Any]:
         assert item
         item_attrs = vars(item)  # .__dict__
         try:
@@ -95,6 +94,7 @@ def compare(left: c.Base, right: c.Base) -> None:
         except KeyError:
             pass
         return item_attrs
+
     diff = DeepDiff(_get_attrs(left), _get_attrs(right), ignore_order=True)
     assert not diff, diff
 
@@ -108,6 +108,7 @@ def compare_lists(left: list[c.Base], right: list[c.Base]) -> None:
         compare(left[i], right[i])
 
 
+'''
 def check_exception_info(exc_info, expected_msg: str, expected_error_code: int | None = None) -> None:
     if expected_error_code is None:
         assert exc_info.value.args[0] == expected_msg
@@ -120,12 +121,13 @@ def check_exception_info_not_found(exc_info, msg_not_found: str) -> None:
     check_exception_info(exc_info, msg_not_found, status.HTTP_404_NOT_FOUND)
 
 
-class CRUD(c.CRUDBaseRepository):
 
-    def is_update_allowed(self, obj: d.Model | None, payload: dict | None) -> None:
+class CRUD():
+
+    def is_update_allowed(self, obj: c.Model | None, payload: dict | None) -> None:
         pass
 
-    def is_delete_allowed(self, obj: d.Model | None) -> None:
+    def is_delete_allowed(self, obj: c.Model | None) -> None:
         pass
 
     def perform_create(self, create_data: dict, extra_data: typing.Any | None = None) -> None:
@@ -136,3 +138,4 @@ class CRUD(c.CRUDBaseRepository):
         for key, value in update_data.items():
             setattr(obj, key, value)
         return obj
+'''
