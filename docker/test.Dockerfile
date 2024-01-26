@@ -7,4 +7,4 @@ COPY requirements/test.requirements.txt .
 RUN python -m pip install --upgrade pip && \
     pip install -r test.requirements.txt --no-cache-dir
 COPY . .
-CMD python -m flake8 && pytest --cov --cov-config=.coveragerc
+# CMD python -m flake8 && pytest --cov --cov-config=.coveragerc

@@ -1,11 +1,12 @@
 from datetime import datetime as dt
+from uuid import uuid4
 
 import pytest
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .conftest import CRUDBaseRepository, pytest_mark_anyio
-from .fixture.data import CRUD, Data, Model
+from ..generic_db_repository import CRUDBaseRepository, pkType
+from .conftest import CRUD, Data, Model, pytest_mark_anyio
 from .utils import get_regex, get_regex_not_found
 
 
@@ -20,6 +21,7 @@ class TestCRUDBaseRepository(Data):
         self.crud_base_not_implemented: CRUDBaseRepository = CRUDBaseRepository(self.model, get_test_session)
         # base crud with bypassed hooks
         self.crud_base_implemented: CRUD = CRUD(self.model, get_test_session)
+        self.id_not_found: pkType = 111 if isinstance(self.model.id, int) else uuid4()
 
     def test_init_fixture(self):
         assert isinstance(self.crud_base_not_implemented, CRUDBaseRepository)
@@ -59,13 +61,13 @@ class TestCRUDBaseRepository(Data):
     async def test_get_by_attrs_methods(self, method_name: str) -> None:
         title = self.create_payload['title']
         method = self.crud_base_not_implemented.__getattribute__(method_name)
-        # returns None if NOT_FOUND and exception=False by default
+        # testing return None if NOT_FOUND and exception=False by default
         assert await method(title=title) is None
-        # raises HTTPException if NOT_FOUND and exception=True
+        # testing raise HTTPException if NOT_FOUND and exception=True
         with pytest.raises(HTTPException, match=get_regex_not_found(self.msg_not_found)):
             await method(title=title, exception=True)
-        # returns list of objects or object if FOUND
         await self._create_object()
+        # testing return list of objects or object if FOUND
         result = await method(title=title)
         obj = result[0] if method_name == '_get_all_by_attrs' else result
         self._check_obj(obj)
@@ -74,36 +76,44 @@ class TestCRUDBaseRepository(Data):
     async def test_get_method(self) -> None:
         """`get` should return None or object."""
         method = self.crud_base_not_implemented.get
-        assert await method(1) is None
-        await self._create_object()
-        self._check_obj(await method(1))
+        # testing return None
+        assert await method(self.id_not_found) is None
+        obj = await self._create_object()
+        # testing return object
+        self._check_obj(await method(pk=obj.id))
 
     @pytest_mark_anyio
     async def test_get_or_404_method(self) -> None:
         """`get_or_404` should raise `HTTP_404_NOT_FOUND` or return object."""
         method = self.crud_base_not_implemented.get_or_404
+        # testing raise HTTP_404_NOT_FOUND
         with pytest.raises(HTTPException, match=get_regex_not_found(self.msg_not_found)):
-            await method(1)
-        await self._create_object()
-        obj = await method(1)
-        self._check_obj(obj)
+            await method(self.id_not_found)
+        obj = await self._create_object()
+        # testing return object
+        self._check_obj(await method(pk=obj.id))
 
     @pytest_mark_anyio
     async def test_get_all_method(self) -> None:
         """`get_all` should raise `HTTP_404_NOT_FOUND` or return "None or object."""
         method = self.crud_base_not_implemented.get_all
+        # testing return None
         assert await method() is None
+        # testing raise HTTP_404_NOT_FOUND
         with pytest.raises(HTTPException, match=get_regex_not_found(self.msg_not_found)):
             await method(exception=True)
         await self._create_object()
+        # testing return list of objects
         objs = await method()
         assert isinstance(objs, list)
         self._check_obj(objs[0])
 
-    create_update_params: tuple[str, tuple[dict, dict]] = ('kwargs', ({}, {'optional_field': dt.now()}))
+    # create_update_params: tuple[str, tuple[dict, dict]] = ('kwargs', ({}, {'optional_field': dt.now()}))
+    parametrize = pytest.mark.parametrize('kwargs', ({}, {'optional_field': dt.now()}))
 
     @pytest_mark_anyio
-    @pytest.mark.parametrize(*create_update_params)
+    @parametrize
+    # pytest.mark.parametrize(*create_update_params)
     async def test_create_method(self, kwargs) -> None:
         crud = self.crud_base_not_implemented
         assert await self._db_empty()
@@ -114,7 +124,8 @@ class TestCRUDBaseRepository(Data):
         assert created.optional_field if kwargs else created.optional_field is None
 
     @pytest_mark_anyio
-    @pytest.mark.parametrize(*create_update_params)
+    @parametrize
+    # pytest.mark.parametrize(*create_update_params)
     async def test_update_method(self, kwargs) -> None:
         crud = self.crud_base_implemented
         obj = await self._create_object()
@@ -175,9 +186,14 @@ class TestCRUDBaseRepository(Data):
         self, method_name, exc_type, expected_msg, func=None, user=None, not_found=False
     ) -> None:
         method = self.crud_base_not_implemented.__getattribute__(method_name)
-        args = (1,) if method_name == 'delete' else (1, self.update_schema(**self.update_payload))
+        idx = self.id_not_found
         if func is not None:
-            await func()
+            obj = await func()
+            idx = obj.id
+        args = (
+            (idx,) if method_name == 'delete'
+            else (idx, self.update_schema(**self.update_payload))
+        )
         regex = get_regex_not_found(self.msg_not_found) if not_found else get_regex(expected_msg)
         with pytest.raises(exc_type, match=regex):
             await method(*args, user=user)

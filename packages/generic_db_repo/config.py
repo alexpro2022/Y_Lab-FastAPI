@@ -1,6 +1,6 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-DEFAULT_DB_URL = 'sqlite+aiosqlite:///./fastapi.db'
+DEFAULT_DB_URL = 'postgresql+asyncpg://postgres:postgres@db:5432/postgres'
 
 
 class Settings(BaseSettings):

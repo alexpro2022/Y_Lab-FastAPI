@@ -1,19 +1,23 @@
+import uuid
 from datetime import datetime as dt
 
 from pydantic import BaseModel
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
+from ...base import Base
 from ...generic_db_repository import CRUDBaseRepository
 
 
-class BaseTest(DeclarativeBase):
-    pass
+class BaseTest(Base):
+    __abstract__ = True
 
 
 class Model(BaseTest):
-    __tablename__ = 'model'
+    # __tablename__ = 'model'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    # id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(unique=True)
     description: Mapped[str]
     optional_field: Mapped[dt | None]

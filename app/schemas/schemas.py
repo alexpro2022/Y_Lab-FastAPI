@@ -1,9 +1,7 @@
+import uuid
 from decimal import Decimal
-from typing import Generic
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
-
-from app.models.models import uuid_str
 
 # constants for examples
 TITLE = 'My menu/submenu/dish #1'
@@ -11,8 +9,8 @@ DESCRIPTION = 'My menu/submenu/dish description #1'
 PRICE = '12.50'
 
 
-class IdMixin(BaseModel, Generic[uuid_str]):
-    id: uuid_str
+class IdMixin(BaseModel):
+    id: uuid.UUID
     model_config = ConfigDict(arbitrary_types_allowed=True,
                               from_attributes=True)
 

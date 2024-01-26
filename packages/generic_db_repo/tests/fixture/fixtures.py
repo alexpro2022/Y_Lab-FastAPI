@@ -1,15 +1,15 @@
-from contextlib import asynccontextmanager
+# from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.pool import NullPool
 
 from .data import BaseTest
 
-TEST_DB_URL = 'sqlite+aiosqlite:///./test.db'
+TEST_DB_URL = 'postgresql+asyncpg://postgres:test_password@test_db:5432'
 
-test_engine = create_async_engine(TEST_DB_URL,
-                                  connect_args={'check_same_thread': False})
+test_engine = create_async_engine(TEST_DB_URL, poolclass=NullPool)
 TestingSessionLocal = async_sessionmaker(test_engine,
                                          expire_on_commit=False,
                                          autocommit=False,
@@ -25,7 +25,7 @@ async def init_db() -> AsyncGenerator[None, Any]:
         await conn.run_sync(BaseTest.metadata.drop_all)
 
 
-@asynccontextmanager
+# @asynccontextmanager
 async def test_session() -> AsyncGenerator[None, Any]:
     async with TestingSessionLocal() as session:
         yield session
@@ -33,5 +33,10 @@ async def test_session() -> AsyncGenerator[None, Any]:
 
 @pytest_asyncio.fixture
 async def get_test_session() -> AsyncGenerator[None, Any]:
-    async with test_session() as session:
-        yield session
+    agen = test_session()
+    async_session = await anext(agen)
+    yield async_session
+    # async for session in test_session():
+    #    yield session
+    # async with test_session() as session:
+    # yield session

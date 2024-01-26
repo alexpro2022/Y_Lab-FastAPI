@@ -13,12 +13,7 @@ from app.repositories.db_repository import DishRepository  # noqa
 from app.repositories.db_repository import MenuRepository  # noqa
 from app.repositories.db_repository import SubmenuRepository  # noqa
 from app.schemas.schemas import MenuIn, MenuOut  # noqa
-from packages.generic_db_repo.base import Base  # noqa
-from packages.generic_db_repo.dependencies import get_async_session
-from packages.generic_db_repo.tests.fixture.data import Model  # noqa
-from packages.generic_db_repo.tests.fixture.fixtures import (  # noqa
-    get_test_session, test_session)
-
+from packages.generic_db_repo.tests.conftest import *  # noqa
 from .fixtures.data import (DISH_POST_PAYLOAD, ENDPOINT_DISH, ENDPOINT_MENU,
                             ENDPOINT_SUBMENU, MENU_POST_PAYLOAD,
                             SUBMENU_POST_PAYLOAD)
@@ -67,12 +62,19 @@ async def async_client() -> AsyncGenerator[AsyncClient, Any]:
 
 
 @pytest_asyncio.fixture
-async def menu(async_client: AsyncClient) -> Response:
-    menu = await async_client.post(ENDPOINT_MENU, json=MENU_POST_PAYLOAD)
-    assert menu.status_code == 201, (menu.headers, menu.content)
-    yield menu
+async def get_menu_repo(get_test_session) -> AsyncGenerator[MenuRepository, Any]:  # noqa
+    yield MenuRepository(get_test_session)
 
 
+@pytest_asyncio.fixture
+async def menu(get_menu_repo: MenuRepository):  # ): async_client: AsyncClient
+    created = await get_menu_repo.create(MenuIn(**MENU_POST_PAYLOAD))
+    yield created
+    # menu = await async_client.post(ENDPOINT_MENU, json=MENU_POST_PAYLOAD)
+    # assert menu.status_code == 201, (menu.headers, menu.content)
+    # yield menu
+
+'''
 @pytest_asyncio.fixture
 async def submenu(async_client: AsyncClient, menu: Response) -> Response:
     assert menu.status_code == 201, (menu.headers, menu.content)
@@ -87,7 +89,7 @@ async def dish(async_client: AsyncClient, submenu: Response) -> Response:
     dish = await async_client.post(ENDPOINT_DISH, json=DISH_POST_PAYLOAD)
     assert dish.status_code == 201, (dish.headers, dish.content)
     yield dish
-
+'''
 
 # --- Fixtures for repository testing -----------------------------------------------
 '''@pytest_asyncio.fixture
@@ -97,9 +99,7 @@ async def get_test_session() -> Generator[Any, Any, None]:
 '''
 
 '''
-@pytest_asyncio.fixture
-async def get_menu_repo(get_test_session: AsyncSession) -> Generator[MenuRepository, Any, None]:
-    yield MenuRepository(get_test_session)
+
 
 
 @pytest_asyncio.fixture

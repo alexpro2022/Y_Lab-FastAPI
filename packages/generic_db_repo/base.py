@@ -1,6 +1,3 @@
-from typing import TypeVar
-
-from pydantic import BaseModel
 from sqlalchemy import MetaData
 from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
                             mapped_column)
@@ -23,8 +20,3 @@ class Base(DeclarativeBase):
 
     def __repr__(self) -> str:
         return f'\nid: {self.id}'
-
-
-ModelType = TypeVar('ModelType', bound=Base)
-CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
-UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)

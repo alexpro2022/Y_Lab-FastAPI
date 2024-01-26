@@ -132,7 +132,7 @@ nano .env
 <br>
 
 ## Запуск тестов:
-
+<!--
 Из корневой директории проекта выполните команду:
 ```bash
 docker build -f docker/test.Dockerfile -t restaurant_menu_tests .
@@ -140,6 +140,14 @@ docker run --name tests restaurant_menu_tests
 docker container rm tests
 docker rmi restaurant_menu_tests
 ```
+-->
+
+Из корневой директории проекта выполните команду запуска тестов:
+```bash
+docker compose -f docker/test.docker-compose.yml up --build --abort-on-container-exit && \
+docker compose -f docker/test.docker-compose.yml down -v
+```
+После прохождения тестов в консоль будет выведен отчет pytest и coverage.
 
 [⬆️Оглавление](#оглавление)
 

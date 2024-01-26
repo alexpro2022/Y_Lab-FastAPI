@@ -1,10 +1,18 @@
-from typing import Any, Generic
+from typing import Any, Generic, TypeAlias, TypeVar
+from uuid import UUID
 
 from fastapi import HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy import exc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base import CreateSchemaType, ModelType, UpdateSchemaType
+from .base import Base
+
+ModelType = TypeVar('ModelType', bound=Base)
+CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
+UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
+
+pkType: TypeAlias = int | str | UUID
 
 
 class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
@@ -62,10 +70,10 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
             raise HTTPException(status.HTTP_404_NOT_FOUND, self.msg_not_found)
         return object  # type: ignore
 
-    async def get(self, pk: int | str) -> ModelType | None:
+    async def get(self, pk: pkType) -> ModelType | None:
         return await self._get_by_attrs(id=pk)
 
-    async def get_or_404(self, pk: int | str) -> ModelType:
+    async def get_or_404(self, pk: pkType) -> ModelType:
         return await self._get_by_attrs(id=pk, exception=True)  # type: ignore
 
     async def get_all(self, exception: bool = False) -> list[ModelType] | None:
@@ -91,7 +99,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
             create_data.update(kwargs)
         return await self._save(self.model(**create_data))
 
-    async def update(self, pk: int | str, payload: UpdateSchemaType, user: Any | None = None, **kwargs) -> ModelType:
+    async def update(self, pk: pkType, payload: UpdateSchemaType, user: Any | None = None, **kwargs) -> ModelType:
         """Creates an object with payload data, kwargs for optional fields like `updated_at` etc."""
         obj = await self.get_or_404(pk)
         if user is not None:
@@ -106,7 +114,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
             setattr(obj, key, value)
         return await self._save(obj)
 
-    async def delete(self, pk: int | str, user: Any | None = None) -> ModelType:
+    async def delete(self, pk: pkType, user: Any | None = None) -> ModelType:
         obj = await self.get_or_404(pk)
         if user is not None:
             self.has_permission(obj, user)
