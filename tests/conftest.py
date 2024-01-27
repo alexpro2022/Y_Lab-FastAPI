@@ -4,11 +4,12 @@ import pytest
 
 from app.main import app
 from packages.generic_db_repo.dependencies import get_async_session
-from packages.generic_db_repo.tests.fixture.fixtures import test_session
+from tests.fixtures.fixtures import *  # noqa
 
-pytest_plugins = [
-    'tests.fixtures.fixtures',
-]
+# 2-times slower with pytest_plugin vs import *  !!!
+# pytest_plugins = [
+#    'tests.fixtures.fixtures',
+# ]
 
 pytest_mark_anyio = pytest.mark.asyncio
 # pytest_mark_anyio = pytest.mark.anyio
