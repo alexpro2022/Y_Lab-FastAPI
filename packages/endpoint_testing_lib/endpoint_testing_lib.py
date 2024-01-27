@@ -1,14 +1,16 @@
-"""
-Тесты для проверки эндпойнтов.
-Реализованы стандартные проверки статус кодов, сообщений и ответных данных
-при валидных и не валидных значениях в именах эндпойнтов, параметров пути и
-в ключах словарей параметров запроса, тела запроса и данных формы(data).
-Проверку валидных и не валидных значений этих словарей необходимо реализовывать отдельно.
-"""
-
 from typing import Callable
 
 from .utils import *
+
+
+async def not_allowed_methods_test(
+    client: AsyncClient,
+    not_allowed_methods: tuple[str, ...],
+    endpoint: str,
+    path_param: int | str | None = None,
+) -> None:
+    for method in not_allowed_methods:
+        await assert_response(HTTPStatus.METHOD_NOT_ALLOWED, client, method, endpoint, path_param=path_param)
 
 
 async def standard_tests(
@@ -24,7 +26,7 @@ async def standard_tests(
     data: dict[str, str] | None = None,
     check_data: bool = False,
     headers: dict | None = None,
-    func_check_valid_response: Callable = dummy_func,  # | None = None,
+    func_check_valid_response: Callable = dummy_func,
     msg_already_exists: str | None = None,
     msg_not_found: str | None = None,
 ) -> None:
@@ -51,6 +53,7 @@ async def standard_tests(
             params=params, json=json, data=data, headers=headers)
         assert_msg(r, msg_not_found)
 
+'''
     # invalid_endpoint_test -----------------------------------------------------------------------------------
     for invalid_endpoint in get_invalid(endpoint):
         await assert_response(
@@ -85,13 +88,4 @@ async def standard_tests(
             await assert_response(
                 HTTPStatus.UNPROCESSABLE_ENTITY, client, method, endpoint, path_param=path_param,
                 params=params, json=json, data=invalid_data_keys, headers=headers)  # type: ignore [arg-type]
-
-
-async def not_allowed_methods_test(
-    client: AsyncClient,
-    not_allowed_methods: tuple[str, ...],
-    endpoint: str,
-    path_param: int | str | None = None,
-) -> None:
-    for method in not_allowed_methods:
-        await assert_response(HTTPStatus.METHOD_NOT_ALLOWED, client, method, endpoint, path_param=path_param)
+'''

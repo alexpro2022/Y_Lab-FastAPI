@@ -1,15 +1,22 @@
 import typing
+from uuid import UUID
 
 from deepdiff import DeepDiff
-
-from app.repositories.db_repository import (DishRepository, MenuRepository,
-                                            SubmenuRepository)
+from app.repositories.db_repository import (Dish, DishRepository,
+                                            MenuRepository, SubmenuRepository)
 from packages.endpoint_testing_lib.utils import DONE
 from packages.generic_db_repo.base import Base
 from tests.fixtures import data as d
 
 
 def _check_response(response_json: dict | list, expected_result: dict | list[dict]) -> str:
+    item = response_json[0] if isinstance(response_json, list) else response_json
+    try:
+        UUID(str(item.pop('id')))
+    except ValueError:
+        raise AssertionError('Primary key is not uuid type')
+    except KeyError:
+        pass
     assert response_json == expected_result
     return DONE
 
@@ -70,17 +77,28 @@ def check_dish_deleted(response_json: dict) -> str:
     return _check_response(response_json, d.DELETED_DISH)
 
 
-def get_crud(endpoint, *,
-             menu_repo: MenuRepository,
-             submenu_repo: SubmenuRepository,
-             dish_repo: DishRepository
-             ) -> MenuRepository | SubmenuRepository | DishRepository:
+async def prepare(
+    endpoint: str,
+    *,
+    dish: Dish,
+    menu_repo: MenuRepository,
+    submenu_repo: SubmenuRepository,
+    dish_repo: DishRepository
+) -> tuple:
+    submenu = await submenu_repo.get_or_404(pk=dish.submenu_id)
+    menu = await menu_repo.get_or_404(pk=submenu.menu_id)
     res = endpoint.split('/')
     if 'dishes' in res:
-        return dish_repo
+        return dish_repo, dish, submenu
     elif 'submenus' in res:
-        return submenu_repo
-    return menu_repo
+        return submenu_repo, submenu, menu
+    return menu_repo, menu, None
+
+
+def get_endpoint(base_endpoint, parent) -> str:
+    if parent is not None:
+        base_endpoint = base_endpoint.format(id=parent.id)
+    return base_endpoint
 
 
 def compare(left: Base, right: Base) -> None:

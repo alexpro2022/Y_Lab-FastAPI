@@ -11,13 +11,16 @@ class Schema(BaseModel):
     title: str
     description: str
 '''
+from uuid import uuid4
 
 # Endpoints
-ID = 1
+ID = uuid4()
 PREFIX = '/api/v1/'
 ENDPOINT_MENU = f'{PREFIX}menus'
-ENDPOINT_SUBMENU = f'{ENDPOINT_MENU}/{ID}/submenus'
-ENDPOINT_DISH = f'{ENDPOINT_SUBMENU}/{ID}/dishes'
+ENDPOINT_SUBMENU = ENDPOINT_MENU + '/{id}/submenus'
+ENDPOINT_SUBMENU_DEFAULT = ENDPOINT_SUBMENU.format(id=ID)
+ENDPOINT_DISH = ENDPOINT_SUBMENU_DEFAULT + '/{id}/dishes'
+ENDPOINT_DISH_DEFAULT = ENDPOINT_DISH.format(id=ID)
 
 # Messages
 MENU_NOT_FOUND_MSG = 'menu not found'
@@ -37,18 +40,15 @@ MENU_POST_PAYLOAD = {'title': 'My menu 1',
                      'description': 'My menu description 1'}
 MENU_PATCH_PAYLOAD = {'title': 'My updated menu 1',
                       'description': 'My updated menu description 1'}
-CREATED_MENU = {'id': '1',
-                'title': 'My menu 1',
+CREATED_MENU = {'title': 'My menu 1',
                 'description': 'My menu description 1',
                 'submenus_count': 0,
                 'dishes_count': 0}
-EXPECTED_MENU = {'id': '1',
-                 'title': 'My menu 1',
+EXPECTED_MENU = {'title': 'My menu 1',
                  'description': 'My menu description 1',
                  'submenus_count': 1,
                  'dishes_count': 1}
-UPDATED_MENU = {'id': '1',
-                'title': 'My updated menu 1',
+UPDATED_MENU = {'title': 'My updated menu 1',
                 'description': 'My updated menu description 1',
                 'submenus_count': 1,
                 'dishes_count': 1}
@@ -59,16 +59,13 @@ SUBMENU_POST_PAYLOAD = {'title': 'My submenu 1',
                         'description': 'My submenu description 1'}
 SUBMENU_PATCH_PAYLOAD = {'title': 'My updated submenu 1',
                          'description': 'My updated submenu description 1'}
-CREATED_SUBMENU = {'id': '1',
-                   'title': 'My submenu 1',
+CREATED_SUBMENU = {'title': 'My submenu 1',
                    'description': 'My submenu description 1',
                    'dishes_count': 0}
-EXPECTED_SUBMENU = {'id': '1',
-                    'title': 'My submenu 1',
+EXPECTED_SUBMENU = {'title': 'My submenu 1',
                     'description': 'My submenu description 1',
                     'dishes_count': 1}
-UPDATED_SUBMENU = {'id': '1',
-                   'title': 'My updated submenu 1',
+UPDATED_SUBMENU = {'title': 'My updated submenu 1',
                    'description': 'My updated submenu description 1',
                    'dishes_count': 1}
 DELETED_SUBMENU = {'status': True, 'message': 'The submenu has been deleted'}
@@ -79,13 +76,11 @@ DISH_POST_PAYLOAD = {'title': 'My dish 1',
                      'price': '12.50'}
 DISH_PATCH_PAYLOAD = {'title': 'My updated dish 1',
                       'description': 'My updated dish description 1',
-                      'price': '14.5'}
-CREATED_DISH = {'id': '1',
-                'title': 'My dish 1',
+                      'price': '14.5000'}
+CREATED_DISH = {'title': 'My dish 1',
                 'description': 'My dish description 1',
-                'price': '12.5'}
-UPDATED_DISH = {'id': '1',
-                'title': 'My updated dish 1',
+                'price': '12.50'}
+UPDATED_DISH = {'title': 'My updated dish 1',
                 'description': 'My updated dish description 1',
-                'price': '14.5'}
+                'price': '14.50'}
 DELETED_DISH = {'status': True, 'message': 'The dish has been deleted'}

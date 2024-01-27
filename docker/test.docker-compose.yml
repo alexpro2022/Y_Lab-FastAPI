@@ -2,7 +2,8 @@ services:
 
   test_db:
     container_name: postgres
-    image: postgres:latest
+    image: postgres:15.1-alpine
+    # image: postgres:latest
     environment:
       - POSTGRES_PASSWORD=test_password
     volumes:
