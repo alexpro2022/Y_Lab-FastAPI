@@ -2,8 +2,10 @@ import typing
 
 from deepdiff import DeepDiff
 
+from app.repositories.db_repository import (DishRepository, MenuRepository,
+                                            SubmenuRepository)
 from packages.endpoint_testing_lib.utils import DONE
-from tests import conftest as c
+from packages.generic_db_repo.base import Base
 from tests.fixtures import data as d
 
 
@@ -68,15 +70,11 @@ def check_dish_deleted(response_json: dict) -> str:
     return _check_response(response_json, d.DELETED_DISH)
 
 
-def check_full_list(response_json: dict) -> str:
-    return _check_response(response_json, d.EXPECTED_FULL_LIST)
-
-
 def get_crud(endpoint, *,
-             menu_repo: c.MenuRepository,
-             submenu_repo: c.SubmenuRepository,
-             dish_repo: c.DishRepository
-             ) -> c.MenuRepository | c.SubmenuRepository | c.DishRepository:
+             menu_repo: MenuRepository,
+             submenu_repo: SubmenuRepository,
+             dish_repo: DishRepository
+             ) -> MenuRepository | SubmenuRepository | DishRepository:
     res = endpoint.split('/')
     if 'dishes' in res:
         return dish_repo
@@ -85,7 +83,7 @@ def get_crud(endpoint, *,
     return menu_repo
 
 
-def compare(left: c.Base, right: c.Base) -> None:
+def compare(left: Base, right: Base) -> None:
     def _get_attrs(item) -> dict[str, typing.Any]:
         assert item
         item_attrs = vars(item)  # .__dict__
@@ -99,43 +97,10 @@ def compare(left: c.Base, right: c.Base) -> None:
     assert not diff, diff
 
 
-def compare_lists(left: list[c.Base], right: list[c.Base]) -> None:
+def compare_lists(left: list[Base], right: list[Base]) -> None:
     assert left
     assert right
     size_left = len(left)
     assert size_left == len(right)
     for i in range(size_left):
         compare(left[i], right[i])
-
-
-'''
-def check_exception_info(exc_info, expected_msg: str, expected_error_code: int | None = None) -> None:
-    if expected_error_code is None:
-        assert exc_info.value.args[0] == expected_msg
-    else:
-        for index, item in enumerate((expected_error_code, expected_msg)):
-            assert exc_info.value.args[index] == item, (exc_info.value.args[index], item)
-
-
-def check_exception_info_not_found(exc_info, msg_not_found: str) -> None:
-    check_exception_info(exc_info, msg_not_found, status.HTTP_404_NOT_FOUND)
-
-
-
-class CRUD():
-
-    def is_update_allowed(self, obj: c.Model | None, payload: dict | None) -> None:
-        pass
-
-    def is_delete_allowed(self, obj: c.Model | None) -> None:
-        pass
-
-    def perform_create(self, create_data: dict, extra_data: typing.Any | None = None) -> None:
-        create_data['title'] = extra_data
-
-    def perform_update(self, obj: typing.Any, update_data: dict) -> typing.Any | None:
-        update_data['title'] = 'perform_updated_done'
-        for key, value in update_data.items():
-            setattr(obj, key, value)
-        return obj
-'''

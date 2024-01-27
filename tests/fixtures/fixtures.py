@@ -1,7 +1,3 @@
-
-from typing import Any, AsyncGenerator
-
-import pytest_asyncio
 from httpx import AsyncClient
 
 from app.main import app
@@ -11,8 +7,6 @@ from app.schemas.schemas import DishIn, MenuIn, SubmenuIn
 from packages.generic_db_repo.tests.fixture.fixtures import *  # noqa
 
 from .data import DISH_POST_PAYLOAD, MENU_POST_PAYLOAD, SUBMENU_POST_PAYLOAD
-
-# noqa init_db, get_test_session, test_session)
 
 
 # --- Fixtures for endpoints testing -----------------------------------------------
