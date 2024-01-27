@@ -1,6 +1,8 @@
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import Dish, Menu, Submenu
 from app.repositories.db_repository import (CRUDRepository, DishRepository,
                                             MenuRepository, SubmenuRepository)
-from tests import conftest as c
 
 
 class TestCRUDRepository:
@@ -22,21 +24,21 @@ class TestMenuRepository:
     msg_not_found = 'menu not found'
     msg_already_exists = 'Меню с таким заголовком уже существует.'
 
-    def test_repo(self, get_test_session: c.AsyncSession) -> None:
-        generic_test_repo(self, MenuRepository, get_test_session, c.Menu)
+    def test_repo(self, get_test_session: AsyncSession) -> None:
+        generic_test_repo(self, MenuRepository, get_test_session, Menu)
 
 
 class TestSubmenuRepository:
     msg_not_found = 'submenu not found'
     msg_already_exists = 'Подменю с таким заголовком уже существует.'
 
-    def test_repo(self, get_test_session: c.AsyncSession) -> None:
-        generic_test_repo(self, SubmenuRepository, get_test_session, c.Submenu)
+    def test_repo(self, get_test_session: AsyncSession) -> None:
+        generic_test_repo(self, SubmenuRepository, get_test_session, Submenu)
 
 
 class TestDishRepository:
     msg_not_found = 'dish not found'
     msg_already_exists = 'Блюдо с таким заголовком уже существует.'
 
-    def test_repo(self, get_test_session: c.AsyncSession) -> None:
-        generic_test_repo(self, DishRepository, get_test_session, c.Dish)
+    def test_repo(self, get_test_session: AsyncSession) -> None:
+        generic_test_repo(self, DishRepository, get_test_session, Dish)

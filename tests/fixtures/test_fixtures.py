@@ -1,33 +1,51 @@
 import asyncio
 
-from tests import conftest as c
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models import Dish, Menu, Submenu
+from app.repositories.db_repository import (DishRepository, MenuRepository,
+                                            SubmenuRepository)
 
 
-@c.pytest_mark_anyio
 async def test_provided_loop_is_running_loop(event_loop) -> None:
     assert event_loop is asyncio.get_running_loop()
 
 
-def test_get_test_session(get_test_session: c.AsyncSession) -> None:
-    assert isinstance(get_test_session, c.AsyncSession)
+def test_get_test_session(get_test_session) -> None:
+    assert isinstance(get_test_session, AsyncSession)
 
 
-def test_get_menu_repo(get_menu_repo: c.MenuRepository) -> None:
-    assert isinstance(get_menu_repo, c.MenuRepository)
+def test_menu_repo(menu_repo) -> None:
+    assert isinstance(menu_repo, MenuRepository)
 
 
-# --- Fixtures for endpoints testing -----------------------------------------------
-def test_async_client(async_client: c.AsyncClient) -> None:
-    assert isinstance(async_client, c.AsyncClient)
+def test_submenu_repo(submenu_repo) -> None:
+    assert isinstance(submenu_repo, SubmenuRepository)
+
+
+def test_dish_repo(dish_repo) -> None:
+    assert isinstance(dish_repo, DishRepository)
 
 
 def test_menu(menu) -> None:
-    assert isinstance(menu, c.Menu)
-    # menu.status_code == 201, (menu.headers, menu.content)
+    assert isinstance(menu, Menu)
+
+
+def test_submenu(submenu) -> None:
+    assert isinstance(submenu, Submenu)
+
+
+def test_dish(dish) -> None:
+    assert isinstance(dish, Dish)
+
+
+# --- Fixtures for endpoints testing -----------------------------------------------
+def test_async_client(async_client) -> None:
+    assert isinstance(async_client, AsyncClient)
 
 
 '''
-
 
 
 def test_menu_dynamic(request: c.Request) -> None:
