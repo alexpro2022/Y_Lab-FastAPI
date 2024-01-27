@@ -12,11 +12,11 @@ class TestCRUDRepository:
 
 class GenericRepoTest:
     def test_repo(self, get_test_session) -> None:
-        repo = self.repo(get_test_session)
+        repo = self.repo(get_test_session)  # type: ignore
         assert isinstance(repo, CRUDRepository)
-        assert self.model == repo.model
-        assert self.msg_not_found == repo.msg_not_found
-        assert self.msg_already_exists == repo.msg_already_exists
+        assert self.model == repo.model  # type: ignore
+        assert self.msg_not_found == repo.msg_not_found  # type: ignore
+        assert self.msg_already_exists == repo.msg_already_exists  # type: ignore
 
 
 class TestMenuRepository(GenericRepoTest):
