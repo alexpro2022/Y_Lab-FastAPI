@@ -1,19 +1,18 @@
 from http import HTTPStatus
-from typing import TypeAlias, Callable
+from typing import Callable, TypeAlias
 
 from httpx import AsyncClient
 
 from tests.fixtures import data as d
 from tests.integration_tests.utils import (check_created_menu,
-                                           check_created_submenu,
-                                           check_dish, check_dish_updated)
+                                           check_created_submenu, check_dish,
+                                           check_dish_updated)
 
 Json: TypeAlias = dict[str, str]
 
 
 def _check_obj(response_json: Json, check_func: Callable | None = None) -> None:
-    uuid_id = response_json.get('id')
-    assert uuid_id
+    assert response_json.get('id')  # Response contains 'id' property
     if check_func is not None:
         assert check_func(response_json) == 'DONE'
 
@@ -59,23 +58,24 @@ async def _get(async_client: AsyncClient, endpoint: str) -> Json | list[Json]:
 async def get_menu(async_client: AsyncClient, menu_id: str,
                    submenus_count: int = 0, dishes_count: int = 0) -> None:
     endpoint = f'{d.ENDPOINT_MENU}/{menu_id}'
-    response: Json = await _get(async_client, endpoint)
+    response = await _get(async_client, endpoint)
+    assert isinstance(response, dict)
     assert response['submenus_count'] == submenus_count
     assert response['dishes_count'] == dishes_count
 
 
 async def get_submenu(async_client: AsyncClient,
                       menu_id: str, submenu_id: str,
-                      dishes_count: int) -> None:
+                      dishes_count: int = 0) -> None:
     endpoint = f'{d.ENDPOINT_SUBMENU.format(id=menu_id)}/{submenu_id}'
-    response: Json = await _get(async_client, endpoint)
-    if dishes_count is not None:
-        assert response['dishes_count'] == dishes_count
+    response = await _get(async_client, endpoint)
+    assert isinstance(response, dict)
+    assert response['dishes_count'] == dishes_count
 
 
 # --- LIST ---
 async def _get_all(async_client: AsyncClient, endpoint: str, expected_result: list[Json]) -> None:
-    response: list = await _get(async_client, endpoint)
+    response = await _get(async_client, endpoint)
     assert response == expected_result
 
 
