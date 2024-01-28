@@ -9,11 +9,11 @@ services:
     volumes:
       - /var/lib/postgresql/data/
 
-  tests:
-    container_name: tests
+  test_scenario:
+    container_name: test_scenario
     build:
       context: ..
-      dockerfile: docker/test.Dockerfile
-    command: bash -c "pytest tests -x --cov --cov-config=.coveragerc"
+      dockerfile: docker/test_scenario.Dockerfile
+    command: bash -c "pytest tests/integration_tests/test_scenario.py"
     depends_on:
       - test_db

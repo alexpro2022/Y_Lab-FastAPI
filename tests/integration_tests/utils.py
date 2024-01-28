@@ -123,3 +123,12 @@ def compare_lists(left: list[Base], right: list[Base]) -> None:
     assert size_left == len(right)
     for i in range(size_left):
         compare(left[i], right[i])
+
+
+'''
+def check_objs(objs: list[Base], model: Base, size: int = 1) -> None:
+    assert isinstance(objs, list)
+    assert len(objs) == size
+    for obj in objs:
+        assert isinstance(obj, model)
+'''

@@ -148,6 +148,10 @@ docker compose -f docker/test.docker-compose.yml down -v
 
 Из корневой директории проекта выполните команду:
 ```bash
+docker compose -f docker/test_scenario.docker-compose.yml up --build --abort-on-container-exit && \
+docker compose -f docker/test_scenario.docker-compose.yml down -v
+
+
 docker build -f docker/test_scenario.Dockerfile -t restaurant_menu_test_scenario .
 docker run --name test_scenario restaurant_menu_test_scenario
 docker container rm test_scenario
