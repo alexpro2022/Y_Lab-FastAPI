@@ -86,7 +86,7 @@ async def test_standard(dish: Dish,
                         dish_repo: DishRepository,
                         method: str,
                         endpoint: str,
-                        payload: str,
+                        payload: dict | None,
                         msg_already_exists: str,
                         msg_not_found: str,
                         check_func) -> None:
