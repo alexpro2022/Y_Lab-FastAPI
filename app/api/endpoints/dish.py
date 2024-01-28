@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from app.schemas import schemas
 from app.api.endpoints import utils as u
 from app.core.config import settings
-from app.repository.db_repository import dish_service, submenu_service
+from app.repositories.db_repository import dish_service, submenu_service
+from app.schemas import schemas
 
 router = APIRouter(prefix=f'{settings.URL_PREFIX}menus', tags=['Dishes'])
 

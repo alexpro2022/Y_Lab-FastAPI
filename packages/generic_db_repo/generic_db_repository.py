@@ -1,26 +1,27 @@
-from typing import Any, AsyncGenerator, Generic
+from typing import Any, Generic, TypeAlias, TypeVar
+from uuid import UUID
 
 from fastapi import HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy import exc, select
-from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
-                                    create_async_engine)
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import CreateSchemaType, ModelType, UpdateSchemaType
-from app.core.config import settings
+from .base import Base
 
-engine = create_async_engine(settings.database_url)
-AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
+ModelType = TypeVar('ModelType', bound=Base)
+CreateSchemaType = TypeVar('CreateSchemaType', bound=BaseModel)
+UpdateSchemaType = TypeVar('UpdateSchemaType', bound=BaseModel)
 
-
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as async_session:
-        yield async_session
+pkType: TypeAlias = int | str | UUID
 
 
 class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """Базовый класс для CRUD операций произвольных моделей."""
-    OBJECT_ALREADY_EXISTS = 'Object with such a unique values already exists.'
-    NOT_FOUND = 'Object(s) not found.'
+    msg_already_exists: str = 'Object with such a unique values already exists.'
+    msg_not_found: str = 'Object(s) not found.'
+    is_delete_allowed_not_in_use: bool = False
+    is_update_allowed_not_in_use: bool = False
+    has_permission_not_in_use: bool = False
 
     def __init__(self, model: type[ModelType], session: AsyncSession):
         self.model = model
@@ -33,15 +34,18 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
 # === Hooks ===
     def has_permission(self, obj: ModelType, user) -> None:
         """Check for user permission and raise exception if not allowed."""
-        raise NotImplementedError('has_permission() must be implemented.')
-
-    def is_update_allowed(self, obj: ModelType, payload: dict) -> None:
-        """Check for custom conditions and raise exception if not allowed."""
-        raise NotImplementedError('is_update_allowed() must be implemented.')
+        if not self.has_permission_not_in_use:
+            raise NotImplementedError('has_permission() must be implemented.')
 
     def is_delete_allowed(self, obj: ModelType) -> None:
         """Check for custom conditions and raise exception if not allowed."""
-        raise NotImplementedError('is_delete_allowed() must be implemented.')
+        if not self.is_delete_allowed_not_in_use:
+            raise NotImplementedError('is_delete_allowed() must be implemented.')
+
+    def is_update_allowed(self, obj: ModelType, payload: dict) -> None:
+        """Check for custom conditions and raise exception if not allowed."""
+        if not self.is_update_allowed_not_in_use:
+            raise NotImplementedError('is_update_allowed() must be implemented.')
 
 # === Read ===
     async def __get_by_attributes(self, *, all: bool = False, **kwargs) -> list[ModelType] | ModelType | None:
@@ -55,7 +59,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
         objects = await self.__get_by_attributes(all=True, **kwargs)
         if not objects:
             if exception:
-                raise HTTPException(status.HTTP_404_NOT_FOUND, self.NOT_FOUND)
+                raise HTTPException(status.HTTP_404_NOT_FOUND, self.msg_not_found)
             return None
         return objects
 
@@ -63,13 +67,13 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
         """Raises `NOT_FOUND` exception if no object is found and `exception=True`."""
         object = await self.__get_by_attributes(**kwargs)
         if object is None and exception:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, self.NOT_FOUND)
+            raise HTTPException(status.HTTP_404_NOT_FOUND, self.msg_not_found)
         return object  # type: ignore
 
-    async def get(self, pk: int | str) -> ModelType | None:
+    async def get(self, pk: pkType) -> ModelType | None:
         return await self._get_by_attrs(id=pk)
 
-    async def get_or_404(self, pk: int | str) -> ModelType:
+    async def get_or_404(self, pk: pkType) -> ModelType:
         return await self._get_by_attrs(id=pk, exception=True)  # type: ignore
 
     async def get_all(self, exception: bool = False) -> list[ModelType] | None:
@@ -84,7 +88,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
         except exc.IntegrityError:
             await self.session.rollback()
             raise HTTPException(status.HTTP_400_BAD_REQUEST,
-                                self.OBJECT_ALREADY_EXISTS)
+                                self.msg_already_exists)
         await self.session.refresh(obj)
         return obj
 
@@ -95,7 +99,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
             create_data.update(kwargs)
         return await self._save(self.model(**create_data))
 
-    async def update(self, pk: int | str, payload: UpdateSchemaType, user: Any | None = None, **kwargs) -> ModelType:
+    async def update(self, pk: pkType, payload: UpdateSchemaType, user: Any | None = None, **kwargs) -> ModelType:
         """Creates an object with payload data, kwargs for optional fields like `updated_at` etc."""
         obj = await self.get_or_404(pk)
         if user is not None:
@@ -110,7 +114,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
             setattr(obj, key, value)
         return await self._save(obj)
 
-    async def delete(self, pk: int | str, user: Any | None = None) -> ModelType:
+    async def delete(self, pk: pkType, user: Any | None = None) -> ModelType:
         obj = await self.get_or_404(pk)
         if user is not None:
             self.has_permission(obj, user)

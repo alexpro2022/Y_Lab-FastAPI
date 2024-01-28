@@ -1,6 +1,6 @@
-from uuid import uuid4
+import uuid
 
-from sqlalchemy import UUID, MetaData, String
+from sqlalchemy import UUID, MetaData
 from sqlalchemy.orm import (DeclarativeBase, Mapped, declared_attr,
                             mapped_column)
 
@@ -18,11 +18,8 @@ class Base(DeclarativeBase):
     def __tablename__(cls):
         return cls.__name__.lower()
 
-    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=uuid4)
-    title: Mapped[str] = mapped_column(String(256), unique=True, index=True)
-    description: Mapped[str] = mapped_column(String(2000))
+    # id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
     def __repr__(self) -> str:
-        return (f'\nid: {self.id}'
-                f'\ntitle: {self.title}'
-                f'\ndescription: {self.description}\n')
+        return f'\nid: {self.id}'
