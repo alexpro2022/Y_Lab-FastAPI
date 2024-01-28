@@ -1,14 +1,7 @@
 SECRET_KEY=MY_SECRET_KEY
-
-# DB
-# --- SQLite ---
-# Leave as is if you want to use default DB sqlite+aiosqlite:///./fastapi.db
-
-
 # --- PostgreSQL ---
 POSTGRES_PASSWORD=postgres
-# Uncomment below row for PostgreSQL database usage
-# DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
 
 # DATABASE_URL = dialect+driver://username:password@host:port/database
 #  * dialect — тип базы данных, например, sqlite, mysql, postgresql.
