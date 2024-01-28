@@ -7,4 +7,3 @@ COPY requirements/test.requirements.txt .
 RUN python -m pip install --upgrade pip && \
     pip install -r test.requirements.txt --no-cache-dir
 COPY . .
-# CMD ["pytest", "tests/integration_tests/test_scenario.py"]

@@ -2,8 +2,7 @@ services:
 
   test_db:
     container_name: postgres
-    image: postgres:15.1-alpine
-    # image: postgres:latest
+    image: postgres:latest
     environment:
       - POSTGRES_PASSWORD=test_password
     volumes:
@@ -12,8 +11,8 @@ services:
   tests:
     container_name: tests
     build:
-      context: ..
-      dockerfile: docker/test.Dockerfile
-    command: bash -c "pytest tests -x --cov --cov-config=.coveragerc"
+      context: ../..
+      dockerfile: docker/tests/test.Dockerfile
+    command: bash -c "pytest -x --cov --cov-config=.coveragerc"
     depends_on:
       - test_db

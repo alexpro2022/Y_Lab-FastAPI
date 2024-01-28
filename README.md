@@ -135,8 +135,8 @@ nano .env
 
 Из корневой директории проекта выполните команду запуска тестов:
 ```bash
-docker compose -f docker/test.docker-compose.yml up --build --abort-on-container-exit && \
-docker compose -f docker/test.docker-compose.yml down -v
+docker compose -f docker/tests/test.docker-compose.yml up --build --abort-on-container-exit && \
+docker compose -f docker/tests/test.docker-compose.yml down -v
 ```
 После прохождения тестов в консоль будет выведен отчет pytest и coverage.
 
@@ -148,14 +148,8 @@ docker compose -f docker/test.docker-compose.yml down -v
 
 Из корневой директории проекта выполните команду:
 ```bash
-docker compose -f docker/test_scenario.docker-compose.yml up --build --abort-on-container-exit && \
-docker compose -f docker/test_scenario.docker-compose.yml down -v
-
-
-docker build -f docker/test_scenario.Dockerfile -t restaurant_menu_test_scenario .
-docker run --name test_scenario restaurant_menu_test_scenario
-docker container rm test_scenario
-docker rmi restaurant_menu_test_scenario
+docker compose -f docker/test_scenario/test_scenario.docker-compose.yml up --build --abort-on-container-exit && \
+docker compose -f docker/test_scenario/test_scenario.docker-compose.yml down -v
 ```
 
 [⬆️Оглавление](#оглавление)
@@ -166,7 +160,7 @@ docker rmi restaurant_menu_test_scenario
 
 1. Из корневой директории проекта выполните команду:
 ```bash
-docker compose -f docker/docker-compose.yml up -d --build
+docker compose -f docker/dev/docker-compose.yml up -d --build
 ```
   Проект будет развернут в docker-контейнерах по адресу http://127.0.0.1:8000.
 
@@ -174,11 +168,11 @@ docker compose -f docker/docker-compose.yml up -d --build
 
 2. Остановить docker и удалить контейнеры можно командой из корневой директории проекта:
 ```bash
-docker compose -f docker/docker-compose.yml down
+docker compose -f docker/dev/docker-compose.yml down
 ```
 Если также необходимо удалить том базы данных:
 ```bash
-docker compose -f docker/docker-compose.yml down -v
+docker compose -f docker/dev/docker-compose.yml down -v
 ```
 
 [⬆️Оглавление](#оглавление)

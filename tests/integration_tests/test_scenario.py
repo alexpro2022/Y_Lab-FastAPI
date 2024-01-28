@@ -49,7 +49,7 @@ async def _get(async_client: AsyncClient, endpoint: str) -> Json | list[Json]:
     response = await async_client.get(endpoint)
     assert response.status_code == HTTPStatus.OK
     response_json = response.json()
-    if response_json:
+    if response_json:  # not empty list
         if isinstance(response_json, list):
             response_json = response_json[0]
         _check_obj(response_json)
