@@ -1,0 +1,26 @@
+alembic
+fastapi
+pydantic-settings
+sqlalchemy
+uvicorn[standard]
+
+# tests
+aiosqlite
+asyncpg
+deepdiff
+httpx
+
+factory-boy
+Faker
+fakeredis
+
+flake8
+pep8-naming
+flake8-broken-line
+flake8-return
+flake8-isort
+flake8-async
+
+pytest
+pytest-asyncio
+pytest-cov

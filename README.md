@@ -14,12 +14,39 @@
 <h1></h1>
 </details>
 
+<details><summary>ДЗ №2</summary>
+<h1></h1>
+
+☑ В этом домашнем задании надо написать тесты для ранее разработанных эндпоинтов вашего API после вебинара №1.
+
+☑ Обернуть программные компоненты в контейнеры. Контейнеры должны запускаться по одной команде `docker-compose up -d` или той которая описана вами в `README.md`.
+
+☑ Образы для Docker:
+  - (API) 	python:3.10-slim
+  - (DB) 	postgres:15.1-alpine
+
+☑ Написать CRUD тесты для ранее разработанного API с помощью библиотеки `pytest`.
+
+☑ Подготовить отдельный контейнер для запуска тестов. Команду для запуска указать в `README.md`.
+
+☑ Если FastAPI синхронное - тесты синхронные, если асинхронное - тесты асинхронные.
+
+<!--☐ Реализовать вывод количества подменю  и блюд для Меню через один (сложный) ORM запрос.-->
+
+☑ Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из `Postman` с помощью `pytest`.
+
+<h1></h1>
+</details>
+
+
 <br>
 
 ## Оглавление
 - [Технологии](#технологии)
 - [Описание работы](#описание-работы)
 - [Установка приложения](#установка-приложения)
+- [Запуск тестов](#запуск-тестов)
+- [Запуск тестового сценария](#запуск-тестового-сценария)
 - [Запуск приложения](#запуск-приложения)
 - [Удаление приложения](#удаление-приложения)
 - [Автор](#автор)
@@ -39,6 +66,11 @@
 [![Uvicorn](https://img.shields.io/badge/-Uvicorn-464646?logo=Uvicorn)](https://www.uvicorn.org/)
 [![docker_compose](https://img.shields.io/badge/-Docker%20Compose-464646?logo=docker)](https://docs.docker.com/compose/)
 [![Nginx](https://img.shields.io/badge/-NGINX-464646?logo=NGINX)](https://nginx.org/ru/)
+[![httpx](https://img.shields.io/badge/-httpx-464646?logo=httpx)](https://www.python-httpx.org/)
+[![Pytest](https://img.shields.io/badge/-Pytest-464646?logo=Pytest)](https://docs.pytest.org/en/latest/)
+[![Pytest-asyncio](https://img.shields.io/badge/-Pytest--asyncio-464646?logo=Pytest-asyncio)](https://pypi.org/project/pytest-asyncio/)
+[![pytest-cov](https://img.shields.io/badge/-pytest--cov-464646?logo=codecov)](https://pytest-cov.readthedocs.io/en/latest/)
+
 
 [⬆️Оглавление](#оглавление)
 
@@ -99,23 +131,48 @@ nano .env
 
 <br>
 
+## Запуск тестов:
+
+Из корневой директории проекта выполните команду запуска тестов:
+```bash
+docker compose -f docker/tests/test.docker-compose.yml up --build --abort-on-container-exit && \
+docker compose -f docker/tests/test.docker-compose.yml down -v
+```
+После прохождения тестов в консоль будет выведен отчет pytest и coverage.
+
+[⬆️Оглавление](#оглавление)
+
+<br>
+
+## Запуск тестового сценария
+
+Из корневой директории проекта выполните команду:
+```bash
+docker compose -f docker/test_scenario/test_scenario.docker-compose.yml up --build --abort-on-container-exit && \
+docker compose -f docker/test_scenario/test_scenario.docker-compose.yml down -v
+```
+
+[⬆️Оглавление](#оглавление)
+
+<br>
+
 ## Запуск приложения:
 
 1. Из корневой директории проекта выполните команду:
 ```bash
-docker compose -f docker/docker-compose.yml up -d --build
+docker compose -f docker/dev/docker-compose.yml up -d --build
 ```
   Проект будет развернут в docker-контейнерах по адресу http://127.0.0.1:8000.
 
-  Администрирование приложения может быть осуществлено через Swagger доступный по адресу http://127.0.0.1:8000/docs .
+  Администрирование приложения может быть осуществлено через Swagger доступный по адресу http://127.0.0.1:8000/docs.
 
 2. Остановить docker и удалить контейнеры можно командой из корневой директории проекта:
 ```bash
-docker compose -f docker/docker-compose.yml down
+docker compose -f docker/dev/docker-compose.yml down
 ```
 Если также необходимо удалить том базы данных:
 ```bash
-docker compose -f docker/docker-compose.yml down -v
+docker compose -f docker/dev/docker-compose.yml down -v
 ```
 
 [⬆️Оглавление](#оглавление)

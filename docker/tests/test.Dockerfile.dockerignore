@@ -1,0 +1,10 @@
+*
+!requirements/test.requirements.txt
+!alembic.ini
+!alembic
+!app
+!tests
+tests/integration_tests/test_scenario.py
+!setup.cfg
+!.coveragerc
+!packages
