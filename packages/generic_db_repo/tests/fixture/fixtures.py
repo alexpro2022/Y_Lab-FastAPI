@@ -16,7 +16,7 @@ TestingSessionLocal = async_sessionmaker(test_engine,
                                          autoflush=False)
 
 
-@pytest_asyncio.fixture(autouse=True)
+@pytest_asyncio.fixture  # (autouse=True)
 async def init_db() -> AsyncGenerator[None, Any]:
     async with test_engine.begin() as conn:
         await conn.run_sync(BaseTest.metadata.create_all)
@@ -26,12 +26,12 @@ async def init_db() -> AsyncGenerator[None, Any]:
 
 
 @asynccontextmanager
-async def test_session() -> AsyncGenerator[None, Any]:
+async def testing_session_local() -> AsyncGenerator[None, Any]:
     async with TestingSessionLocal() as session:
         yield session
 
 
 @pytest_asyncio.fixture
 async def get_test_session() -> AsyncGenerator[None, Any]:
-    async with test_session() as session:
+    async with testing_session_local() as session:
         yield session

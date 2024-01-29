@@ -1,5 +1,6 @@
 from httpx import AsyncClient
 import pytest
+
 from app.main import app
 from app.models import Dish, Menu, Submenu
 from app.repositories.db_repository import (DishRepository, MenuRepository,
@@ -32,15 +33,15 @@ def dish_repo(get_test_session) -> DishRepository:
 
 
 @pytest_asyncio.fixture
-async def menu(menu_repo) -> Menu:
+async def menu(init_db, menu_repo) -> Menu:
     return await menu_repo.create(MenuIn(**MENU_POST_PAYLOAD))
 
 
 @pytest_asyncio.fixture
-async def submenu(submenu_repo, menu) -> Submenu:
+async def submenu(menu, submenu_repo) -> Submenu:
     return await submenu_repo.create(SubmenuIn(**SUBMENU_POST_PAYLOAD), menu_id=menu.id)
 
 
 @pytest_asyncio.fixture
-async def dish(dish_repo, submenu) -> Dish:
+async def dish(submenu, dish_repo) -> Dish:
     return await dish_repo.create(DishIn(**DISH_POST_PAYLOAD), submenu_id=submenu.id)

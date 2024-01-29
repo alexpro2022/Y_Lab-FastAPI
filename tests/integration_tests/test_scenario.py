@@ -109,7 +109,7 @@ async def del_menu(async_client: AsyncClient, menu_id: str) -> None:
 
 
 # === TEST SCENARIO ===
-async def test_scenario(async_client: AsyncClient) -> None:
+async def test_scenario(init_db, async_client: AsyncClient) -> None:
     menu: Json = await post_menu(async_client)
     menu_id = menu['id']
     submenu: Json = await post_submenu(async_client, menu_id)

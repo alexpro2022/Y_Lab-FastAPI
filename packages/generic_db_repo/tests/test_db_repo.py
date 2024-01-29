@@ -16,7 +16,7 @@ class TestCRUDBaseRepository(Data):
     msg_not_found: str = 'Object(s) not found.'
 
     @pytest.fixture(autouse=True)
-    def init(self, get_test_session: AsyncSession) -> None:
+    def init(self, init_db, get_test_session: AsyncSession) -> None:
         # base crud with not implemented hooks
         self.crud_base_not_implemented: CRUDBaseRepository = CRUDBaseRepository(self.model, get_test_session)
         # base crud with bypassed hooks

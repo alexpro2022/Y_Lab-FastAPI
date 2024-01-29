@@ -25,13 +25,13 @@ async def test_not_allowed_method(async_client: AsyncClient, endpoint: str) -> N
 @pytest.mark.parametrize('endpoint', (
     d.ENDPOINT_DISH_DEFAULT, d.ENDPOINT_MENU, d.ENDPOINT_SUBMENU_DEFAULT
 ))
-async def test_get_all_returns_empty_list(async_client: AsyncClient, endpoint: str) -> None:
+async def test_get_all_returns_empty_list(init_db, async_client: AsyncClient, endpoint: str) -> None:
     response = await async_client.get(endpoint)
     assert response.status_code == status.HTTP_200_OK, response.json()
     assert response.json() == []
 
 
-async def test_menu_post(async_client: AsyncClient, menu_repo: MenuRepository) -> None:
+async def test_menu_post(init_db, async_client: AsyncClient, menu_repo: MenuRepository) -> None:
     assert not await menu_repo.get_all()
     await standard_tests(async_client, POST, d.ENDPOINT_MENU,
                          json=d.MENU_POST_PAYLOAD,
