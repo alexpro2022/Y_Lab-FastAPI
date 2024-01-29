@@ -11,7 +11,7 @@ from packages.generic_db_repo.tests.fixture.fixtures import *  # noqa
 from .data import DISH_POST_PAYLOAD, MENU_POST_PAYLOAD, SUBMENU_POST_PAYLOAD
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope='session')
 async def async_client() -> AsyncGenerator[AsyncClient, Any]:
     async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac
