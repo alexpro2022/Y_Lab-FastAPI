@@ -108,12 +108,10 @@ class TestCRUDBaseRepository(Data):
         assert isinstance(objs, list)
         self._check_obj(objs[0])
 
-    # create_update_params: tuple[str, tuple[dict, dict]] = ('kwargs', ({}, {'optional_field': dt.now()}))
     parametrize = pytest.mark.parametrize('kwargs', ({}, {'optional_field': dt.now()}))
 
     @pytest_mark_anyio
     @parametrize
-    # pytest.mark.parametrize(*create_update_params)
     async def test_create_method(self, kwargs) -> None:
         crud = self.crud_base_not_implemented
         assert await self._db_empty()
@@ -125,7 +123,6 @@ class TestCRUDBaseRepository(Data):
 
     @pytest_mark_anyio
     @parametrize
-    # pytest.mark.parametrize(*create_update_params)
     async def test_update_method(self, kwargs) -> None:
         crud = self.crud_base_implemented
         obj = await self._create_object()
