@@ -1,16 +1,3 @@
-# from pydantic import BaseModel
-# from packages.generic_db_repo.tests.fixture.data import Model, SchemaCreate  # noqa
-
-'''
-
-# class Model(Base):
-#    pass
-
-
-class Schema(BaseModel):
-    title: str
-    description: str
-'''
 from uuid import uuid4
 
 # Endpoints

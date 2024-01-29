@@ -49,7 +49,7 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
 
 # === Read ===
     async def __get_by_attributes(self, *, all: bool = False, **kwargs) -> list[ModelType] | ModelType | None:
-        query = select(self.model).filter_by(**kwargs) if kwargs else select(self.model)
+        query = select(self.model).filter_by(**kwargs)
         result = await self.session.scalars(query.order_by(self.order_by))
         return result.all() if all else result.first()
 
@@ -95,20 +95,17 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
     async def create(self, payload: CreateSchemaType, **kwargs) -> ModelType:
         """Creates an object with payload data, kwargs for fields like `user_id` etc."""
         create_data = payload.model_dump()
-        if kwargs:
-            create_data.update(kwargs)
-        return await self._save(self.model(**create_data))
+        return await self._save(self.model(**create_data, **kwargs))
 
     async def update(self, pk: pkType, payload: UpdateSchemaType, user: Any | None = None, **kwargs) -> ModelType:
         """Creates an object with payload data, kwargs for optional fields like `updated_at` etc."""
         obj = await self.get_or_404(pk)
         if user is not None:
             self.has_permission(obj, user)
-        update_data = payload.model_dump(exclude_unset=True,
-                                         exclude_none=True,
-                                         exclude_defaults=True)
-        if kwargs:
-            update_data.update(kwargs)
+        update_data = {**kwargs,
+                       **payload.model_dump(exclude_unset=True,
+                                            exclude_none=True,
+                                            exclude_defaults=True)}
         self.is_update_allowed(obj, update_data)
         for key, value in update_data.items():
             setattr(obj, key, value)
