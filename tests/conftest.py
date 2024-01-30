@@ -4,7 +4,7 @@ import pytest
 
 from app.main import app
 from packages.generic_db_repo.dependencies import get_async_session
-from packages.generic_db_repo.tests.fixture.fixtures import testing_session_local
+from tests.fixtures.db import TestingSessionLocal
 
 pytest_plugins = [
     'tests.fixtures.fixtures',
@@ -15,7 +15,8 @@ pytest_mark_anyio = pytest.mark.asyncio
 
 
 async def override_get_async_session() -> AsyncGenerator[Any, None]:
-    async with testing_session_local() as session:
+    async with TestingSessionLocal() as session:  # noqa
         yield session
+
 
 app.dependency_overrides[get_async_session] = override_get_async_session

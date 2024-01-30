@@ -3,7 +3,7 @@ from typing import Callable, TypeAlias
 
 from httpx import AsyncClient
 
-from tests.fixtures import data as d
+from tests.integration_tests import data as d
 from tests.integration_tests.utils import (check_created_menu,
                                            check_created_submenu, check_dish,
                                            check_dish_updated)

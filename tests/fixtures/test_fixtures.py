@@ -16,6 +16,10 @@ def test_get_test_session(get_test_session) -> None:
     assert isinstance(get_test_session, AsyncSession)
 
 
+def test_async_client(async_client) -> None:
+    assert isinstance(async_client, AsyncClient)
+
+
 def test_menu_repo(menu_repo) -> None:
     assert isinstance(menu_repo, MenuRepository)
 
@@ -38,7 +42,3 @@ def test_submenu(submenu) -> None:
 
 def test_dish(dish) -> None:
     assert isinstance(dish, Dish)
-
-
-def test_async_client(async_client) -> None:
-    assert isinstance(async_client, AsyncClient)

@@ -1,4 +1,4 @@
-from ..base import Base
+from packages.generic_db_repo.base import Base
 
 
 def test_base():

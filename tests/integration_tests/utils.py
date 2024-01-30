@@ -5,25 +5,23 @@ from deepdiff import DeepDiff
 
 from app.repositories.db_repository import (Dish, DishRepository,
                                             MenuRepository, SubmenuRepository)
-from packages.endpoint_testing_lib.utils import DONE
 from packages.generic_db_repo.base import Base
-from tests.fixtures import data as d
+from tests.integration_tests import data as d
 
 
-def _check_response(response_json: dict | list, expected_result: dict | list[dict]) -> str:
-    item = response_json[0] if isinstance(response_json, list) else response_json
+def _check_response(response_json: dict | list[dict], expected_result: dict | list[dict]) -> str:
+    assert type(response_json) is type(expected_result)
+    if isinstance(response_json, list):
+        response_json = response_json[0]
+        expected_result = expected_result[0]
     try:
-        UUID(str(item.pop('id')))
+        UUID(str(response_json.pop('id')))
     except ValueError:
         raise AssertionError('Primary key is not uuid type')
     except KeyError:
         pass
-    assert response_json == expected_result
-    return DONE
-
-
-def check_created_menu(response_json: dict) -> str:
-    return _check_response(response_json, d.CREATED_MENU)
+    assert response_json.items() == expected_result.items()
+    return 'DONE'
 
 
 def check_menu(response_json: list) -> str:
@@ -34,6 +32,10 @@ def check_menu_list(response_json: list) -> str:
     return _check_response(response_json, [d.EXPECTED_MENU])
 
 
+def check_menu_created(response_json: dict) -> str:
+    return _check_response(response_json, d.CREATED_MENU)
+
+
 def check_menu_updated(response_json: dict) -> str:
     return _check_response(response_json, d.UPDATED_MENU)
 
@@ -42,16 +44,16 @@ def check_menu_deleted(response_json: dict) -> str:
     return _check_response(response_json, d.DELETED_MENU)
 
 
-def check_created_submenu(response_json: dict) -> str:
-    return _check_response(response_json, d.CREATED_SUBMENU)
-
-
 def check_submenu(response_json: list) -> str:
     return _check_response(response_json, d.EXPECTED_SUBMENU)
 
 
 def check_submenu_list(response_json: list) -> str:
     return _check_response(response_json, [d.EXPECTED_SUBMENU])
+
+
+def check_submenu_created(response_json: dict) -> str:
+    return _check_response(response_json, d.CREATED_SUBMENU)
 
 
 def check_submenu_updated(response_json: dict) -> str:

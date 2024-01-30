@@ -5,9 +5,11 @@ import pytest
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..generic_db_repository import CRUDBaseRepository, pkType
-from .conftest import CRUD, Data, Model, pytest_mark_anyio
+from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository, pkType
+from .data import CRUD, Data, Model
 from .utils import get_regex, get_regex_not_found
+
+pytest_mark_anyio = pytest.mark.asyncio
 
 
 class TestCRUDBaseRepository(Data):
