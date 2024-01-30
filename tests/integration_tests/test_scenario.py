@@ -4,8 +4,8 @@ from typing import Callable, TypeAlias
 from httpx import AsyncClient
 
 from tests.integration_tests import data as d
-from tests.integration_tests.utils import (check_created_menu,
-                                           check_created_submenu, check_dish,
+from tests.integration_tests.utils import (check_menu_created,
+                                           check_submenu_created, check_dish,
                                            check_dish_updated)
 
 Json: TypeAlias = dict[str, str]
@@ -27,13 +27,13 @@ async def _post(async_client: AsyncClient, endpoint: str, json: Json, check_func
 
 async def post_menu(async_client: AsyncClient,
                     json: Json = d.MENU_POST_PAYLOAD,
-                    check_func: Callable = check_created_menu) -> Json:
+                    check_func: Callable = check_menu_created) -> Json:
     return await _post(async_client, d.ENDPOINT_MENU, json, check_func)
 
 
 async def post_submenu(async_client: AsyncClient, menu_id: str,
                        json: Json = d.SUBMENU_POST_PAYLOAD,
-                       check_func: Callable = check_created_submenu) -> Json:
+                       check_func: Callable = check_submenu_created) -> Json:
     return await _post(async_client, d.ENDPOINT_SUBMENU.format(id=menu_id), json, check_func)
 
 

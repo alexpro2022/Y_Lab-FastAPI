@@ -13,7 +13,7 @@ from tests.integration_tests.data import DISH_POST_PAYLOAD, MENU_POST_PAYLOAD, S
 from tests.fixtures.db import test_engine, TestingSessionLocal
 
 
-@pytest_asyncio.fixture  # (autouse=True)
+@pytest_asyncio.fixture
 async def init_db() -> AsyncGenerator[None, Any]:
     async with test_engine.begin() as conn:
         await conn.run_sync(BaseTest.metadata.create_all)
@@ -28,7 +28,7 @@ async def get_test_session() -> AsyncGenerator[None, Any]:
         yield session
 
 
-@pytest_asyncio.fixture  # (scope='session')
+@pytest_asyncio.fixture(scope='session')
 async def async_client() -> AsyncGenerator[AsyncClient, Any]:
     async with AsyncClient(app=app, base_url='http://test') as ac:
         yield ac

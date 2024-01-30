@@ -15,7 +15,7 @@ pytest_mark_anyio = pytest.mark.asyncio
 
 
 async def override_get_async_session() -> AsyncGenerator[Any, None]:
-    async with TestingSessionLocal() as session:  # noqa
+    async with TestingSessionLocal() as session:
         yield session
 
 
