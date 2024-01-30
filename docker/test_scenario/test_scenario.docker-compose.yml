@@ -1,10 +1,12 @@
 services:
 
-  test_db:
+  db_test:
     container_name: postgres
     image: postgres:latest
     environment:
-      - POSTGRES_PASSWORD=test_password
+      - POSTGRES_DB=$POSTGRES_DB_TEST
+      - POSTGRES_USER=$POSTGRES_USER_TEST
+      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD_TEST
     volumes:
       - /var/lib/postgresql/data/
 
@@ -15,4 +17,6 @@ services:
       dockerfile: docker/test_scenario/test_scenario.Dockerfile
     command: bash -c "pytest tests/integration_tests/test_scenario.py"
     depends_on:
-      - test_db
+      - db_test
+    env_file:
+      - ../../.env      

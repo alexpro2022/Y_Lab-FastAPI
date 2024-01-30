@@ -135,8 +135,9 @@ nano .env
 
 Из корневой директории проекта выполните команду запуска тестов:
 ```bash
-docker compose -f docker/tests/test.docker-compose.yml up --build --abort-on-container-exit && \
-docker compose -f docker/tests/test.docker-compose.yml down -v
+docker compose -f docker/tests/test.docker-compose.yml --env-file .env up --build --abort-on-container-exit && \
+docker compose -f docker/tests/test.docker-compose.yml --env-file .env down -v
+
 ```
 После прохождения тестов в консоль будет выведен отчет pytest и coverage.
 
@@ -148,8 +149,8 @@ docker compose -f docker/tests/test.docker-compose.yml down -v
 
 Из корневой директории проекта выполните команду:
 ```bash
-docker compose -f docker/test_scenario/test_scenario.docker-compose.yml up --build --abort-on-container-exit && \
-docker compose -f docker/test_scenario/test_scenario.docker-compose.yml down -v
+docker compose -f docker/test_scenario/test_scenario.docker-compose.yml --env-file .env up --build --abort-on-container-exit && \
+docker compose -f docker/test_scenario/test_scenario.docker-compose.yml --env-file .env down -v
 ```
 
 [⬆️Оглавление](#оглавление)

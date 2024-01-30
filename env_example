@@ -1,6 +1,15 @@
 SECRET_KEY=MY_SECRET_KEY
+
+# Application DB
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgrespw
 DB_HOST=db
 DB_PORT=5432
 POSTGRES_DB=postgres
+
+#Test DB
+POSTGRES_USER_TEST=postgres_test_user
+POSTGRES_PASSWORD_TEST=postgres_test_password
+DB_HOST_TEST=db_test
+DB_PORT_TEST=5432
+POSTGRES_DB_TEST=postgres_test
