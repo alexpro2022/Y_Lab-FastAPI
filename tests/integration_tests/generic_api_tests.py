@@ -18,6 +18,8 @@ class HTTPMethods:
 
 class GenericAPITests:
     base_url: str
+    msg_not_found: str
+    msg_already_exists: str
     post_payload: Json
     patch_payload: Json
     expected_results: dict[str, Json | None] = {
@@ -30,9 +32,10 @@ class GenericAPITests:
     def get_endpoint(self, idx: UUID | None = None) -> str:
         return self.base_url if idx is None else f'{self.base_url}/{idx}'
 
-    async def _compare_with_db(self, response_json: Json, pk: UUID, repo) -> None:
+    async def _compare_with_db(self, response_json: Json, pk: UUID, repo: CRUDBaseRepository) -> None:
         obj = await repo.get(pk)
         assert obj is not None
+        await repo.session.refresh(obj)
         for key in response_json:
             assert getattr(obj, key, None) == response_json[key]
 
@@ -47,16 +50,15 @@ class GenericAPITests:
             raise AssertionError('Primary key is not uuid type')
         except KeyError:
             pk = None
+        assert response_json.items() == expected_result.items()
+        for key in expected_result:
+            assert response_json[key] == expected_result[key]
         if pk is not None:
             await self._compare_with_db(response_json, pk, repo)
-        # assert response_json.items() == expected_result.items()
-        for key in expected_result:
-            response_json[key] == expected_result[key]
         return DONE
 
     async def get_test(self, async_client: AsyncClient, repo: CRUDBaseRepository | None = None,
                        idx: UUID | None = None) -> Json | list[Json]:
-        self.repository = repo
         response = await async_client.get(self.get_endpoint(idx))
         assert response.status_code == HTTPStatus.OK
         response_json = response.json()
@@ -70,13 +72,16 @@ class GenericAPITests:
 
     async def patch_test(self, async_client: AsyncClient, repo: CRUDBaseRepository, idx: UUID) -> Json:
         response = await async_client.patch(self.get_endpoint(idx), json=self.patch_payload)
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == HTTPStatus.OK, response.json()
         assert await self.check_response(response.json(), self.expected_results[HTTPMethods.PATCH], repo) == DONE
         return response.json()
 
     async def post_test(self, async_client: AsyncClient, repo: CRUDBaseRepository) -> Json:
         response = await async_client.post(self.base_url, json=self.post_payload)
         assert response.status_code == HTTPStatus.CREATED
+        r = await async_client.post(self.base_url, json=self.post_payload)
+        assert r.status_code == HTTPStatus.BAD_REQUEST
+        assert r.json().get('detail') == self.msg_already_exists
         assert await self.check_response(response.json(), self.expected_results[HTTPMethods.POST], repo) == DONE
         return response.json()
 
@@ -85,5 +90,6 @@ class GenericAPITests:
         assert response.status_code == HTTPStatus.OK
         r = await async_client.delete(self.get_endpoint(idx))
         assert r.status_code == HTTPStatus.NOT_FOUND
+        assert r.json().get('detail') == self.msg_not_found
         assert await self.check_response(response.json(), self.expected_results[HTTPMethods.DELETE], repo) == DONE
         return response.json()

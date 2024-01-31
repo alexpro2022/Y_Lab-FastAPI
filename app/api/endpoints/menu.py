@@ -50,7 +50,7 @@ async def get_(item_id: str, menu_service: menu_service):
     response_model=schemas.MenuOut,
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: str, payload: schemas.MenuIn, menu_service: menu_service):
+async def update_(item_id: str, payload: schemas.MenuPatch, menu_service: menu_service):
     return await menu_service.update(item_id, payload)
 
 

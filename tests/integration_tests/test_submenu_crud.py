@@ -6,7 +6,9 @@ from tests.integration_tests.generic_api_tests import GenericAPITests, HTTPMetho
 from tests.integration_tests import data as d
 
 
-class TestMenuAPI(GenericAPITests):
+class TestSubmenuAPI(GenericAPITests):
+    msg_not_found = 'submenu not found'
+    msg_already_exists = 'Подменю с таким заголовком уже существует.'
     patch_payload = d.SUBMENU_PATCH_PAYLOAD
     post_payload = d.SUBMENU_POST_PAYLOAD
     expected_results = {
@@ -34,7 +36,7 @@ class TestMenuAPI(GenericAPITests):
 
     async def test_patch(self, submenu: Submenu, submenu_repo: SubmenuRepository, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.get_test(async_client, submenu_repo, submenu.id)
+        assert await self.patch_test(async_client, submenu_repo, submenu.id)
 
     async def test_delete(self, submenu: Submenu, submenu_repo: SubmenuRepository, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
