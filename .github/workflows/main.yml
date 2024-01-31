@@ -39,7 +39,7 @@ jobs:
       - name: Run Tests
         env:
           DB: postgres
-          DB_HOST: 127.0.0.1
+          DB_HOST: 0.0.0.0
           DB_PORT: 5432  # ${{ secrets.DB_PORT }}
           DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         run: |
