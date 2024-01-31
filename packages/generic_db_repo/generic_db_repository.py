@@ -107,8 +107,17 @@ class CRUDBaseRepository(Generic[ModelType, CreateSchemaType, UpdateSchemaType])
                                             exclude_none=True,
                                             exclude_defaults=True)}
         self.is_update_allowed(obj, update_data)
-        for key, value in update_data.items():
-            setattr(obj, key, value)
+        '''update_query = await self.session.execute(
+            update(self.model)
+            # .where(self.model.id == pk)
+            .values(**update_data)
+            .returning(self.model)
+            .filter_by(id=pk)
+        )
+        await self.session.commit()
+        return update_query.scalars().one()  # first() '''
+        for key in update_data:
+            setattr(obj, key, update_data[key])
         return await self._save(obj)
 
     async def delete(self, pk: pkType, user: Any | None = None) -> ModelType:

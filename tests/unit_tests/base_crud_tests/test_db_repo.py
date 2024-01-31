@@ -5,9 +5,11 @@ import pytest
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..generic_db_repository import CRUDBaseRepository, pkType
-from .conftest import CRUD, Data, Model, pytest_mark_anyio
+from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository, pkType
+from .data import CRUD, Data, Model
 from .utils import get_regex, get_regex_not_found
+
+pytest_mark_anyio = pytest.mark.asyncio
 
 
 class TestCRUDBaseRepository(Data):
@@ -16,7 +18,7 @@ class TestCRUDBaseRepository(Data):
     msg_not_found: str = 'Object(s) not found.'
 
     @pytest.fixture(autouse=True)
-    def init(self, get_test_session: AsyncSession) -> None:
+    def init(self, init_db, get_test_session: AsyncSession) -> None:
         # base crud with not implemented hooks
         self.crud_base_not_implemented: CRUDBaseRepository = CRUDBaseRepository(self.model, get_test_session)
         # base crud with bypassed hooks

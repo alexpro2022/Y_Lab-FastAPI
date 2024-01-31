@@ -1,12 +1,15 @@
 SECRET_KEY=MY_SECRET_KEY
-# --- PostgreSQL ---
-POSTGRES_PASSWORD=postgres
-DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
 
-# DATABASE_URL = dialect+driver://username:password@host:port/database
-#  * dialect — тип базы данных, например, sqlite, mysql, postgresql.
-#  * driver — драйвер для соединения с базой данных. Если драйвер не указан — для указанного dialect  будет выбран драйвер по умолчанию.
-#  * username и password — имя пользователя и пароль для подключения к базе данных.
-#  * host — местоположение сервера базы данных.
-#  * port — порт сервера базы данных.
-#  * database — имя базы данных.
+# Application DB
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgrespw
+DB_HOST=db
+DB_PORT=5432
+POSTGRES_DB=postgres
+
+#Test DB
+POSTGRES_USER_TEST=postgres_test_user
+POSTGRES_PASSWORD_TEST=postgres_test_password
+DB_HOST_TEST=db_test
+DB_PORT_TEST=5432
+POSTGRES_DB_TEST=postgres_test

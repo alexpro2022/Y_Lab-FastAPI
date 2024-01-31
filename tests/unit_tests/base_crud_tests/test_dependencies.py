@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (AsyncEngine, AsyncSession,
                                     async_sessionmaker)
 
-from ..dependencies import AsyncSessionLocal, engine, get_async_session
+from packages.generic_db_repo.dependencies import AsyncSessionLocal, engine, get_async_session
 
 
 def test_engine() -> None:
