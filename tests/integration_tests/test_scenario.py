@@ -4,9 +4,9 @@ from typing import Callable, TypeAlias
 from httpx import AsyncClient
 
 from tests.integration_tests import data as d
-from tests.integration_tests.utils import (check_menu_created,
-                                           check_submenu_created, check_dish,
-                                           check_dish_updated)
+from tests.integration_tests.utils import (check_dish, check_dish_updated,
+                                           check_menu_created,
+                                           check_submenu_created)
 
 Json: TypeAlias = dict[str, str]
 

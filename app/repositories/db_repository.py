@@ -6,7 +6,8 @@ from sqlalchemy.engine import Result
 
 from app.models.models import Dish, Menu, Submenu
 from packages.generic_db_repo.dependencies import async_session
-from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository, pkType
+from packages.generic_db_repo.generic_db_repository import (CRUDBaseRepository,
+                                                            pkType)
 
 
 class CRUDRepository(CRUDBaseRepository):

@@ -1,6 +1,7 @@
 import uuid
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
 from app.schemas.validators import price_gte_zero_validator
 
 # constants for examples

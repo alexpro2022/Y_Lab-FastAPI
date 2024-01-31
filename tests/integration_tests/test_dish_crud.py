@@ -1,9 +1,10 @@
 from httpx import AsyncClient
-from app.repositories.db_repository import DishRepository
-from app.models.models import Dish, Submenu
-from tests.integration_tests.generic_api_tests import GenericAPITests, HTTPMethods
 
+from app.models.models import Dish, Submenu
+from app.repositories.db_repository import DishRepository
 from tests.integration_tests import data as d
+from tests.integration_tests.generic_api_tests import (GenericAPITests,
+                                                       HTTPMethods)
 
 
 class TestDishAPI(GenericAPITests):

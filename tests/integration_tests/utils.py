@@ -14,6 +14,8 @@ def _check_response(response_json: dict | list[dict], expected_result: dict | li
         raise AssertionError('Primary key is not uuid type')
     except KeyError:
         pass
+    assert isinstance(response_json, dict)
+    assert isinstance(expected_result, dict)
     assert response_json.items() == expected_result.items()
     return 'DONE'
 

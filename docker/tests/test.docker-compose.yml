@@ -12,6 +12,8 @@ services:
 
   tests:
     container_name: tests
+    environment:
+      - CI=True
     build:
       context: ../..
       dockerfile: docker/tests/test.Dockerfile
@@ -19,4 +21,4 @@ services:
     depends_on:
       - db_test
     env_file:
-      - ../../.env 
+      - ../../.env

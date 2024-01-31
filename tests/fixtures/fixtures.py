@@ -1,16 +1,18 @@
 from typing import Any, AsyncGenerator
-from httpx import AsyncClient
+
 import pytest
 import pytest_asyncio
+from httpx import AsyncClient
 
 from app.main import app
 from app.models import Dish, Menu, Submenu
 from app.repositories.db_repository import (DishRepository, MenuRepository,
                                             SubmenuRepository)
 from app.schemas.schemas import DishIn, MenuIn, SubmenuIn
+from tests.fixtures.db import TestingSessionLocal, test_engine
+from tests.integration_tests.data import (DISH_POST_PAYLOAD, MENU_POST_PAYLOAD,
+                                          SUBMENU_POST_PAYLOAD)
 from tests.unit_tests.base_crud_tests.data import BaseTest
-from tests.integration_tests.data import DISH_POST_PAYLOAD, MENU_POST_PAYLOAD, SUBMENU_POST_PAYLOAD
-from tests.fixtures.db import test_engine, TestingSessionLocal
 
 
 @pytest_asyncio.fixture
