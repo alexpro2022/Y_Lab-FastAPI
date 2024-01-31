@@ -23,7 +23,7 @@ class MenuRepository(CRUDRepository):
         super().__init__(Menu, session)
 
     async def _get_menu_query(self, **kwargs) -> Result:
-        query = await self.session.execute(
+        return await self.session.execute(
             select(
                 Menu.id,
                 Menu.title,
@@ -37,7 +37,6 @@ class MenuRepository(CRUDRepository):
             .outerjoin(Dish, Submenu.id == Dish.submenu_id)
             .group_by(Menu.id)
         )
-        return query
 
     async def get_all_(self, exception: bool = False) -> list[Menu]:
         query = await self._get_menu_query()
