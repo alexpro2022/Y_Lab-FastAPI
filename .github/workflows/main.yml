@@ -21,7 +21,7 @@ jobs:
           POSTGRES_DB: github_actions
           DB_PORT: ${{ secrets.DB_PORT }}
         ports:
-          DB_PORT:DB_PORT
+          - DB_PORT:DB_PORT
     strategy:
       max-parallel: 5
       matrix:
