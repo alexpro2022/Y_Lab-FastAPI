@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8', extra='ignore')
     postgres_user_test: str = 'postgres'
     postgres_password_test: str = 'postgrespw'
-    db_host_test: str = 'db_test'
+    db_host_test: str = '127.0.0.1'
     db_port_test: str = '5432'
     postgres_db_test: str = 'postgres'
 
