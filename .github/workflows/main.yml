@@ -20,7 +20,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: github_actions
         ports:
-          - "${{ secrets.DB_PORT }}:${{ secrets.DB_PORT }}"
+          "${{ secrets.DB_PORT }}:${{ secrets.DB_PORT }}"
     strategy:
       max-parallel: 5
       matrix:
