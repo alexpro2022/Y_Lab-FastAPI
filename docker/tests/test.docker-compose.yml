@@ -1,7 +1,7 @@
 services:
 
   db_test:
-    container_name: postgres
+    container_name: postgres_tests
     image: postgres:latest
     environment:
       - POSTGRES_DB=$POSTGRES_DB_TEST

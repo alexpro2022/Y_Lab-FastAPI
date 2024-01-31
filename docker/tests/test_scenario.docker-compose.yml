@@ -1,7 +1,7 @@
 services:
 
   db_test:
-    container_name: postgres
+    container_name: postgres_test_scenario
     image: postgres:latest
     environment:
       - POSTGRES_DB=$POSTGRES_DB_TEST
@@ -14,7 +14,7 @@ services:
     container_name: test_scenario
     build:
       context: ../..
-      dockerfile: docker/test_scenario/test_scenario.Dockerfile
+      dockerfile: docker/tests/test.Dockerfile
     command: bash -c "pytest tests/integration_tests/test_scenario.py"
     depends_on:
       - db_test
