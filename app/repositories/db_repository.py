@@ -6,7 +6,8 @@ from sqlalchemy.engine import Result
 
 from app.models.models import Dish, Menu, Submenu
 from packages.generic_db_repo.dependencies import async_session
-from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository, pkType
+from packages.generic_db_repo.generic_db_repository import (CRUDBaseRepository,
+                                                            pkType)
 
 
 class CRUDRepository(CRUDBaseRepository):
@@ -22,7 +23,7 @@ class MenuRepository(CRUDRepository):
         super().__init__(Menu, session)
 
     async def _get_menu_query(self, **kwargs) -> Result:
-        query = await self.session.execute(
+        return await self.session.execute(
             select(
                 Menu.id,
                 Menu.title,
@@ -36,7 +37,6 @@ class MenuRepository(CRUDRepository):
             .outerjoin(Dish, Submenu.id == Dish.submenu_id)
             .group_by(Menu.id)
         )
-        return query
 
     async def get_all_(self, exception: bool = False) -> list[Menu]:
         query = await self._get_menu_query()

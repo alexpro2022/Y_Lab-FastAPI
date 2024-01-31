@@ -19,4 +19,4 @@ services:
     depends_on:
       - db_test
     env_file:
-      - ../../.env      
+      - ../../.env

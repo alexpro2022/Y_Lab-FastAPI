@@ -1,5 +1,8 @@
 # Проект Меню ресторана:
 
+[![Test Suite](https://github.com/alexpro2022/Y_Lab-FastAPI/actions/workflows/main.yml/badge.svg)](https://github.com/alexpro2022/Y_Lab-FastAPI/actions/workflows/main.yml)
+[![codecov](https://codecov.io/gh/alexpro2022/Y_Lab-FastAPI/graph/badge.svg?token=xgDuYye6nC)](https://codecov.io/gh/alexpro2022/Y_Lab-FastAPI)
+
 ### Simple RESTful API using FastAPI for a restaurant menu application
 
 [Тестовое задание](https://learning-platform.ylab.website/my-homeworks/16)
