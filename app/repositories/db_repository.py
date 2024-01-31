@@ -40,7 +40,10 @@ class MenuRepository(CRUDRepository):
 
     async def get_all_(self, exception: bool = False) -> list[Menu]:
         query = await self._get_menu_query()
-        return query.all()
+        all = query.all()
+        if not all and exception:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, self.msg_not_found)
+        return all
 
     async def get_(self, pk: pkType) -> Menu | None:
         query = await self._get_menu_query(id=pk)

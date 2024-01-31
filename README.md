@@ -140,7 +140,6 @@ nano .env
 ```bash
 docker compose -f docker/tests/test.docker-compose.yml --env-file .env up --build --abort-on-container-exit && \
 docker compose -f docker/tests/test.docker-compose.yml --env-file .env down -v
-
 ```
 После прохождения тестов в консоль будет выведен отчет pytest и coverage.
 
@@ -154,7 +153,6 @@ docker compose -f docker/tests/test.docker-compose.yml --env-file .env down -v
 ```bash
 docker compose -f docker/tests/test_scenario.docker-compose.yml --env-file .env up --build --abort-on-container-exit && \
 docker compose -f docker/tests/test_scenario.docker-compose.yml --env-file .env down -v
-
 ```
 После прохождения теста в консоль будет выведен отчет pytest.
 
