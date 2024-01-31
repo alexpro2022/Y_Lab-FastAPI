@@ -47,19 +47,17 @@ class GenericAPITests:
         if isinstance(response_json, list):
             response_json = response_json[0]
             expected_result = expected_result[0]
+        assert isinstance(response_json, dict)
+        assert isinstance(expected_result, dict)
         try:
             pk = UUID(str(response_json.pop('id')))
         except ValueError:
             raise AssertionError('Primary key is not uuid type')
         except KeyError:
             pk = None
-        assert isinstance(response_json, dict)
-        assert isinstance(expected_result, dict)
-        assert response_json.items() == expected_result.items()
-        # for key in expected_result:
-        #    assert response_json[key] == expected_result[key]
         if pk is not None:
             await self._compare_with_db(response_json, pk, repo)
+        assert response_json.items() == expected_result.items()
         return DONE
 
     async def get_test(self, async_client: AsyncClient, repo: CRUDBaseRepository | None = None,

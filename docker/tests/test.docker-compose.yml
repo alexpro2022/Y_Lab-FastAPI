@@ -12,8 +12,6 @@ services:
 
   tests:
     container_name: tests
-    environment:
-      - CI=True
     build:
       context: ../..
       dockerfile: docker/tests/test.Dockerfile
