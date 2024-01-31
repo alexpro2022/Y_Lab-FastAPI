@@ -20,9 +20,9 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_DB: github_actions
         ports:
-          - 5432:5432
+          - "${{ secrets.DB_PORT }}:${{ secrets.DB_PORT }}"
     strategy:
-      max-parallel: 3
+      max-parallel: 5
       matrix:
         python-version: ["3.10", "3.11", "3.12"]
     steps:
@@ -39,9 +39,9 @@ jobs:
       - name: Run Tests
         env:
           DB: postgres
-          DB_HOST: 0.0.0.0
-          DB_PORT: 5432  # ${{ secrets.DB_PORT }}
-          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}      
         run: |
           python -m flake8
           pytest --cov --cov-report=xml --cov-config=.coveragerc
@@ -49,3 +49,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+
