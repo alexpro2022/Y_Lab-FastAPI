@@ -21,7 +21,7 @@ jobs:
           POSTGRES_DB: github_actions
           DB_PORT: ${{ secrets.DB_PORT }}
         ports:
-          - ${{ DB_PORT }}:${{ DB_PORT }}
+          - 5432:5432
     strategy:
       max-parallel: 5
       matrix:
@@ -41,7 +41,7 @@ jobs:
         env:
           DB: postgres
           DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_PORT: 5432
           DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}      
         run: |
           python -m flake8
