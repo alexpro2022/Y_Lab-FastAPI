@@ -21,12 +21,13 @@ class MenuRepository(CRUDRepository):
     def __init__(self, session: async_session):
         super().__init__(Menu, session)
 
-    '''async def _get_menu_query(self, **kwargs) -> Result:
+    async def _get_menu_query(self, **kwargs) -> Result:
         query = await self.session.execute(
             select(
                 Menu.id,
                 Menu.title,
                 Menu.description,
+                self.model,
                 func.count(distinct(Submenu.id)).label('submenus_count'),
                 func.count(distinct(Dish.id)).label('dishes_count'),
             )
@@ -37,19 +38,19 @@ class MenuRepository(CRUDRepository):
         )
         return query
 
-    async def get_all(self, exception: bool = False) -> list[Menu]:
+    async def get_all_(self, exception: bool = False) -> list[Menu]:
         query = await self._get_menu_query()
         return query.all()
 
-    async def get(self, pk: pkType) -> Menu | None:
+    async def get_(self, pk: pkType) -> Menu | None:
         query = await self._get_menu_query(id=pk)
         return query.first()
 
-    async def get_or_404(self, pk: pkType) -> Menu:
-        menu = await self.get(pk)
+    async def get_or_404_(self, pk: pkType) -> Menu:
+        menu = await self.get_(pk)
         if menu is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, self.msg_not_found)
-        return menu  '''
+        return menu
 
 
 class SubmenuRepository(CRUDRepository):

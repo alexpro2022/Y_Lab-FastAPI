@@ -70,8 +70,8 @@ class BaseOut(BaseModel):
 
 
 class MenuOut(BaseOut, MenuIn):
-    submenus_count: int
-    dishes_count: int
+    submenus_count: int = Field(default=0)
+    dishes_count: int = Field(default=0)
 
 
 class SubmenuOut(BaseOut, SubmenuIn):
