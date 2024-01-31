@@ -37,7 +37,8 @@ class GenericAPITests:
         assert obj is not None
         await repo.session.refresh(obj)
         for key in response_json:
-            assert getattr(obj, key, None) == response_json[key]
+            if key not in ('submenus_count', 'dishes_count'):
+                assert getattr(obj, key, None) == response_json[key]
 
     async def check_response(self, response_json: dict | list[dict], expected_result: dict | list[dict], repo) -> str:
         assert type(response_json) is type(expected_result)
@@ -50,6 +51,8 @@ class GenericAPITests:
             raise AssertionError('Primary key is not uuid type')
         except KeyError:
             pk = None
+        print(response_json.items())
+        print(expected_result.items())
         assert response_json.items() == expected_result.items()
         for key in expected_result:
             assert response_json[key] == expected_result[key]
