@@ -1,7 +1,7 @@
 services:
 
   db_test:
-    container_name: postgres_tests
+    container_name: postgres_test_scenario
     image: postgres:latest
     environment:
       - POSTGRES_DB=$POSTGRES_DB_TEST
@@ -10,13 +10,13 @@ services:
     volumes:
       - /var/lib/postgresql/data/
 
-  tests:
-    container_name: tests
+  test_scenario:
+    container_name: test_scenario
     build:
       context: ../..
       dockerfile: docker/tests/test.Dockerfile
-    command: bash -c "pytest -x --cov --cov-config=.coveragerc"
+    command: bash -c "pytest tests/integration_tests/test_scenario.py"
     depends_on:
       - db_test
     env_file:
-      - ../../.env 
+      - ../../.env      

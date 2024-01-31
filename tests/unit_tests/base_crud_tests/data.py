@@ -3,8 +3,8 @@ from datetime import datetime as dt
 from pydantic import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column
 
-from ...base import Base
-from ...generic_db_repository import CRUDBaseRepository
+from packages.generic_db_repo.base import Base
+from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository
 
 
 class BaseTest(Base):

@@ -5,9 +5,11 @@ import pytest
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..generic_db_repository import CRUDBaseRepository, pkType
-from .conftest import CRUD, Data, Model, pytest_mark_anyio
+from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository, pkType
+from .data import CRUD, Data, Model
 from .utils import get_regex, get_regex_not_found
+
+pytest_mark_anyio = pytest.mark.asyncio
 
 
 class TestCRUDBaseRepository(Data):
@@ -16,7 +18,7 @@ class TestCRUDBaseRepository(Data):
     msg_not_found: str = 'Object(s) not found.'
 
     @pytest.fixture(autouse=True)
-    def init(self, get_test_session: AsyncSession) -> None:
+    def init(self, init_db, get_test_session: AsyncSession) -> None:
         # base crud with not implemented hooks
         self.crud_base_not_implemented: CRUDBaseRepository = CRUDBaseRepository(self.model, get_test_session)
         # base crud with bypassed hooks
@@ -108,12 +110,10 @@ class TestCRUDBaseRepository(Data):
         assert isinstance(objs, list)
         self._check_obj(objs[0])
 
-    # create_update_params: tuple[str, tuple[dict, dict]] = ('kwargs', ({}, {'optional_field': dt.now()}))
     parametrize = pytest.mark.parametrize('kwargs', ({}, {'optional_field': dt.now()}))
 
     @pytest_mark_anyio
     @parametrize
-    # pytest.mark.parametrize(*create_update_params)
     async def test_create_method(self, kwargs) -> None:
         crud = self.crud_base_not_implemented
         assert await self._db_empty()
@@ -125,7 +125,6 @@ class TestCRUDBaseRepository(Data):
 
     @pytest_mark_anyio
     @parametrize
-    # pytest.mark.parametrize(*create_update_params)
     async def test_update_method(self, kwargs) -> None:
         crud = self.crud_base_implemented
         obj = await self._create_object()

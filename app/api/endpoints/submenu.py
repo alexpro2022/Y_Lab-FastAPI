@@ -54,7 +54,7 @@ async def get_(item_id: str, submenu_service: submenu_service):
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_(item_id: str,
-                  payload: schemas.SubmenuIn,
+                  payload: schemas.SubmenuPatch,
                   submenu_service: submenu_service):
     return await submenu_service.update(item_id, payload)
 

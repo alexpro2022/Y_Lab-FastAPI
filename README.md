@@ -135,8 +135,9 @@ nano .env
 
 Из корневой директории проекта выполните команду запуска тестов:
 ```bash
-docker compose -f docker/tests/test.docker-compose.yml up --build --abort-on-container-exit && \
-docker compose -f docker/tests/test.docker-compose.yml down -v
+docker compose -f docker/tests/test.docker-compose.yml --env-file .env up --build --abort-on-container-exit && \
+docker compose -f docker/tests/test.docker-compose.yml --env-file .env down -v
+
 ```
 После прохождения тестов в консоль будет выведен отчет pytest и coverage.
 
@@ -148,9 +149,11 @@ docker compose -f docker/tests/test.docker-compose.yml down -v
 
 Из корневой директории проекта выполните команду:
 ```bash
-docker compose -f docker/test_scenario/test_scenario.docker-compose.yml up --build --abort-on-container-exit && \
-docker compose -f docker/test_scenario/test_scenario.docker-compose.yml down -v
+docker compose -f docker/tests/test_scenario.docker-compose.yml --env-file .env up --build --abort-on-container-exit && \
+docker compose -f docker/tests/test_scenario.docker-compose.yml --env-file .env down -v
+
 ```
+После прохождения теста в консоль будет выведен отчет pytest.
 
 [⬆️Оглавление](#оглавление)
 
@@ -160,7 +163,7 @@ docker compose -f docker/test_scenario/test_scenario.docker-compose.yml down -v
 
 1. Из корневой директории проекта выполните команду:
 ```bash
-docker compose -f docker/dev/docker-compose.yml up -d --build
+docker compose -f docker/dev/docker-compose.yml --env-file .env up -d --build
 ```
   Проект будет развернут в docker-контейнерах по адресу http://127.0.0.1:8000.
 
@@ -168,11 +171,11 @@ docker compose -f docker/dev/docker-compose.yml up -d --build
 
 2. Остановить docker и удалить контейнеры можно командой из корневой директории проекта:
 ```bash
-docker compose -f docker/dev/docker-compose.yml down
+docker compose -f docker/dev/docker-compose.yml --env-file .env down
 ```
 Если также необходимо удалить том базы данных:
 ```bash
-docker compose -f docker/dev/docker-compose.yml down -v
+docker compose -f docker/dev/docker-compose.yml --env-file .env down -v
 ```
 
 [⬆️Оглавление](#оглавление)

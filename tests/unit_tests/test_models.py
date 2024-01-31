@@ -1,7 +1,7 @@
 import pytest
 
 from app.models import Dish, Menu, Submenu
-from tests.fixtures import data as d
+from tests.integration_tests import data as d
 
 COMMON_FIELDS = ('id', 'title', 'description')
 

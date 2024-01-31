@@ -54,7 +54,7 @@ async def get_(item_id: str, dish_service: dish_service):
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_(item_id: str,
-                  payload: schemas.DishIn,
+                  payload: schemas.DishPatch,
                   dish_service: dish_service):
     return await dish_service.update(item_id, payload)
 
