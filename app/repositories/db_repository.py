@@ -27,7 +27,7 @@ class MenuRepository(CRUDRepository):
                 Menu.id,
                 Menu.title,
                 Menu.description,
-                # self.model,
+                self.model,
                 func.count(distinct(Submenu.id)).label('submenus_count'),
                 func.count(distinct(Dish.id)).label('dishes_count'),
             )
@@ -35,7 +35,6 @@ class MenuRepository(CRUDRepository):
             .outerjoin(Submenu, Menu.id == Submenu.menu_id)
             .outerjoin(Dish, Submenu.id == Dish.submenu_id)
             .group_by(Menu.id)
-            # .group_by(self.model.id)
         )
         return query
 

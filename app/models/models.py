@@ -26,19 +26,6 @@ class Menu(Common):
         lazy='selectin',
     )
 
-    '''@property
-    def submenus_count(self) -> int:
-        return len(self.submenus)
-
-    @property
-    def dishes_count(self) -> int:
-        return sum(submenu.dishes_count for submenu in self.submenus)
-
-    def __repr__(self) -> str:
-        return (f'{super().__repr__()}'
-                f'submenus_count: {self.submenus_count}\n'
-                f'dishes_count: {self.dishes_count}\n') '''
-
 
 class Submenu(Common):
     menu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('menu.id'))
