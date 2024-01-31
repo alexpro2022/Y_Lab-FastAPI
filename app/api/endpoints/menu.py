@@ -22,7 +22,7 @@ SUM_FULL_LIST = f'Полный список {NAME}.'
     summary=SUM_ALL_ITEMS,
     description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
 async def get_all_(menu_service: menu_service):
-    menus = await menu_service.get_all()
+    menus = await menu_service.get_all_()
     return [] if menus is None else menus
 
 
@@ -42,7 +42,7 @@ async def create_(payload: schemas.MenuIn, menu_service: menu_service):
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
 async def get_(item_id: str, menu_service: menu_service):
-    return await menu_service.get_or_404(item_id)
+    return await menu_service.get_or_404_(item_id)
 
 
 @router.patch(

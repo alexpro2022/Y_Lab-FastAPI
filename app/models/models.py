@@ -26,7 +26,7 @@ class Menu(Common):
         lazy='selectin',
     )
 
-    @property
+    '''@property
     def submenus_count(self) -> int:
         return len(self.submenus)
 
@@ -37,7 +37,7 @@ class Menu(Common):
     def __repr__(self) -> str:
         return (f'{super().__repr__()}'
                 f'submenus_count: {self.submenus_count}\n'
-                f'dishes_count: {self.dishes_count}\n')
+                f'dishes_count: {self.dishes_count}\n') '''
 
 
 class Submenu(Common):
