@@ -4,6 +4,7 @@ from uuid import UUID
 
 from httpx import AsyncClient
 from sqlalchemy import Row
+
 from packages.generic_db_repo.generic_db_repository import BaseCRUD
 
 Json: TypeAlias = dict[str, str]
