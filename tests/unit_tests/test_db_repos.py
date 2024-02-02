@@ -16,6 +16,19 @@ class TestCRUD:
         assert CRUD.is_update_allowed_not_in_use
 
 
+class TestMenuCRUD(BaseCRUDTest):
+    model = Menu
+    crud = MenuCRUD
+    msg_not_found = 'menu not found'
+    msg_already_exists = 'Меню с таким заголовком уже существует.'
+    create_data = d.MENU_POST_PAYLOAD
+    update_data = d.MENU_PATCH_PAYLOAD
+
+    @pytest_asyncio.fixture
+    async def get_obj(self, menu):
+        return menu
+
+
 class TestSubmenuCRUD(BaseCRUDTest):
     model = Submenu
     crud = SubmenuCRUD
@@ -48,16 +61,3 @@ class TestDishCRUD(BaseCRUDTest):
     @pytest.fixture
     def get_create_data_extra(self, submenu):
         return {'submenu_id': submenu.id}
-
-
-class TestMenuCRUD(BaseCRUDTest):
-    model = Menu
-    crud = MenuCRUD
-    msg_not_found = 'menu not found'
-    msg_already_exists = 'Меню с таким заголовком уже существует.'
-    create_data = d.MENU_POST_PAYLOAD
-    update_data = d.MENU_PATCH_PAYLOAD
-
-    @pytest_asyncio.fixture
-    async def get_obj(self, menu):
-        return menu

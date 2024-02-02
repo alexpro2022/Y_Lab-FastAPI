@@ -22,9 +22,7 @@ SUM_FULL_LIST = f'Полный список {NAME}.'
     summary=SUM_ALL_ITEMS,
     description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
 async def get_all_(menu_service: menu_service):
-    # menus =
     return await menu_service.get()
-    # return [] if menus is None else menus
 
 
 @router.post(
@@ -52,7 +50,9 @@ async def get_(item_id: str, menu_service: menu_service):
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_(item_id: str, payload: schemas.MenuPatch, menu_service: menu_service):
-    return await menu_service.update(id=item_id, **payload.model_dump())
+    return await menu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
+                                                                      exclude_none=True,
+                                                                      exclude_unset=True))
 
 
 @router.delete(

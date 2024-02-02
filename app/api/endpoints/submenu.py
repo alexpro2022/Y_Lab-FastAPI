@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from app.api.endpoints import utils as u
 from app.core.config import settings
-from app.repositories.db_repository import menu_service, submenu_service
+from app.repositories.db_repository import submenu_service
 from app.schemas import schemas
 
 router = APIRouter(prefix=f'{settings.URL_PREFIX}menus', tags=['Submenus'])
@@ -20,9 +20,8 @@ SUM_DELETE_ITEM = u.SUM_DELETE_ITEM.format(NAME)
     response_model=list[schemas.SubmenuOut],
     summary=SUM_ALL_ITEMS,
     description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
-async def get_all_(menu_id: str, menu_service: menu_service):
-    menu = await menu_service.get(id=menu_id)
-    return [] if menu is None else menu.submenus
+async def get_all_(menu_id: str, submenu_service: submenu_service):
+    return await submenu_service.get(menu_id=menu_id)
 
 
 @router.post(
@@ -33,10 +32,8 @@ async def get_all_(menu_id: str, menu_service: menu_service):
     description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
 async def create_(menu_id: str,
                   payload: schemas.SubmenuIn,
-                  menu_service: menu_service,
                   submenu_service: submenu_service):
-    menu = await menu_service.get(id=menu_id, exception=True)
-    return await submenu_service.create(**payload.model_dump(), menu_id=menu.id)
+    return await submenu_service.create(**payload.model_dump(), menu_id=menu_id)
 
 
 @router.get(
@@ -56,7 +53,9 @@ async def get_(item_id: str, submenu_service: submenu_service):
 async def update_(item_id: str,
                   payload: schemas.SubmenuPatch,
                   submenu_service: submenu_service):
-    return await submenu_service.update(id=item_id, **payload.model_dump())
+    return await submenu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
+                                                                         exclude_none=True,
+                                                                         exclude_unset=True))
 
 
 @router.delete(

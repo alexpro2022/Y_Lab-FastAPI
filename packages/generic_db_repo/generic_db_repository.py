@@ -23,22 +23,6 @@ class BaseCRUD(Generic[ModelType]):
         self.session = session
         self.__scalars = False
 
-    def has_permission(self, obj: ModelType, user) -> None:
-        """Check for user permission and raise exception if not allowed."""
-        if not self.has_permission_not_in_use:
-            raise NotImplementedError('Method `has_permission` must be implemented.')
-
-    def is_delete_allowed(self, obj: ModelType) -> None:
-        """Check for custom conditions and raise exception if not allowed."""
-        if not self.is_delete_allowed_not_in_use:
-            raise NotImplementedError('Method `is_delete_allowed` must be implemented.')
-
-    def is_update_allowed(self, obj: ModelType, **update_data) -> None:
-        """Check for custom conditions and raise exception if not allowed.
-        Normally it means to compare existing obj data against the update_data."""
-        if not self.is_update_allowed_not_in_use:
-            raise NotImplementedError('Method `is_update_allowed` must be implemented.')
-
     def get_statement(self, **kwargs) -> Select:
         """Override the method for custom query."""
         self.__scalars = True
@@ -58,8 +42,9 @@ class BaseCRUD(Generic[ModelType]):
         self.session.add(obj)
         try:
             await self.session.commit()
-        except exc.IntegrityError:
+        except exc.IntegrityError as exc_info:
             await self.session.rollback()
+            print(exc_info)
             raise HTTPException(status.HTTP_400_BAD_REQUEST,
                                 self.msg_already_exists)
         await self.session.refresh(obj)
@@ -75,8 +60,8 @@ class BaseCRUD(Generic[ModelType]):
 
     async def __get_or_404(self, **kwargs) -> ModelType:
         """Needs for update and delete methods as we have to extract a whole object."""
-        statement = select(self.model).filter_by(**kwargs)
-        result = await self.session.scalars(statement)
+        # statement = select(self.model).filter_by(**kwargs)
+        result = await self.session.scalars(select(self.model).filter_by(**kwargs))
         obj = result.first()
         if obj is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND, self.msg_not_found)
@@ -113,3 +98,19 @@ class BaseCRUD(Generic[ModelType]):
         await self.session.delete(obj)
         await self.session.commit()
         return obj
+
+    def has_permission(self, obj: ModelType, user) -> None:
+        """Check for user permission and raise exception if not allowed."""
+        if not self.has_permission_not_in_use:
+            raise NotImplementedError('Method `has_permission` must be implemented.')
+
+    def is_delete_allowed(self, obj: ModelType) -> None:
+        """Check for custom conditions and raise exception if not allowed."""
+        if not self.is_delete_allowed_not_in_use:
+            raise NotImplementedError('Method `is_delete_allowed` must be implemented.')
+
+    def is_update_allowed(self, obj: ModelType, **update_data) -> None:
+        """Check for custom conditions and raise exception if not allowed.
+        Normally it means to compare existing obj data against the update_data."""
+        if not self.is_update_allowed_not_in_use:
+            raise NotImplementedError('Method `is_update_allowed` must be implemented.')
