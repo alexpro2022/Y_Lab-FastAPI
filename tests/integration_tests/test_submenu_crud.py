@@ -1,10 +1,10 @@
 from httpx import AsyncClient
 
 from app.models.models import Menu, Submenu
-from app.repositories.db_repository import SubmenuRepository
-from tests.integration_tests import data as d
-from tests.integration_tests.generic_api_tests import (GenericAPITests,
-                                                       HTTPMethods)
+from app.repositories.db_repository import SubmenuCRUD
+from tests.fixtures import data as d
+from packages.generic_api_tests.generic_api_tests import (GenericAPITests,
+                                                          HTTPMethods)
 
 
 class TestSubmenuAPI(GenericAPITests):
@@ -23,22 +23,22 @@ class TestSubmenuAPI(GenericAPITests):
         self.base_url = d.ENDPOINT_SUBMENU.format(id=menu.id)
         assert await self.get_test(async_client) == []
 
-    async def test_get_all(self, submenu: Submenu, submenu_repo: SubmenuRepository, async_client: AsyncClient) -> None:
+    async def test_get_all(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
         assert await self.get_test(async_client, submenu_repo)
 
-    async def test_get(self, submenu: Submenu, submenu_repo: SubmenuRepository, async_client: AsyncClient) -> None:
+    async def test_get(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
         assert await self.get_test(async_client, submenu_repo, submenu.id)
 
-    async def test_post(self, menu: Menu, submenu_repo: SubmenuRepository, async_client: AsyncClient):
+    async def test_post(self, menu: Menu, submenu_repo: SubmenuCRUD, async_client: AsyncClient):
         self.base_url = d.ENDPOINT_SUBMENU.format(id=menu.id)
         assert await self.post_test(async_client, submenu_repo)
 
-    async def test_patch(self, submenu: Submenu, submenu_repo: SubmenuRepository, async_client: AsyncClient) -> None:
+    async def test_patch(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
         assert await self.patch_test(async_client, submenu_repo, submenu.id)
 
-    async def test_delete(self, submenu: Submenu, submenu_repo: SubmenuRepository, async_client: AsyncClient) -> None:
+    async def test_delete(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
         assert await self.delete_test(async_client, submenu_repo, submenu.id)

@@ -6,4 +6,5 @@
 !tests
 !setup.cfg
 !.coveragerc
+packages.generic_db_repo.tests
 !packages

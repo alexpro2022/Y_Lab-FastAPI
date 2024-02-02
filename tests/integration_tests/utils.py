@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from tests.integration_tests import data as d
+from tests.fixtures import data as d
 
 
 def _check_response(response_json: dict | list[dict], expected_result: dict | list[dict]) -> str:

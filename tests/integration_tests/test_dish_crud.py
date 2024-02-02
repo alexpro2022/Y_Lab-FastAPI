@@ -1,10 +1,10 @@
 from httpx import AsyncClient
 
 from app.models.models import Dish, Submenu
-from app.repositories.db_repository import DishRepository
-from tests.integration_tests import data as d
-from tests.integration_tests.generic_api_tests import (GenericAPITests,
-                                                       HTTPMethods)
+from app.repositories.db_repository import DishCRUD
+from tests.fixtures import data as d
+from packages.generic_api_tests.generic_api_tests import (GenericAPITests,
+                                                          HTTPMethods)
 
 
 class TestDishAPI(GenericAPITests):
@@ -23,22 +23,22 @@ class TestDishAPI(GenericAPITests):
         self.base_url = d.ENDPOINT_DISH.format(id=submenu.id)
         assert await self.get_test(async_client) == []
 
-    async def test_get_all(self, dish: Dish, dish_repo: DishRepository, async_client: AsyncClient) -> None:
+    async def test_get_all(self, dish: Dish, dish_repo: DishCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_DISH.format(id=dish.submenu_id)
         assert await self.get_test(async_client, dish_repo)
 
-    async def test_get(self, dish: Dish, dish_repo: DishRepository, async_client: AsyncClient) -> None:
+    async def test_get(self, dish: Dish, dish_repo: DishCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_DISH.format(id=dish.submenu_id)
         assert await self.get_test(async_client, dish_repo, dish.id)
 
-    async def test_post(self, submenu: Submenu, dish_repo: DishRepository, async_client: AsyncClient):
+    async def test_post(self, submenu: Submenu, dish_repo: DishCRUD, async_client: AsyncClient):
         self.base_url = d.ENDPOINT_DISH.format(id=submenu.id)
         assert await self.post_test(async_client, dish_repo)
 
-    async def test_patch(self, dish: Dish, dish_repo: DishRepository, async_client: AsyncClient) -> None:
+    async def test_patch(self, dish: Dish, dish_repo: DishCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_DISH.format(id=dish.submenu_id)
         assert await self.patch_test(async_client, dish_repo, dish.id)
 
-    async def test_delete(self, dish: Dish, dish_repo: DishRepository, async_client: AsyncClient) -> None:
+    async def test_delete(self, dish: Dish, dish_repo: DishCRUD, async_client: AsyncClient) -> None:
         self.base_url = d.ENDPOINT_DISH.format(id=dish.submenu_id)
         assert await self.delete_test(async_client, dish_repo, dish.id)
