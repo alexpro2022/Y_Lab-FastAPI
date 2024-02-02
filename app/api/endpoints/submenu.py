@@ -21,7 +21,7 @@ SUM_DELETE_ITEM = u.SUM_DELETE_ITEM.format(NAME)
     summary=SUM_ALL_ITEMS,
     description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
 async def get_all_(menu_id: str, menu_service: menu_service):
-    menu = await menu_service.get(menu_id)
+    menu = await menu_service.get(id=menu_id)
     return [] if menu is None else menu.submenus
 
 
@@ -35,8 +35,8 @@ async def create_(menu_id: str,
                   payload: schemas.SubmenuIn,
                   menu_service: menu_service,
                   submenu_service: submenu_service):
-    menu = await menu_service.get_or_404(menu_id)
-    return await submenu_service.create(payload, menu_id=menu.id)
+    menu = await menu_service.get(id=menu_id, exception=True)
+    return await submenu_service.create(**payload.model_dump(), menu_id=menu.id)
 
 
 @router.get(
@@ -45,7 +45,7 @@ async def create_(menu_id: str,
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
 async def get_(item_id: str, submenu_service: submenu_service):
-    return await submenu_service.get_or_404(item_id)
+    return await submenu_service.get(id=item_id, exception=True)
 
 
 @router.patch(
@@ -56,7 +56,7 @@ async def get_(item_id: str, submenu_service: submenu_service):
 async def update_(item_id: str,
                   payload: schemas.SubmenuPatch,
                   submenu_service: submenu_service):
-    return await submenu_service.update(item_id, payload)
+    return await submenu_service.update(id=item_id, **payload.model_dump())
 
 
 @router.delete(
@@ -64,5 +64,5 @@ async def update_(item_id: str,
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_(item_id: str, submenu_service: submenu_service):
-    await submenu_service.delete(item_id)
+    await submenu_service.delete(id=item_id)
     return u.delete_response('submenu')

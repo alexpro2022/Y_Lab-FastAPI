@@ -4,8 +4,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Dish, Menu, Submenu
-from app.repositories.db_repository import (DishRepository, MenuRepository,
-                                            SubmenuRepository)
+from app.repositories.db_repository import DishCRUD, MenuCRUD, SubmenuCRUD
 
 
 async def test_provided_loop_is_running_loop(event_loop) -> None:
@@ -21,15 +20,15 @@ def test_async_client(async_client) -> None:
 
 
 def test_menu_repo(menu_repo) -> None:
-    assert isinstance(menu_repo, MenuRepository)
+    assert isinstance(menu_repo, MenuCRUD)
 
 
 def test_submenu_repo(submenu_repo) -> None:
-    assert isinstance(submenu_repo, SubmenuRepository)
+    assert isinstance(submenu_repo, SubmenuCRUD)
 
 
 def test_dish_repo(dish_repo) -> None:
-    assert isinstance(dish_repo, DishRepository)
+    assert isinstance(dish_repo, DishCRUD)
 
 
 def test_menu(menu) -> None:
