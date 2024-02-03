@@ -1,5 +1,6 @@
-from fastapi import APIRouter
 from uuid import UUID
+
+from fastapi import APIRouter
 
 from app.api.endpoints import utils as u
 from app.core.config import settings

@@ -1,6 +1,7 @@
 from http import HTTPStatus
 from typing import Any, TypeAlias
 from uuid import UUID
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import Row
