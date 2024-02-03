@@ -1,14 +1,14 @@
 import pytest
 
 from app.models import Dish, Menu, Submenu
-from tests.integration_tests import data as d
+from tests.fixtures import data as d
 
 COMMON_FIELDS = ('id', 'title', 'description')
 
 parametrize = pytest.mark.parametrize('model, data, attrs', (
     (Dish, d.DISH_POST_PAYLOAD, (*COMMON_FIELDS, 'price')),
     (Menu, d.MENU_POST_PAYLOAD, (*COMMON_FIELDS,)),
-    (Submenu, d.SUBMENU_POST_PAYLOAD, (*COMMON_FIELDS, 'dishes_count')),
+    (Submenu, d.SUBMENU_POST_PAYLOAD, (*COMMON_FIELDS,)),
 ))
 
 

@@ -1,8 +1,10 @@
+from uuid import UUID
+
 from fastapi import APIRouter
 
 from app.api.endpoints import utils as u
 from app.core.config import settings
-from app.repositories.db_repository import menu_service, submenu_service
+from app.repositories.db_repository import submenu_service
 from app.schemas import schemas
 
 router = APIRouter(prefix=f'{settings.URL_PREFIX}menus', tags=['Submenus'])
@@ -20,9 +22,8 @@ SUM_DELETE_ITEM = u.SUM_DELETE_ITEM.format(NAME)
     response_model=list[schemas.SubmenuOut],
     summary=SUM_ALL_ITEMS,
     description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
-async def get_all_(menu_id: str, menu_service: menu_service):
-    menu = await menu_service.get(menu_id)
-    return [] if menu is None else menu.submenus
+async def get_all_(menu_id: UUID, submenu_service: submenu_service):
+    return await submenu_service.get(menu_id=menu_id)
 
 
 @router.post(
@@ -31,12 +32,10 @@ async def get_all_(menu_id: str, menu_service: menu_service):
     response_model=schemas.SubmenuOut,
     summary=SUM_CREATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
-async def create_(menu_id: str,
+async def create_(menu_id: UUID,
                   payload: schemas.SubmenuIn,
-                  menu_service: menu_service,
                   submenu_service: submenu_service):
-    menu = await menu_service.get_or_404(menu_id)
-    return await submenu_service.create(payload, menu_id=menu.id)
+    return await submenu_service.create(**payload.model_dump(), menu_id=menu_id)
 
 
 @router.get(
@@ -44,8 +43,8 @@ async def create_(menu_id: str,
     response_model=schemas.SubmenuOut,
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: str, submenu_service: submenu_service):
-    return await submenu_service.get_or_404(item_id)
+async def get_(menu_id: UUID, item_id: UUID, submenu_service: submenu_service):
+    return await submenu_service.get(id=item_id, exception=True)
 
 
 @router.patch(
@@ -53,16 +52,19 @@ async def get_(item_id: str, submenu_service: submenu_service):
     response_model=schemas.SubmenuOut,
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: str,
+async def update_(menu_id: UUID,
+                  item_id: UUID,
                   payload: schemas.SubmenuPatch,
                   submenu_service: submenu_service):
-    return await submenu_service.update(item_id, payload)
+    return await submenu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
+                                                                         exclude_none=True,
+                                                                         exclude_unset=True))
 
 
 @router.delete(
     '/{menu_id}/submenus/{item_id}',
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: str, submenu_service: submenu_service):
-    await submenu_service.delete(item_id)
+async def delete_(menu_id: UUID, item_id: UUID, submenu_service: submenu_service):
+    await submenu_service.delete(id=item_id)
     return u.delete_response('submenu')

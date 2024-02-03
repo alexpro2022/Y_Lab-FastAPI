@@ -20,28 +20,13 @@ class Common(Base):
 
 
 class Menu(Common):
-    submenus: Mapped[list['Submenu']] = relationship(
-        back_populates='menu',
-        cascade='all, delete-orphan',
-        lazy='selectin',
-    )
+    submenus: Mapped[list['Submenu']] = relationship(back_populates='menu', cascade='all, delete-orphan')
 
 
 class Submenu(Common):
     menu_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('menu.id'))
     menu: Mapped['Menu'] = relationship(back_populates='submenus')
-    dishes: Mapped[list['Dish']] = relationship(
-        back_populates='submenu',
-        cascade='all, delete-orphan',
-        lazy='selectin',
-    )
-
-    @property
-    def dishes_count(self) -> int:
-        return len(self.dishes)
-
-    def __repr__(self) -> str:
-        return f'{super().__repr__()}dishes_count: {self.dishes_count}\n'
+    dishes: Mapped[list['Dish']] = relationship(back_populates='submenu', cascade='all, delete-orphan')
 
 
 class Dish(Common):

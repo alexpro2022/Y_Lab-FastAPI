@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter
 
 from app.api.endpoints import utils as u
@@ -22,8 +24,7 @@ SUM_FULL_LIST = f'Полный список {NAME}.'
     summary=SUM_ALL_ITEMS,
     description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
 async def get_all_(menu_service: menu_service):
-    menus = await menu_service.get_all_()
-    return [] if menus is None else menus
+    return await menu_service.get()
 
 
 @router.post(
@@ -33,7 +34,7 @@ async def get_all_(menu_service: menu_service):
     summary=SUM_CREATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
 async def create_(payload: schemas.MenuIn, menu_service: menu_service):
-    return await menu_service.create(payload)
+    return await menu_service.create(**payload.model_dump())
 
 
 @router.get(
@@ -41,8 +42,8 @@ async def create_(payload: schemas.MenuIn, menu_service: menu_service):
     response_model=schemas.MenuOut,
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: str, menu_service: menu_service):
-    return await menu_service.get_or_404_(item_id)
+async def get_(item_id: UUID, menu_service: menu_service):
+    return await menu_service.get(id=item_id, exception=True)
 
 
 @router.patch(
@@ -50,14 +51,16 @@ async def get_(item_id: str, menu_service: menu_service):
     response_model=schemas.MenuOut,
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: str, payload: schemas.MenuPatch, menu_service: menu_service):
-    return await menu_service.update(item_id, payload)
+async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service):
+    return await menu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
+                                                                      exclude_none=True,
+                                                                      exclude_unset=True))
 
 
 @router.delete(
     '/{item_id}',
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: str, menu_service: menu_service):
-    await menu_service.delete(item_id)
+async def delete_(item_id: UUID, menu_service: menu_service):
+    await menu_service.delete(id=item_id)
     return u.delete_response('menu')

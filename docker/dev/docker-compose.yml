@@ -22,9 +22,11 @@ services:
     build:
       context: ../..
       dockerfile: docker/dev/dev.Dockerfile
-    command: bash -c "uvicorn app.main:app --host=0.0.0.0"
+    command: bash -c "uvicorn app.main:app --reload --host=0.0.0.0"
     # command: bash -c "alembic upgrade head && uvicorn app.main:app --host=0.0.0.0"
     restart: always
+    volumes:
+      - ../..:/app
     depends_on:
       db:
         condition: service_healthy

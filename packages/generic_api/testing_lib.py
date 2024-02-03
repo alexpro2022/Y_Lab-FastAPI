@@ -2,9 +2,11 @@ from http import HTTPStatus
 from typing import Any, TypeAlias
 from uuid import UUID
 
+import pytest
 from httpx import AsyncClient
+from sqlalchemy import Row
 
-from packages.generic_db_repo.generic_db_repository import CRUDBaseRepository
+from packages.generic_db_repo.generic_db_repository import BaseCRUD
 
 Json: TypeAlias = dict[str, str]
 DONE = 'DONE'
@@ -24,6 +26,8 @@ class GenericAPITests:
     msg_already_exists: str
     post_payload: Json
     patch_payload: Json
+    calculated_fields: tuple[str, ...] = ('',)
+    invalid_id: Any
     expected_results: dict[str, Json | dict[str, Any] | None] = {
         HTTPMethods.GET: None,
         HTTPMethods.PATCH: None,
@@ -34,12 +38,12 @@ class GenericAPITests:
     def get_endpoint(self, idx: UUID | None = None) -> str:
         return self.base_url if idx is None else f'{self.base_url}/{idx}'
 
-    async def _compare_with_db(self, response_json: Json, pk: UUID, repo: CRUDBaseRepository) -> None:
-        obj = await repo.get(pk)
-        assert obj is not None
-        await repo.session.refresh(obj)
+    async def _compare_with_db(self, response_json: Json, pk: UUID, repo: BaseCRUD) -> None:
+        obj = await repo.get(id=pk, exception=True)
+        if not isinstance(obj, Row):
+            await repo.session.refresh(obj)
         for key in response_json:
-            if key not in ('submenus_count', 'dishes_count'):
+            if key not in self.calculated_fields:
                 assert getattr(obj, key, None) == response_json[key]
 
     async def check_response(self, response_json: dict | list[dict], expected_result: dict | list[dict], repo) -> str:
@@ -60,7 +64,7 @@ class GenericAPITests:
         assert response_json.items() == expected_result.items()
         return DONE
 
-    async def get_test(self, async_client: AsyncClient, repo: CRUDBaseRepository | None = None,
+    async def get_test(self, async_client: AsyncClient, repo: BaseCRUD | None = None,
                        idx: UUID | None = None) -> Json | list[Json]:
         response = await async_client.get(self.get_endpoint(idx))
         assert response.status_code == HTTPStatus.OK
@@ -71,14 +75,14 @@ class GenericAPITests:
             assert await self.check_response(response_json, expected_result, repo) == DONE  # type: ignore [arg-type]
         return response.json()
 
-    async def patch_test(self, async_client: AsyncClient, repo: CRUDBaseRepository, idx: UUID) -> Json:
+    async def patch_test(self, async_client: AsyncClient, repo: BaseCRUD, idx: UUID) -> Json:
         response = await async_client.patch(self.get_endpoint(idx), json=self.patch_payload)
         assert response.status_code == HTTPStatus.OK, response.json()
         assert await self.check_response(
             response.json(), self.expected_results[HTTPMethods.PATCH], repo) == DONE  # type: ignore [arg-type]
         return response.json()
 
-    async def post_test(self, async_client: AsyncClient, repo: CRUDBaseRepository) -> Json:
+    async def post_test(self, async_client: AsyncClient, repo: BaseCRUD) -> Json:
         response = await async_client.post(self.base_url, json=self.post_payload)
         assert response.status_code == HTTPStatus.CREATED
         r = await async_client.post(self.base_url, json=self.post_payload)
@@ -88,7 +92,7 @@ class GenericAPITests:
             response.json(), self.expected_results[HTTPMethods.POST], repo) == DONE  # type: ignore [arg-type]
         return response.json()
 
-    async def delete_test(self, async_client: AsyncClient, repo: CRUDBaseRepository, idx: UUID) -> Json:
+    async def delete_test(self, async_client: AsyncClient, repo: BaseCRUD, idx: UUID) -> Json:
         response = await async_client.delete(self.get_endpoint(idx))
         assert response.status_code == HTTPStatus.OK
         r = await async_client.delete(self.get_endpoint(idx))
@@ -97,3 +101,8 @@ class GenericAPITests:
         assert await self.check_response(
             response.json(), self.expected_results[HTTPMethods.DELETE], repo) == DONE  # type: ignore [arg-type]
         return response.json()
+
+    @pytest.mark.parametrize('method_name', ('get', 'patch', 'delete'))
+    async def test_invalid_id(self, async_client: AsyncClient, method_name: str) -> None:
+        response = await async_client.__getattribute__(method_name)(self.get_endpoint(self.invalid_id))
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY
