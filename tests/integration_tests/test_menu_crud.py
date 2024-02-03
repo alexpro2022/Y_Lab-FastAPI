@@ -13,6 +13,8 @@ class TestMenuAPI(GenericAPITests):
     msg_already_exists = 'Меню с таким заголовком уже существует.'
     patch_payload = d.MENU_PATCH_PAYLOAD
     post_payload = d.MENU_POST_PAYLOAD
+    calculated_fields = ('submenus_count', 'dishes_count')
+    invalid_id = 1
     expected_results = {
         HTTPMethods.GET: d.CREATED_MENU,
         HTTPMethods.DELETE: d.DELETED_MENU,

@@ -76,7 +76,7 @@ class MenuOut(BaseOut, MenuIn):
 
 
 class SubmenuOut(BaseOut, SubmenuIn):
-    dishes_count: int
+    dishes_count: int = Field(default=0)
 
 
 class DishOut(BaseOut, TitleDescriptionMixin):
