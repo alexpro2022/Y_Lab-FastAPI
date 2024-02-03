@@ -2,8 +2,7 @@ from httpx import AsyncClient
 
 from app.models.models import Menu, Submenu
 from app.repositories.db_repository import SubmenuCRUD
-from packages.generic_api.testing_lib import (GenericAPITests,
-                                              HTTPMethods)
+from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
 from tests.fixtures import data as d
 
 
