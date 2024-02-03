@@ -1,5 +1,5 @@
 import re
-from typing import Any
+from typing import Any, Generic, TypeAlias, TypeVar
 from uuid import uuid4
 
 import pytest
@@ -8,21 +8,23 @@ from fastapi import HTTPException, status
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base import Base
-from .generic_db_repository import BaseCRUD
+from .generic_db_repository import BaseCRUD, ModelType
+
+_RepoType = TypeVar('_RepoType', bound=BaseCRUD)
+RepoType: TypeAlias = type[_RepoType]
 
 
-class BaseCRUDTest:
+class BaseCRUDTest(Generic[_RepoType]):
     """Тестирование базового CRUD класса."""
     msg_already_exists: str = 'Object with such a unique values already exists.'
     msg_not_found: str = 'Object(s) not found.'
-    model: Base
-    crud: BaseCRUD
+    model: ModelType
+    crud: RepoType
     create_data: dict
     create_data_extra: dict
     update_data: dict
 
-    # --- Fixtures ---
+# --- Fixtures ---
     @pytest.fixture(autouse=True)
     def init(self, init_db, get_test_session: AsyncSession) -> None:
         self._crud = self.crud(get_test_session)
@@ -40,8 +42,7 @@ class BaseCRUDTest:
 
     @pytest.fixture
     def get_create_data_extra(self) -> dict[str, Any]:
-        """Returns arbitrary extra data for object creation
-        (like FK of parent entity)."""
+        """Returns arbitrary extra data for object creation (like FK of parent entity)."""
         return {}
 
     def test_get_create_data_extra_fixture(self, get_create_data_extra) -> None:
@@ -117,7 +118,7 @@ class BaseCRUDTest:
         with pytest.raises(HTTPException, match=self.get_regex_not_found()):
             await self._crud.delete(id=get_obj.id)
 
-    # --- Utils ---
+# --- Utils ---
     @staticmethod
     def get_regex(expected_msg: str, expected_error_code: int | None = None) -> str:
         error_code = '' if expected_error_code is None else f'{expected_error_code}: '

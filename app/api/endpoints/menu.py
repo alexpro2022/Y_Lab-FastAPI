@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter
 
 from app.api.endpoints import utils as u
@@ -40,8 +42,8 @@ async def create_(payload: schemas.MenuIn, menu_service: menu_service):
     response_model=schemas.MenuOut,
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: str, menu_service: menu_service):
-    return await menu_service.get(id=item_id)
+async def get_(item_id: UUID, menu_service: menu_service):
+    return await menu_service.get(id=item_id, exception=True)
 
 
 @router.patch(
@@ -49,7 +51,7 @@ async def get_(item_id: str, menu_service: menu_service):
     response_model=schemas.MenuOut,
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: str, payload: schemas.MenuPatch, menu_service: menu_service):
+async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service):
     return await menu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
                                                                       exclude_none=True,
                                                                       exclude_unset=True))
@@ -59,6 +61,6 @@ async def update_(item_id: str, payload: schemas.MenuPatch, menu_service: menu_s
     '/{item_id}',
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: str, menu_service: menu_service):
+async def delete_(item_id: UUID, menu_service: menu_service):
     await menu_service.delete(id=item_id)
     return u.delete_response('menu')

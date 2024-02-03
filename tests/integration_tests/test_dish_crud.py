@@ -2,16 +2,19 @@ from httpx import AsyncClient
 
 from app.models.models import Dish, Submenu
 from app.repositories.db_repository import DishCRUD
-from tests.fixtures import data as d
 from packages.generic_api_tests.generic_api_tests import (GenericAPITests,
                                                           HTTPMethods)
+from tests.fixtures import data as d
 
 
 class TestDishAPI(GenericAPITests):
+    base_url = d.ENDPOINT_DISH_DEFAULT
+    """Needs in parent class for invalid_uuid testing."""
     msg_not_found = 'dish not found'
     msg_already_exists = 'Блюдо с таким заголовком уже существует.'
     patch_payload = d.DISH_PATCH_PAYLOAD
     post_payload = d.DISH_POST_PAYLOAD
+    invalid_id = 1
     expected_results = {
         HTTPMethods.GET: d.CREATED_DISH,
         HTTPMethods.DELETE: d.DELETED_DISH,

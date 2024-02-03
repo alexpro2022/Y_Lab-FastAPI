@@ -1,8 +1,10 @@
+from uuid import UUID
+
 from fastapi import APIRouter
 
 from app.api.endpoints import utils as u
 from app.core.config import settings
-from app.repositories.db_repository import dish_service  # , submenu_service
+from app.repositories.db_repository import dish_service
 from app.schemas import schemas
 
 router = APIRouter(prefix=f'{settings.URL_PREFIX}menus', tags=['Dishes'])
@@ -41,7 +43,7 @@ async def create_(submenu_id: str,
     response_model=schemas.DishOut,
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: str, dish_service: dish_service):
+async def get_(item_id: UUID, dish_service: dish_service):
     return await dish_service.get(id=item_id, exception=True)
 
 
@@ -50,7 +52,7 @@ async def get_(item_id: str, dish_service: dish_service):
     response_model=schemas.DishOut,
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: str,
+async def update_(item_id: UUID,
                   payload: schemas.DishPatch,
                   dish_service: dish_service):
     return await dish_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
@@ -62,6 +64,6 @@ async def update_(item_id: str,
     '/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: str, dish_service: dish_service):
+async def delete_(item_id: UUID, dish_service: dish_service):
     await dish_service.delete(id=item_id)
     return u.delete_response('dish')

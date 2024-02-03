@@ -2,8 +2,10 @@ from http import HTTPStatus
 from typing import Any, TypeAlias
 from uuid import UUID
 
+import pytest
 from httpx import AsyncClient
 from sqlalchemy import Row
+
 from packages.generic_db_repo.generic_db_repository import BaseCRUD
 
 Json: TypeAlias = dict[str, str]
@@ -24,6 +26,8 @@ class GenericAPITests:
     msg_already_exists: str
     post_payload: Json
     patch_payload: Json
+    calculated_fields: tuple[str, ...] = ('',)
+    invalid_id: Any
     expected_results: dict[str, Json | dict[str, Any] | None] = {
         HTTPMethods.GET: None,
         HTTPMethods.PATCH: None,
@@ -39,7 +43,7 @@ class GenericAPITests:
         if not isinstance(obj, Row):
             await repo.session.refresh(obj)
         for key in response_json:
-            if key not in ('submenus_count', 'dishes_count'):
+            if key not in self.calculated_fields:
                 assert getattr(obj, key, None) == response_json[key]
 
     async def check_response(self, response_json: dict | list[dict], expected_result: dict | list[dict], repo) -> str:
@@ -97,3 +101,8 @@ class GenericAPITests:
         assert await self.check_response(
             response.json(), self.expected_results[HTTPMethods.DELETE], repo) == DONE  # type: ignore [arg-type]
         return response.json()
+
+    @pytest.mark.parametrize('method_name', ('get', 'patch', 'delete'))
+    async def test_invalid_id(self, async_client: AsyncClient, method_name: str) -> None:
+        response = await async_client.__getattribute__(method_name)(self.get_endpoint(self.invalid_id))
+        assert response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY

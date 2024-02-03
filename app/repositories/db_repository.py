@@ -27,7 +27,6 @@ class MenuCRUD(CRUD):
                 Menu.id,
                 Menu.title,
                 Menu.description,
-                self.model,
                 func.count(distinct(Submenu.id)).label('submenus_count'),
                 func.count(distinct(Dish.id)).label('dishes_count'),
             )
@@ -44,6 +43,20 @@ class SubmenuCRUD(CRUD):
 
     def __init__(self, session: async_session):
         super().__init__(Submenu, session)
+
+    def get_statement(self, **kwargs) -> Select:
+        return (
+            select(
+                Submenu.id,
+                Submenu.title,
+                Submenu.description,
+                Submenu.menu_id,
+                func.count(distinct(Dish.id)).label('dishes_count'),
+            )
+            .filter_by(**kwargs)
+            .outerjoin(Dish, Submenu.id == Dish.submenu_id)
+            .group_by(Submenu.id)
+        )
 
 
 class DishCRUD(CRUD):
