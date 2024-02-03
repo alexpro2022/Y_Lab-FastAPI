@@ -43,9 +43,8 @@ class BaseCRUD(Generic[_ModelType]):
         self.session.add(obj)
         try:
             await self.session.commit()
-        except exc.IntegrityError as exc_info:
+        except exc.IntegrityError:
             await self.session.rollback()
-            print(exc_info)
             raise HTTPException(status.HTTP_400_BAD_REQUEST,
                                 self.msg_already_exists)
         await self.session.refresh(obj)
@@ -76,10 +75,7 @@ class BaseCRUD(Generic[_ModelType]):
             - optional `user`(user object for permission check);
             - custom params(for update allowance)."""
         obj = await self.__get_or_404(id=kwargs.pop('id'))
-        try:
-            user = kwargs.pop('user')
-        except KeyError:
-            user = None
+        user = kwargs.pop('user') if hasattr(kwargs, 'user') else None
         self.has_permission(obj, user)
         self.is_update_allowed(obj, **kwargs)
         for key in kwargs:
