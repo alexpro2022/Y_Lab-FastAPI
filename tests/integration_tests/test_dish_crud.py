@@ -2,8 +2,7 @@ from httpx import AsyncClient
 
 from app.models.models import Dish, Submenu
 from app.repositories.db_repository import DishCRUD
-from packages.generic_api_tests.generic_api_tests import (GenericAPITests,
-                                                          HTTPMethods)
+from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
 from tests.fixtures import data as d
 
 
