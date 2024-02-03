@@ -1,4 +1,5 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import Depends
 from sqlalchemy import Select, distinct, func, select
@@ -12,6 +13,10 @@ class CRUD(BaseCRUD):
     has_permission_not_in_use = True
     is_delete_allowed_not_in_use = True
     is_update_allowed_not_in_use = True
+
+    async def delete(self, *, id: UUID) -> dict:
+        await super().delete(id=id)
+        return {'status': True, 'message': f'The {self.model.__name__.lower()} has been deleted'}
 
 
 class MenuCRUD(CRUD):

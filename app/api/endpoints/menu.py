@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from app.api.endpoints import utils as u
+from app.api.endpoints import const as u
 from app.core.config import settings
 from app.repositories.db_repository import menu_service
 from app.schemas import schemas
@@ -62,5 +62,4 @@ async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_(item_id: UUID, menu_service: menu_service):
-    await menu_service.delete(id=item_id)
-    return u.delete_response('menu')
+    return await menu_service.delete(id=item_id)
