@@ -2,7 +2,7 @@ from uuid import UUID
 
 from fastapi import APIRouter
 
-from app.api.endpoints import utils as u
+from app.api.endpoints import const as u
 from app.core.config import settings
 from app.repositories.db_repository import submenu_service
 from app.schemas import schemas
@@ -66,5 +66,4 @@ async def update_(menu_id: UUID,
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_(menu_id: UUID, item_id: UUID, submenu_service: submenu_service):
-    await submenu_service.delete(id=item_id)
-    return u.delete_response('submenu')
+    return await submenu_service.delete(id=item_id)

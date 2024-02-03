@@ -85,21 +85,23 @@ class GenericAPITests:
     async def post_test(self, async_client: AsyncClient, repo: BaseCRUD) -> Json:
         response = await async_client.post(self.base_url, json=self.post_payload)
         assert response.status_code == HTTPStatus.CREATED
+        assert await self.check_response(
+            response.json(), self.expected_results[HTTPMethods.POST], repo) == DONE  # type: ignore [arg-type]
+        # Sequential attempt to post identical item
         r = await async_client.post(self.base_url, json=self.post_payload)
         assert r.status_code == HTTPStatus.BAD_REQUEST
         assert r.json().get('detail') == self.msg_already_exists
-        assert await self.check_response(
-            response.json(), self.expected_results[HTTPMethods.POST], repo) == DONE  # type: ignore [arg-type]
         return response.json()
 
     async def delete_test(self, async_client: AsyncClient, repo: BaseCRUD, idx: UUID) -> Json:
         response = await async_client.delete(self.get_endpoint(idx))
         assert response.status_code == HTTPStatus.OK
+        assert await self.check_response(
+            response.json(), self.expected_results[HTTPMethods.DELETE], repo) == DONE  # type: ignore [arg-type]
+        # Sequential attempt to delete identical item
         r = await async_client.delete(self.get_endpoint(idx))
         assert r.status_code == HTTPStatus.NOT_FOUND
         assert r.json().get('detail') == self.msg_not_found
-        assert await self.check_response(
-            response.json(), self.expected_results[HTTPMethods.DELETE], repo) == DONE  # type: ignore [arg-type]
         return response.json()
 
     @pytest.mark.parametrize('method_name', ('get', 'patch', 'delete'))
