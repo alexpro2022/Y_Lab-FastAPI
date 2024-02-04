@@ -6,7 +6,6 @@ Please override set_cache_on_xxx methods with extra logic for Redis in the inher
 from typing import Callable
 
 from fastapi import BackgroundTasks
-
 from package.generic_cache_repo.generic_cache_repository import BaseRedis
 from package.generic_db_repo.generic_db_repository import BaseCRUD, ModelType
 

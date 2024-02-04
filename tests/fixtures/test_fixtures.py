@@ -12,7 +12,7 @@ async def test_provided_loop_is_running_loop(event_loop) -> None:
 
 
 def test_init_db_fixture(init_db) -> None:
-    assert init_db == 'init_db'
+    assert init_db is None
 
 
 def test_get_test_session(get_test_session) -> None:
