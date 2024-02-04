@@ -1,6 +1,7 @@
 from typing import Annotated
+
 from fastapi import Depends
-from redis import asyncio as aioredis
+from redis import asyncio as aioredis  # type: ignore [import]
 
 redis_url = 'redis://redis:6379'
 
