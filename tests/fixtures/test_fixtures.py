@@ -1,5 +1,6 @@
 import asyncio
 
+from fakeredis.aioredis import FakeRedis
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,3 +46,14 @@ def test_submenu(submenu) -> None:
 
 def test_dish(dish) -> None:
     assert isinstance(dish, Dish)
+
+
+async def test_get_test_redis_fixture(get_test_redis) -> None:
+    assert isinstance(get_test_redis, FakeRedis)
+    assert await get_test_redis.get('key') is None
+    for value in ('str', 1, 2.2):
+        assert await get_test_redis.set('key', value)
+        cache = await get_test_redis.get('key')
+        assert cache.decode('utf-8') == str(value)
+    assert await get_test_redis.delete('key')
+    assert await get_test_redis.get('key') is None
