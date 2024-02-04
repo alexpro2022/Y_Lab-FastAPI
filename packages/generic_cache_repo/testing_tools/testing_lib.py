@@ -5,7 +5,8 @@ import pytest
 import pytest_asyncio
 from redis import asyncio as aioredis  # type: ignore [import]
 
-from ..generic_cache_repository import BaseRedis, get_aioredis
+from ..generic_cache_repository import BaseRedis
+from ..dependencies import get_aioredis
 
 
 class BaseRedisTest:

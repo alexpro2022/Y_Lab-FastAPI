@@ -63,15 +63,12 @@ DELETED_DISH = {'status': True, 'message': 'The dish has been deleted'}
 
 # Redis tests
 class Model:
-
     def __init__(self, *, id: int, title: str, description: str):
-        # assert isinstance(id, int)
-        # assert isinstance(title, str)
-        # assert isinstance(description, str)
         self.id = id
         self.title = title
         self.description = description
 
 
 CREATE_PAYLOAD = {
-    'id': uuid4(), 'title': 'My created object', 'description': 'My created object description'}
+    'id': uuid4(), 'title': 'My created object', 'description': 'My created object description'
+}

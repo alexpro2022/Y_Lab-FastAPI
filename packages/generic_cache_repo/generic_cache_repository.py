@@ -3,15 +3,6 @@ from typing import Any
 
 from redis import asyncio as aioredis  # type: ignore [import]
 
-# from app.core.config import settings
-# redis_url = settings.redis_url
-
-redis_url = 'redis://redis:6379'
-
-
-def get_aioredis() -> aioredis.Redis:
-    return aioredis.from_url(redis_url)
-
 
 class BaseRedis:
 
