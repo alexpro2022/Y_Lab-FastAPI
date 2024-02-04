@@ -7,25 +7,9 @@ from httpx import AsyncClient
 from app.main import app
 from app.models import Dish, Menu, Submenu
 from app.repositories.db_repository import DishCRUD, MenuCRUD, SubmenuCRUD
-from packages.generic_db_repo.base import Base
+from packages.generic_db_repo.testing_tools.fixtures import init_db, get_test_session  # noqa
 from tests.fixtures.data import (DISH_POST_PAYLOAD, MENU_POST_PAYLOAD,
                                  SUBMENU_POST_PAYLOAD)
-from tests.fixtures.db import TestingSessionLocal, test_engine
-
-
-@pytest_asyncio.fixture
-async def init_db() -> AsyncGenerator[None, Any]:
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    yield
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-
-
-@pytest_asyncio.fixture
-async def get_test_session() -> AsyncGenerator[None, Any]:
-    async with TestingSessionLocal() as session:
-        yield session
 
 
 @pytest_asyncio.fixture(scope='session')
@@ -40,17 +24,17 @@ def menu_repo(get_test_session) -> MenuCRUD:  # noqa
 
 
 @pytest.fixture
-def submenu_repo(get_test_session) -> SubmenuCRUD:
+def submenu_repo(get_test_session) -> SubmenuCRUD:  # noqa
     return SubmenuCRUD(get_test_session)
 
 
 @pytest.fixture
-def dish_repo(get_test_session) -> DishCRUD:
+def dish_repo(get_test_session) -> DishCRUD:  # noqa
     return DishCRUD(get_test_session)
 
 
 @pytest_asyncio.fixture
-async def menu(init_db, menu_repo) -> Menu:
+async def menu(init_db, menu_repo) -> Menu:  # noqa
     return await menu_repo.create(**MENU_POST_PAYLOAD)
 
 

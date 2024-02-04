@@ -11,6 +11,10 @@ async def test_provided_loop_is_running_loop(event_loop) -> None:
     assert event_loop is asyncio.get_running_loop()
 
 
+def test_init_db_fixture(init_db) -> None:
+    assert init_db == 'init_db'
+
+
 def test_get_test_session(get_test_session) -> None:
     assert isinstance(get_test_session, AsyncSession)
 

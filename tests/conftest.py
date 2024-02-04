@@ -4,7 +4,7 @@ import pytest
 
 from app.main import app
 from packages.generic_db_repo.dependencies import get_async_session
-from tests.fixtures.db import TestingSessionLocal
+from packages.generic_db_repo.testing_tools.db import TestingSessionLocal
 
 pytest_plugins = [
     'tests.fixtures.fixtures',
