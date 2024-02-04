@@ -1,0 +1,20 @@
+# DB
+aiosqlite
+fastapi
+sqlalchemy
+pydantic-settings
+
+# Cache
+fakeredis
+redis
+
+#tests
+flake8
+pep8-naming
+flake8-broken-line
+flake8-return
+flake8-isort
+
+pytest
+pytest-asyncio
+pytest-cov
