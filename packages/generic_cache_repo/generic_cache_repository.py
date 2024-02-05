@@ -31,7 +31,7 @@ class BaseRedis:
         except pickle.UnpicklingError:
             return cache
 
-    async def get(self, key: Any | None = None) -> Any | list[Any] | None:
+    async def get(self, key: Any | None = None, pattern: str = '*') -> Any | list[Any] | None:
         async def get_obj(key: Any) -> Any | None:
             key = (key if (isinstance(key, str) and key.startswith(self.redis_key_prefix))
                    else self._get_key(key))
@@ -40,7 +40,7 @@ class BaseRedis:
 
         if key is None:
             result = [await get_obj(key.decode('utf-8')) for key in
-                      await self.redis.keys(f'{self.redis_key_prefix}*')]
+                      await self.redis.keys(f'{self.redis_key_prefix}{pattern}')]
             return result if result and None not in result else None
         return await get_obj(key)
 

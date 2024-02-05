@@ -13,7 +13,7 @@ from packages.generic_db_repo.types import ModelType, RepoType, _RepoType
 
 class BaseService(Generic[_CacheType, _RepoType]):
     """Base abstract service class."""
-    msg_not_impemented = "Method or function hasn't been implemented yet."
+    # msg_not_impemented = "Method or function hasn't been implemented yet."
 
     def __init__(self,
                  db: RepoType,
@@ -27,13 +27,13 @@ class BaseService(Generic[_CacheType, _RepoType]):
         self.bg_tasks.add_task(method, entity) if self.bg_tasks is not None else await method(entity)
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
-        entity = await self.cache.get(key=kwargs.get('id'))
+        entity = await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*'))
         if not entity:
-            entity = await self.db.get(exception=exception, **kwargs)  # if pk else await self.db.get(exception)
+            entity = await self.db.get(exception=exception, **kwargs)
             await self._add_bg_task_or_execute(self.cache.set, entity)
         return entity
 
-    async def create(self, **kwargs) -> ModelType:  # payload: BaseModel,
+    async def create(self, **kwargs) -> ModelType:
         """Base class provides database `create` method and
            not implemented `set_cache_on_create` template-method in FastAPI BackgroundTasks or directly."""
         obj = await self.db.create(**kwargs)
@@ -55,10 +55,13 @@ class BaseService(Generic[_CacheType, _RepoType]):
         return obj
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
-        raise NotImplementedError(self.msg_not_impemented)
+        pass  # await self.cache.set(obj)
+        # raise NotImplementedError(self.msg_not_impemented)
 
     async def set_cache_on_update(self, obj: ModelType) -> None:
-        raise NotImplementedError(self.msg_not_impemented)
+        pass  # await self.cache.set(obj)
+        # raise NotImplementedError(self.msg_not_impemented)
 
     async def set_cache_on_delete(self, obj: ModelType) -> None:
-        raise NotImplementedError(self.msg_not_impemented)
+        pass  # await self.cache.delete(obj)
+        # raise NotImplementedError(self.msg_not_impemented)
