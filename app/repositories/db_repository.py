@@ -72,6 +72,6 @@ class DishCRUD(CRUD):
         super().__init__(Dish, session)
 
 
-menu_service = Annotated[MenuCRUD, Depends()]
-submenu_service = Annotated[SubmenuCRUD, Depends()]
-dish_service = Annotated[DishCRUD, Depends()]
+menu_crud = Annotated[MenuCRUD, Depends()]
+submenu_crud = Annotated[SubmenuCRUD, Depends()]
+dish_crud = Annotated[DishCRUD, Depends()]

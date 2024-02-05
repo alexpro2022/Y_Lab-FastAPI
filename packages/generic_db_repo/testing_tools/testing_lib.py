@@ -1,5 +1,5 @@
 import re
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, Generic
 from uuid import uuid4
 
 import pytest
@@ -8,10 +8,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..generic_db_repository import BaseCRUD, ModelType
-
-_RepoType = TypeVar('_RepoType', bound=BaseCRUD)
-RepoType: TypeAlias = type[_RepoType]
+from ..types import ModelType, RepoType, _RepoType
 
 
 class BaseCRUDTest(Generic[_RepoType]):

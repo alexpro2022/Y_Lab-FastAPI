@@ -3,20 +3,21 @@ This is a base service class implementation.
 Please override set_cache_on_xxx methods with extra logic for Redis in the inherited class.
     * xxx - create/update/delete
 """
-from typing import Callable
+from typing import Callable, Generic
 
 from fastapi import BackgroundTasks
-from package.generic_cache_repo.generic_cache_repository import BaseRedis
-from package.generic_db_repo.generic_db_repository import BaseCRUD, ModelType
+
+from packages.generic_cache_repo.types import CacheType, _CacheType
+from packages.generic_db_repo.types import ModelType, RepoType, _RepoType
 
 
-class BaseService:
+class BaseService(Generic[_CacheType, _RepoType]):
     """Base abstract service class."""
     msg_not_impemented = "Method or function hasn't been implemented yet."
 
     def __init__(self,
-                 db: BaseCRUD,
-                 redis: BaseRedis,
+                 db: RepoType,
+                 redis: CacheType,
                  bg_tasks: BackgroundTasks | None = None) -> None:
         self.db = db
         self.cache = redis

@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Generic, TypeAlias, TypeVar
+from typing import Any, Generic
 
 import pytest
 import pytest_asyncio
@@ -8,10 +8,7 @@ from redis import asyncio as aioredis  # type: ignore [import]
 from packages.generic_db_repo.generic_db_repository import ModelType
 
 from ..dependencies import get_aioredis
-from ..generic_cache_repository import BaseRedis
-
-_CacheType = TypeVar('_CacheType', bound=BaseRedis)
-CacheType: TypeAlias = type[_CacheType]
+from ..types import CacheType, _CacheType
 
 
 class BaseRedisTest(Generic[_CacheType]):
