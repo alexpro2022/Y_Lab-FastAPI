@@ -4,8 +4,8 @@ from fastapi import APIRouter
 
 from app.api.endpoints import const as u
 from app.core.config import settings
-from app.repositories.db_repository import submenu_service
 from app.schemas import schemas
+from app.services.services import submenu_service
 
 router = APIRouter(prefix=f'{settings.URL_PREFIX}menus', tags=['Submenus'])
 
@@ -43,7 +43,7 @@ async def create_(menu_id: UUID,
     response_model=schemas.SubmenuOut,
     summary=SUM_ITEM,
     description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(menu_id: UUID, item_id: UUID, submenu_service: submenu_service):
+async def get_(item_id: UUID, submenu_service: submenu_service):
     return await submenu_service.get(id=item_id, exception=True)
 
 
@@ -52,8 +52,7 @@ async def get_(menu_id: UUID, item_id: UUID, submenu_service: submenu_service):
     response_model=schemas.SubmenuOut,
     summary=SUM_UPDATE_ITEM,
     description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(menu_id: UUID,
-                  item_id: UUID,
+async def update_(item_id: UUID,
                   payload: schemas.SubmenuPatch,
                   submenu_service: submenu_service):
     return await submenu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
@@ -65,5 +64,5 @@ async def update_(menu_id: UUID,
     '/{menu_id}/submenus/{item_id}',
     summary=SUM_DELETE_ITEM,
     description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(menu_id: UUID, item_id: UUID, submenu_service: submenu_service):
+async def delete_(item_id: UUID, submenu_service: submenu_service):
     return await submenu_service.delete(id=item_id)
