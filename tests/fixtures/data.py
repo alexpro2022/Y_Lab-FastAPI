@@ -59,16 +59,3 @@ UPDATED_DISH = {'title': 'My updated dish 1',
                 'description': 'My updated dish description 1',
                 'price': '14.50'}
 DELETED_DISH = {'status': True, 'message': 'The dish has been deleted'}
-
-
-# Redis tests
-class Model:
-    def __init__(self, *, id: int, title: str, description: str):
-        self.id = id
-        self.title = title
-        self.description = description
-
-
-CREATE_PAYLOAD = {
-    'id': uuid4(), 'title': 'My created object', 'description': 'My created object description'
-}
