@@ -2,5 +2,6 @@ alembic
 asyncpg
 fastapi
 pydantic-settings
+redis
 sqlalchemy
 uvicorn[standard]

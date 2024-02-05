@@ -1,10 +1,12 @@
 from typing import Any, AsyncGenerator
 
 import pytest
+from fakeredis.aioredis import FakeRedis
 
 from app.main import app
+from packages.generic_cache_repo.dependencies import get_aioredis
 from packages.generic_db_repo.dependencies import get_async_session
-from tests.fixtures.db import TestingSessionLocal
+from packages.generic_db_repo.testing_tools.db import TestingSessionLocal
 
 pytest_plugins = [
     'tests.fixtures.fixtures',
@@ -19,4 +21,11 @@ async def override_get_async_session() -> AsyncGenerator[Any, None]:
         yield session
 
 
+async def override_get_aioredis() -> AsyncGenerator[FakeRedis, Any]:
+    r = FakeRedis()
+    yield r
+    await r.flushall()
+
+
 app.dependency_overrides[get_async_session] = override_get_async_session
+app.dependency_overrides[get_aioredis] = override_get_aioredis

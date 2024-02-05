@@ -17,7 +17,8 @@ repos:
     rev: 5.12.0
     hooks:
       - id: isort
-        name: isort (python)
+        exclude: __init__.py
+        args: [ --profile, black, --filter-files ]
 
 # Обновляет синтаксис Python кода в соответствии с последними версиями
 -   repo: https://github.com/asottile/pyupgrade
@@ -28,7 +29,7 @@ repos:
 
 # Форматирует код под PEP8
 -   repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v2.0.4
+    rev: v2.0.1
     hooks:
     -   id: autopep8
         args: [--max-line-length=120, --in-place]
@@ -39,11 +40,11 @@ repos:
     hooks:
     -   id: flake8
         exclude: "__init__.py"
-        args: ["--ignore=F821,F403,F405"]
+        args: ["--ignore=E501,F821", "--max-line-length=120"]
 
 # Проверка статических типов с помощью mypy
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.991
     hooks:
     -   id: mypy
-        exclude: 'alembic'
+        exclude: 'migrations'

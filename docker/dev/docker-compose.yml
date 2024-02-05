@@ -18,6 +18,13 @@ services:
       retries: 5
       start_period: 80s
 
+  redis:
+    image: redis:latest
+    ports:
+      - $REDIS_PORT:$REDIS_PORT
+    env_file:
+      - ../../.env
+
   web:
     build:
       context: ../..
@@ -28,8 +35,12 @@ services:
     volumes:
       - ../..:/app
     depends_on:
-      db:
-        condition: service_healthy
+      - db
+      - redis
+      #db:
+      #  condition: service_healthy
+      #redis:
+      #  condition: service_healthy
     env_file:
       - ../../.env
 
