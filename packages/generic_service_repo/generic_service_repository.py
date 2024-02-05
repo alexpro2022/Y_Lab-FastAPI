@@ -27,8 +27,7 @@ class BaseService:
         return obj
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
-        # entity = await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*'))
-        entity = None
+        entity = await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*'))
         if not entity:
             entity = await self.refresh(exception=exception, **kwargs)
         return entity

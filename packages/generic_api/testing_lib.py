@@ -67,8 +67,7 @@ class GenericAPITests:
     async def get_test(self, async_client: AsyncClient, repo: BaseCRUD | None = None,
                        idx: UUID | None = None) -> Json | list[Json]:
         response = await async_client.get(self.get_endpoint(idx))
-        print(response.json())
-        assert response.status_code == HTTPStatus.OK, response.status_code
+        assert response.status_code == HTTPStatus.OK
         response_json = response.json()
         if response_json:
             expected_result = ([self.expected_results[HTTPMethods.GET]] if isinstance(response_json, list) else

@@ -1,9 +1,6 @@
 from typing import Annotated
-
 from fastapi import Depends
-# from app.models import Menu, Dish, Submenu
-from app.repositories.cache_repository import (dish_cache, menu_cache,
-                                               submenu_cache, MENU_PREFIX, SUBMENU_PREFIX, DISH_PREFIX)
+from app.repositories.cache_repository import dish_cache, menu_cache, submenu_cache
 from app.repositories.db_repository import dish_crud, menu_crud, submenu_crud
 from packages.generic_db_repo.types import ModelType
 from packages.generic_service_repo.generic_service_repository import \
@@ -29,7 +26,8 @@ class MenuService(Service):
         # delete orphans
         submenus = await self.submenu_cache.get()
         if submenus is not None:
-            submenu_names = [self.submenu_cache._get_key(submenu.id) for submenu in submenus if submenu.menu_id == obj.id]
+            submenu_names = [self.submenu_cache._get_key(submenu.id)
+                             for submenu in submenus if submenu.menu_id == obj.id]
             await self.submenu_cache.redis.delete(*submenu_names)
 
         dishes = await self.dish_cache.get()
@@ -48,26 +46,17 @@ class SubmenuService(Service):
         self.dish_cache = dish_cache
         self.menu_service = menu_service
 
-    '''async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
-        assert await self.cache.get() is None
-        entity_from_db = await super().get(exception, **kwargs)
-        entity_from_cache = await self.cache.get()[0]  # await super().get(exception, **kwargs)
-        print(entity_from_db)
-        print(entity_from_cache[0])
-        assert 0
-        dishes = await self.dish_cache.get()
-        if dishes is not None:
-            if isinstance(entity, (list, tuple)):
-                for item in entity:
-                    item.dishes_count = len([dish for dish in dishes if dish.submenu_id == item.id])
-            else:
-                entity.dishes_count = len([dish for dish in dishes if dish.submenu_id == entity.id])
-            print(entity)
-            return entity '''
+    async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
+        if kwargs.get('menu_id') is not None:
+            submenus = await self.cache.get()
+            if submenus:
+                logging.info(submenus)
+                return [submenu for submenu in submenus if submenu.menu_id == kwargs.get('menu_id')]
+        return await super().get(exception, **kwargs)
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
         await super().set_cache_on_create(obj)
-        # Refreshing parent cache
+        # Refresh parent cache
         await self.menu_service.refresh(id=obj.menu_id)
 
     async def set_cache_on_delete(self, obj: ModelType) -> None:
@@ -77,12 +66,14 @@ class SubmenuService(Service):
         if dishes is not None:
             dish_names = [self.dish_cache._get_key(dish.id) for dish in dishes if dish.submenu_id == obj.id]
             await self.dish_cache.redis.delete(*dish_names)
-        # Refreshing parent cache
+        # Refresh parent cache
         await self.menu_service.refresh(id=obj.menu_id)
 
 
 submenu_service = Annotated[SubmenuService, Depends()]
 
+import logging
+logging.basicConfig(level=logging.INFO)
 
 class DishService(Service):
 
@@ -91,15 +82,23 @@ class DishService(Service):
         self.menu_service = menu_service
         self.submenu_service = submenu_service
 
+    async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
+        if kwargs.get('submenu_id') is not None:
+            dishes = await self.cache.get()
+            if dishes:
+                logging.info(dishes)
+                return [dish for dish in dishes if dish.submenu_id == kwargs.get('submenu_id')]
+        return await super().get(exception, **kwargs)
+
     async def set_cache_on_create(self, obj: ModelType) -> None:
         await super().set_cache_on_create(obj)
-        # Refreshing parent cache
+        # Refresh parent cache
         submenu = await self.submenu_service.refresh(id=obj.submenu_id)
         await self.menu_service.refresh(submenu.menu_id)
 
     async def set_cache_on_delete(self, obj: ModelType) -> None:
         await self.cache.delete(obj)
-        # Refreshing parent cache
+        # Refresh parent cache
         submenu = await self.submenu_service.refresh(id=obj.submenu_id)
         await self.menu_service.refresh(submenu.menu_id)
 
