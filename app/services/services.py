@@ -1,10 +1,11 @@
 from typing import Annotated
+
 from fastapi import Depends
+
 from app.repositories.cache_repository import dish_cache, menu_cache, submenu_cache
 from app.repositories.db_repository import dish_crud, menu_crud, submenu_crud
 from packages.generic_db_repo.types import ModelType
-from packages.generic_service_repo.generic_service_repository import \
-    BaseService
+from packages.generic_service_repo.generic_service_repository import BaseService
 
 
 class Service(BaseService):
@@ -17,7 +18,7 @@ class Service(BaseService):
 class MenuService(Service):
 
     def __init__(self, db: menu_crud, redis: menu_cache, submenu_cache: submenu_cache, dish_cache: dish_cache):
-        super().__init__(db, redis)
+        super().__init__(db, redis)  # type: ignore [arg-type]
         self.submenu_cache = submenu_cache
         self.dish_cache = dish_cache
 
@@ -42,17 +43,9 @@ menu_service = Annotated[MenuService, Depends()]
 class SubmenuService(Service):
 
     def __init__(self, db: submenu_crud, redis: submenu_cache, menu_service: menu_service, dish_cache: dish_cache):
-        super().__init__(db, redis)
+        super().__init__(db, redis)  # type: ignore [arg-type]
         self.dish_cache = dish_cache
         self.menu_service = menu_service
-
-    async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
-        if kwargs.get('menu_id') is not None:
-            submenus = await self.cache.get()
-            if submenus:
-                logging.info(submenus)
-                return [submenu for submenu in submenus if submenu.menu_id == kwargs.get('menu_id')]
-        return await super().get(exception, **kwargs)
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
         await super().set_cache_on_create(obj)
@@ -72,35 +65,25 @@ class SubmenuService(Service):
 
 submenu_service = Annotated[SubmenuService, Depends()]
 
-import logging
-logging.basicConfig(level=logging.INFO)
 
 class DishService(Service):
 
     def __init__(self, db: dish_crud, redis: dish_cache, menu_service: menu_service, submenu_service: submenu_service):
-        super().__init__(db, redis)
+        super().__init__(db, redis)  # type: ignore [arg-type]
         self.menu_service = menu_service
         self.submenu_service = submenu_service
-
-    async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
-        if kwargs.get('submenu_id') is not None:
-            dishes = await self.cache.get()
-            if dishes:
-                logging.info(dishes)
-                return [dish for dish in dishes if dish.submenu_id == kwargs.get('submenu_id')]
-        return await super().get(exception, **kwargs)
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
         await super().set_cache_on_create(obj)
         # Refresh parent cache
         submenu = await self.submenu_service.refresh(id=obj.submenu_id)
-        await self.menu_service.refresh(submenu.menu_id)
+        await self.menu_service.refresh(submenu.menu_id)  # type: ignore [union-attr]
 
     async def set_cache_on_delete(self, obj: ModelType) -> None:
         await self.cache.delete(obj)
         # Refresh parent cache
         submenu = await self.submenu_service.refresh(id=obj.submenu_id)
-        await self.menu_service.refresh(submenu.menu_id)
+        await self.menu_service.refresh(submenu.menu_id)  # type: ignore [union-attr]
 
 
 dish_service = Annotated[DishService, Depends()]

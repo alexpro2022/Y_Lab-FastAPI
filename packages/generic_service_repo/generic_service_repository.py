@@ -1,18 +1,17 @@
-from typing import Callable  # , Generic
+from typing import Callable, Generic
+
 from fastapi import BackgroundTasks
 
-from packages.generic_cache_repo.generic_cache_repository import BaseRedis  # types import CacheType, _CacheType
-from packages.generic_db_repo.generic_db_repository import BaseCRUD, ModelType
-# types import ModelType, RepoType, _RepoType
+from packages.generic_cache_repo.types import CacheType, _CacheType
+from packages.generic_db_repo.types import ModelType, RepoType, _RepoType
 
 
-# class BaseService(Generic[_CacheType, _RepoType]):
-class BaseService:
+class BaseService(Generic[_CacheType, _RepoType]):
     """Base abstract service class."""
 
     def __init__(self,
-                 db: BaseCRUD,  # RepoType,
-                 redis: BaseRedis,  # CacheType,
+                 db: RepoType,
+                 redis: CacheType,
                  bg_tasks: BackgroundTasks | None = None) -> None:
         self.db = db
         self.cache = redis
@@ -21,12 +20,12 @@ class BaseService:
     async def _add_bg_task_or_execute(self, method: Callable, entity: ModelType | list[ModelType]) -> None:
         self.bg_tasks.add_task(method, entity) if self.bg_tasks is not None else await method(entity)
 
-    async def refresh(self, exception: bool = False, **kwargs) -> None:
+    async def refresh(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         obj = await self.db.get(exception=exception, **kwargs)
         await self._add_bg_task_or_execute(self.cache.set, obj)
         return obj
 
-    async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType] | None:
+    async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         entity = await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*'))
         if not entity:
             entity = await self.refresh(exception=exception, **kwargs)
@@ -53,5 +52,5 @@ class BaseService:
     async def set_cache_on_update(self, obj: ModelType) -> None:
         await self.cache.set(obj)
 
-    async def set_cache_on_delete(self, obj: ModelType) -> ModelType:
+    async def set_cache_on_delete(self, obj: ModelType) -> None:
         await self.cache.delete(obj)
