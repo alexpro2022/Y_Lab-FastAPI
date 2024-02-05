@@ -9,21 +9,26 @@ from packages.generic_service_repo.generic_service_repository import \
     BaseService
 
 
-class MenuService(BaseService):
+class Service(BaseService):
+
+    async def delete(self, **kwargs) -> dict:  # type: ignore [override]
+        _ = await super().delete(id=kwargs.get('id'))
+        return {'status': True, 'message': f'The {self.db.model.__name__.lower()} has been deleted'}
+
+
+class MenuService(Service):
 
     def __init__(self, db: menu_crud, redis: menu_cache):
         super().__init__(db, redis)
 
 
-
-class SubmenuService(BaseService):
+class SubmenuService(Service):
 
     def __init__(self, db: submenu_crud, redis: submenu_cache):
         super().__init__(db, redis)
 
 
-
-class DishService(BaseService):
+class DishService(Service):
 
     def __init__(self, db: dish_crud, redis: dish_cache):
         super().__init__(db, redis)
