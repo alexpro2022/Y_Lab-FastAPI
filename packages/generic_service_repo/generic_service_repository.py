@@ -26,10 +26,8 @@ class BaseService(Generic[_CacheType, _RepoType]):
         return obj
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
-        entity = await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*'))
-        if not entity:
-            entity = await self.refresh(exception=exception, **kwargs)
-        return entity
+        return (await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*')) or  # noqa
+                await self.refresh(exception=exception, **kwargs))
 
     async def create(self, **kwargs) -> ModelType:
         obj = await self.db.create(**kwargs)
