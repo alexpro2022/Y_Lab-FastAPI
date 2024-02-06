@@ -4,21 +4,25 @@ from typing import Callable, TypeAlias
 from httpx import AsyncClient
 
 from tests.fixtures import data as d
-from tests.integration_tests.utils import (check_dish, check_dish_updated,
-                                           check_menu_created,
-                                           check_submenu_created)
+from tests.integration_tests.utils import (
+    Json,
+    check_dish,
+    check_dish_updated,
+    check_menu_created,
+    check_submenu_created,
+)
 
-Json: TypeAlias = dict[str, str]
+callable: TypeAlias = Callable[[Json], str]
 
 
-def _check_obj(response_json: Json, check_func: Callable | None = None) -> None:
-    assert response_json.get('id')  # Response contains 'id' property
+def _check_obj(response_json: Json, check_func: callable | None = None) -> None:
+    assert response_json.get('id') is not None
     if check_func is not None:
         assert check_func(response_json) == 'DONE'
 
 
 # --- POST ---
-async def _post(async_client: AsyncClient, endpoint: str, json: Json, check_func: Callable) -> Json:
+async def _post(async_client: AsyncClient, endpoint: str, json: Json, check_func: callable) -> Json:
     response = await async_client.post(endpoint, json=json)
     assert response.status_code == HTTPStatus.CREATED
     _check_obj(response.json(), check_func)
@@ -27,19 +31,19 @@ async def _post(async_client: AsyncClient, endpoint: str, json: Json, check_func
 
 async def post_menu(async_client: AsyncClient,
                     json: Json = d.MENU_POST_PAYLOAD,
-                    check_func: Callable = check_menu_created) -> Json:
+                    check_func: callable = check_menu_created) -> Json:
     return await _post(async_client, d.ENDPOINT_MENU, json, check_func)
 
 
 async def post_submenu(async_client: AsyncClient, menu_id: str,
                        json: Json = d.SUBMENU_POST_PAYLOAD,
-                       check_func: Callable = check_submenu_created) -> Json:
+                       check_func: callable = check_submenu_created) -> Json:
     return await _post(async_client, d.ENDPOINT_SUBMENU.format(id=menu_id), json, check_func)
 
 
 async def post_dish(async_client: AsyncClient, menu_id: str, submenu_id: str,
                     json: Json = d.DISH_POST_PAYLOAD,
-                    check_func: Callable = check_dish) -> Json:
+                    check_func: callable = check_dish) -> Json:
     return await _post(async_client, d.ENDPOINT_DISH.format(id=submenu_id), json, check_func)
 
 

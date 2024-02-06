@@ -25,7 +25,7 @@ class PriceMixin(BaseModel):
     price: str = Field(example=PRICE)
 
     @field_validator('price')
-    def validate_price_gte_zero(cls, value: str):
+    def validate_price_gte_zero(cls, value: str) -> str:
         return price_gte_zero_validator(value)
 
 
@@ -33,7 +33,7 @@ class PricePatchMixin(BaseModel):
     price: str | None = Field(None, example=PRICE)
 
     @field_validator('price')
-    def validate_price_gte_zero(cls, value: str):
+    def validate_price_gte_zero(cls, value: str) -> str:
         return price_gte_zero_validator(value)
 
 
