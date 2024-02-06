@@ -5,27 +5,26 @@ from fastapi import Depends
 from packages.generic_cache_repo.dependencies import redis
 from packages.generic_cache_repo.generic_cache_repository import BaseRedis
 
-MENU_PREFIX = 'menu:'
-SUBMENU_PREFIX = 'submenu:'
-DISH_PREFIX = 'dish:'
-
 
 class MenuCache(BaseRedis):
+    key_prefix = 'menu:'
 
-    def __init__(self, redis: redis, redis_expire: int = 3600):
-        super().__init__(redis, MENU_PREFIX, redis_expire)
+    def __init__(self, redis: redis):
+        super().__init__(redis)
 
 
 class SubmenuCache(BaseRedis):
+    key_prefix = 'submenu'
 
-    def __init__(self, redis: redis, redis_expire: int = 3600):
-        super().__init__(redis, SUBMENU_PREFIX, redis_expire)
+    def __init__(self, redis: redis):
+        super().__init__(redis)
 
 
 class DishCache(BaseRedis):
+    key_prefix = 'dish'
 
-    def __init__(self, redis: redis, redis_expire: int = 3600):
-        super().__init__(redis, DISH_PREFIX, redis_expire)
+    def __init__(self, redis: redis):
+        super().__init__(redis)
 
 
 menu_cache = Annotated[MenuCache, Depends()]

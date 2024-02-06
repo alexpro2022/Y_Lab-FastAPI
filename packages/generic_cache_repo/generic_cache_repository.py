@@ -5,18 +5,16 @@ from redis import asyncio as aioredis  # type: ignore [import]
 
 
 class BaseRedis:
+    key_prefix: str
+    delimeter: str = ':'
+    redis_expire: int = 3600
+    serializer = pickle
 
-    def __init__(self,
-                 redis: aioredis.Redis,
-                 redis_key_prefix_with_delimeter: str = ':',
-                 redis_expire: int = 3600, serializer=pickle) -> None:
+    def __init__(self, redis: aioredis.Redis):
         self.redis = redis
-        self.redis_key_prefix = redis_key_prefix_with_delimeter
-        self.redis_expire = redis_expire
-        self.serializer = serializer
 
     def _get_key(self, key: Any) -> str:
-        return f'{self.redis_key_prefix}{key}'
+        return f'{self.key_prefix}{self.delimeter}{key}'
 
     def _serialize(self, obj) -> bytes | str | int | float:
         """Pickle if an object is not of type of a bytes, string, int or float."""
@@ -33,14 +31,14 @@ class BaseRedis:
 
     async def get(self, key: Any | None = None, pattern: str = '*') -> Any | list[Any] | None:
         async def get_obj(key: Any) -> Any | None:
-            key = (key if (isinstance(key, str) and key.startswith(self.redis_key_prefix))
+            key = (key if (isinstance(key, str) and key.startswith(self.key_prefix))
                    else self._get_key(key))
             cache = await self.redis.get(key)
             return self._deserialize(cache) if cache else None
 
         if key is None:
             result = [await get_obj(key.decode('utf-8')) for key in
-                      await self.redis.keys(f'{self.redis_key_prefix}{pattern}')]
+                      await self.redis.keys(f'{self.key_prefix}{pattern}')]
             return result if result and None not in result else None
         return await get_obj(key)
 
