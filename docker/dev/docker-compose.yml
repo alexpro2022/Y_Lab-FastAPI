@@ -21,7 +21,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - $REDIS_PORT:$REDIS_PORT
+      - 6379:6379
     env_file:
       - ../../.env
 
