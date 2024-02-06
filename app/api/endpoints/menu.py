@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from app.api.endpoints import const as u
 from app.core.config import settings
+from app.models import Menu
 from app.schemas import schemas
 from app.services.services import menu_service
 
@@ -22,7 +23,7 @@ SUM_FULL_LIST = f'Полный список {NAME}.'
             response_model=list[schemas.MenuOut],
             summary=SUM_ALL_ITEMS,
             description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
-async def get_all_(menu_service: menu_service):
+async def get_all_(menu_service: menu_service) -> list[Menu]:
     return await menu_service.get()
 
 
@@ -31,7 +32,7 @@ async def get_all_(menu_service: menu_service):
              response_model=schemas.MenuOut,
              summary=SUM_CREATE_ITEM,
              description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
-async def create_(payload: schemas.MenuIn, menu_service: menu_service):
+async def create_(payload: schemas.MenuIn, menu_service: menu_service) -> Menu:
     return await menu_service.create(**payload.model_dump())
 
 
@@ -39,15 +40,15 @@ async def create_(payload: schemas.MenuIn, menu_service: menu_service):
             response_model=schemas.MenuOut,
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: UUID, menu_service: menu_service):
-    return await menu_service.get(id=item_id, exception=True)
+async def get_(item_id: UUID, menu_service: menu_service) -> Menu:
+    return await menu_service.get(id=item_id, exception=True)  # type: ignore [return-value]
 
 
 @router.patch('/{item_id}',
               response_model=schemas.MenuOut,
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service):
+async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service) -> Menu:
     return await menu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
                                                                       exclude_none=True,
                                                                       exclude_unset=True))
@@ -56,5 +57,5 @@ async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_
 @router.delete('/{item_id}',
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: UUID, menu_service: menu_service):
+async def delete_(item_id: UUID, menu_service: menu_service) -> dict[str, bool | str]:
     return await menu_service.delete(id=item_id)

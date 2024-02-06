@@ -2,11 +2,11 @@ from typing import Callable, Generic
 
 from fastapi import BackgroundTasks
 
-from packages.generic_cache_repo.types import CacheType, _CacheType
-from packages.generic_db_repo.types import ModelType, RepoType, _RepoType
+from packages.generic_cache_repo.types import CacheType
+from packages.generic_db_repo.types import ModelType, RepoType
 
 
-class BaseService(Generic[_CacheType, _RepoType]):
+class BaseService(Generic[CacheType, RepoType]):
     """Base abstract service class."""
 
     def __init__(self,

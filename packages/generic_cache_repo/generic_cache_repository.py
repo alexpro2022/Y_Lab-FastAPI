@@ -10,7 +10,7 @@ class BaseRedis:
     redis_expire: int = 3600
     serializer = pickle
 
-    def __init__(self, redis: aioredis.Redis):
+    def __init__(self, redis: aioredis.Redis) -> None:
         self.redis = redis
 
     def _get_key(self, key: Any) -> str:

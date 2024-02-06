@@ -9,16 +9,16 @@ from redis import asyncio as aioredis  # type: ignore [import]
 from packages.generic_db_repo.generic_db_repository import ModelType
 
 from ..dependencies import get_aioredis
-from ..types import CacheType, _CacheType
+from ..types import CacheType
 
 
-class BaseRedisTest(Generic[_CacheType]):
+class BaseRedisTest(Generic[CacheType, ModelType]):
     cache: CacheType
     model: ModelType
     create_data: dict
     time_expire: int = 1
 
-# instance under test will be called `_cache`
+# instance under test is called `_cache`
 
 # --- Fixtures ---
     @pytest_asyncio.fixture
@@ -29,7 +29,7 @@ class BaseRedisTest(Generic[_CacheType]):
         assert isinstance(self._cache, self.cache)
 
     @pytest_asyncio.fixture
-    async def init_expire(self, init):
+    async def init_expire(self, init) -> None:
         self._cache.redis_expire = self.time_expire
 
     def test_init_expire_fixture(self, init_expire) -> None:
@@ -37,14 +37,14 @@ class BaseRedisTest(Generic[_CacheType]):
         assert self._cache.redis_expire == self.time_expire
 
     @pytest.fixture(scope='class')
-    def get_test_obj(self) -> Any:
-        return self.model(**self.create_data)   # type: ignore [arg-type]
+    def get_test_obj(self) -> ModelType:
+        return self.model(**self.create_data)
 
     def test_get_test_obj_fixture(self, get_test_obj) -> None:
         assert isinstance(get_test_obj, self.model)
 
     @pytest_asyncio.fixture
-    async def set_cache(self, init, get_test_obj) -> None:
+    async def set_cache(self, init, get_test_obj) -> ModelType:
         assert await self._cache_empty()
         await self._cache.set(get_test_obj)
         assert not await self._cache_empty()
@@ -62,7 +62,7 @@ class BaseRedisTest(Generic[_CacheType]):
         assert key == f'{self._cache.key_prefix}{self._cache.delimeter}{suffix}'
 
     @pytest.mark.parametrize('obj', (b'str', 1, 2.2, 'str', 'get_test_obj'))
-    def test_serialize(self, init, obj, request):
+    def test_serialize(self, init, obj, request) -> None:
         try:
             obj = request.getfixturevalue(obj)
         except pytest.FixtureLookupError:
@@ -71,7 +71,7 @@ class BaseRedisTest(Generic[_CacheType]):
             assert self._cache._serialize(obj) == self._cache.serializer.dumps(obj)
 
     @pytest.mark.parametrize('obj', (b'str', 1, 2.2, 'str', 'get_test_obj'))
-    def test_deserialize(self, init, obj, request):
+    def test_deserialize(self, init, obj, request) -> None:
         try:
             obj = request.getfixturevalue(obj)
         except pytest.FixtureLookupError:
@@ -117,7 +117,7 @@ class BaseRedisTest(Generic[_CacheType]):
         assert isinstance(from_cache, list)
         self._compare(from_cache[0], set_cache)
 
-    async def test_get_aioredis(self):
+    async def test_get_aioredis(self) -> None:
         assert isinstance(get_aioredis(), aioredis.Redis)
 
 # --- Utils ---

@@ -6,12 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import Base
 
-_ModelType = TypeVar('_ModelType', bound=Base)
-ModelType: TypeAlias = type[_ModelType]
+ModelType = TypeVar('ModelType', bound=Base)
 Response: TypeAlias = Row | ModelType
 
 
-class BaseCRUD(Generic[_ModelType]):
+class BaseCRUD(Generic[ModelType]):
     """Базовый класс для CRUD операций произвольных моделей."""
     msg_already_exists: str = 'Object with such a unique values already exists.'
     msg_not_found: str = 'Object(s) not found.'
@@ -19,7 +18,7 @@ class BaseCRUD(Generic[_ModelType]):
     is_update_allowed_not_in_use: bool = False
     has_permission_not_in_use: bool = False
 
-    def __init__(self, model: ModelType, session: AsyncSession):
+    def __init__(self, model: type[ModelType], session: AsyncSession) -> None:
         self.model = model
         self.session = session
         self.__scalars = False
@@ -29,7 +28,8 @@ class BaseCRUD(Generic[_ModelType]):
         self.__scalars = True
         return select(self.model).filter_by(**kwargs)
 
-    async def get(self, exception: bool = False, **kwargs) -> list[Response] | Response | None:
+    # list[Response] | Response | None:
+    async def get(self, exception: bool = False, **kwargs) -> list[ModelType] | ModelType | None:
         statement = self.get_statement(**kwargs)
         method = self.session.scalars if self.__scalars else self.session.execute
         result = await method(statement)
