@@ -24,7 +24,7 @@ SUM_FULL_LIST = f'Полный список {NAME}.'
             response_model=list[schemas.MenuOut],
             summary=SUM_ALL_ITEMS,
             description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
-async def get_all_(menu_service: menu_service) -> list[Menu]:
+async def get_all_menus(menu_service: menu_service) -> list[Menu]:
     return await menu_service.get()
 
 
@@ -34,34 +34,34 @@ async def get_all_(menu_service: menu_service) -> list[Menu]:
              responses={**get_400('Меню')},
              summary=SUM_CREATE_ITEM,
              description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
-async def create_(payload: schemas.MenuIn, menu_service: menu_service) -> Menu:
+async def create_menu(payload: schemas.MenuIn, menu_service: menu_service) -> Menu:
     return await menu_service.create(**payload.model_dump())
 
 
-@router.get('/{item_id}',
+@router.get('/{menu_id}',
             response_model=schemas.MenuOut,
             responses={**get_404('menu')},
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: UUID, menu_service: menu_service) -> Menu:
-    return await menu_service.get(id=item_id, exception=True)  # type: ignore [return-value]
+async def get_menu(menu_id: UUID, menu_service: menu_service) -> Menu:
+    return await menu_service.get(id=menu_id, exception=True)  # type: ignore [return-value]
 
 
-@router.patch('/{item_id}',
+@router.patch('/{menu_id}',
               response_model=schemas.MenuOut,
               responses={**get_404('menu')},
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service) -> Menu:
-    return await menu_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
+async def update_menu(menu_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service) -> Menu:
+    return await menu_service.update(id=menu_id, **payload.model_dump(exclude_defaults=True,
                                                                       exclude_none=True,
                                                                       exclude_unset=True))
 
 
-@router.delete('/{item_id}',
+@router.delete('/{menu_id}',
                response_model=schemas.Delete,
                responses={**get_404('menu')},
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: UUID, menu_service: menu_service) -> dict[str, bool | str]:
-    return await menu_service.delete(id=item_id)
+async def delete_menu(menu_id: UUID, menu_service: menu_service) -> dict[str, bool | str]:
+    return await menu_service.delete(id=menu_id)

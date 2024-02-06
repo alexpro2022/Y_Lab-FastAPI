@@ -23,7 +23,7 @@ SUM_DELETE_ITEM = u.SUM_DELETE_ITEM.format(NAME)
             response_model=list[schemas.DishOut],
             summary=SUM_ALL_ITEMS,
             description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
-async def get_all_(submenu_id: str, dish_service: dish_service) -> list[Dish]:
+async def get_all_dishes(submenu_id: str, dish_service: dish_service) -> list[Dish]:
     return await dish_service.get(submenu_id=submenu_id)
 
 
@@ -33,38 +33,38 @@ async def get_all_(submenu_id: str, dish_service: dish_service) -> list[Dish]:
              response_model=schemas.DishOut,
              summary=SUM_CREATE_ITEM,
              description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
-async def create_(submenu_id: str,
-                  payload: schemas.DishIn,
-                  dish_service: dish_service) -> Dish:
+async def create_dish(submenu_id: str,
+                      payload: schemas.DishIn,
+                      dish_service: dish_service) -> Dish:
     return await dish_service.create(**payload.model_dump(), submenu_id=submenu_id)
 
 
-@router.get('/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
+@router.get('/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
             response_model=schemas.DishOut,
             responses={**get_404('dish')},
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_(item_id: UUID, dish_service: dish_service) -> Dish:
-    return await dish_service.get(id=item_id, exception=True)  # type: ignore [return-value]
+async def get_dish(dish_id: UUID, dish_service: dish_service) -> Dish:
+    return await dish_service.get(id=dish_id, exception=True)  # type: ignore [return-value]
 
 
-@router.patch('/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
+@router.patch('/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
               response_model=schemas.DishOut,
               responses={**get_404('dish')},
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_(item_id: UUID,
-                  payload: schemas.DishPatch,
-                  dish_service: dish_service) -> Dish:
-    return await dish_service.update(id=item_id, **payload.model_dump(exclude_defaults=True,
+async def update_dish(dish_id: UUID,
+                      payload: schemas.DishPatch,
+                      dish_service: dish_service) -> Dish:
+    return await dish_service.update(id=dish_id, **payload.model_dump(exclude_defaults=True,
                                                                       exclude_none=True,
                                                                       exclude_unset=True))
 
 
-@router.delete('/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
+@router.delete('/{menu_id}/submenus/{submenu_id}/dishes/{dish_id}',
                response_model=schemas.Delete,
                responses={**get_404('dish')},
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_(item_id: UUID, dish_service: dish_service) -> dict[str, bool | str]:
-    return await dish_service.delete(id=item_id)
+async def delete_dish(dish_id: UUID, dish_service: dish_service) -> dict[str, bool | str]:
+    return await dish_service.delete(id=dish_id)
