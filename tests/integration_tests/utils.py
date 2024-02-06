@@ -1,17 +1,17 @@
-from typing import TypeAlias
+from typing import Any, TypeAlias
 from uuid import UUID
 
 from tests.fixtures import data as d
 
-Json: TypeAlias = dict[str, str | int]
+Json: TypeAlias = dict[str, Any]
 
 
 def _check_response(response_json: Json | list[Json], expected_result: Json | list[Json]) -> str:
     assert type(response_json) is type(expected_result)
-    if isinstance(response_json, list):
+    if isinstance(response_json, list) and isinstance(expected_result, list):
         response_json, expected_result = response_json[0], expected_result[0]
     try:
-        UUID(str(response_json.pop('id')))
+        UUID(str(response_json.pop('id')))  # type:ignore [arg-type]
     except ValueError:
         raise AssertionError('Primary key is not uuid type')
     except KeyError:

@@ -16,7 +16,7 @@ class BaseCRUD(Generic[ModelType]):
     is_delete_allowed_not_in_use: bool = False
     is_update_allowed_not_in_use: bool = False
     has_permission_not_in_use: bool = False
-    model: ModelType
+    model: type[ModelType]
 
     def __init__(self, session: async_session) -> None:
         self.session = session

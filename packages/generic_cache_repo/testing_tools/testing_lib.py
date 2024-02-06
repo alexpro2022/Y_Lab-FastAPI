@@ -13,8 +13,8 @@ from ..types import CacheType
 
 
 class BaseRedisTest(Generic[CacheType, ModelType]):
-    cache: CacheType
-    model: ModelType
+    cache: type[CacheType]
+    model: type[ModelType]
     create_data: dict
     time_expire: int = 1
 

@@ -76,14 +76,14 @@ class DishService(Service):
     async def set_cache_on_create(self, obj: Dish) -> None:
         await super().set_cache_on_create(obj)
         # Refresh parent cache
-        submenu: Submenu = await self.submenu_service.refresh(id=obj.submenu_id)  # type: ignore [var-annotated]
-        await self.menu_service.refresh(id=submenu.menu_id)
+        submenu = await self.submenu_service.refresh(id=obj.submenu_id)  # type: ignore [var-annotated]
+        await self.menu_service.refresh(id=submenu.menu_id)  # type: ignore [attr-defined]
 
     async def set_cache_on_delete(self, obj: Dish) -> None:
         await super().set_cache_on_delete(obj)
         # Refresh parent cache
-        submenu: Submenu = await self.submenu_service.refresh(id=obj.submenu_id)  # type: ignore [var-annotated]
-        await self.menu_service.refresh(id=submenu.menu_id)
+        submenu = await self.submenu_service.refresh(id=obj.submenu_id)  # type: ignore [var-annotated]
+        await self.menu_service.refresh(id=submenu.menu_id)  # type: ignore [attr-defined]
 
 
 dish_service = Annotated[DishService, Depends()]
