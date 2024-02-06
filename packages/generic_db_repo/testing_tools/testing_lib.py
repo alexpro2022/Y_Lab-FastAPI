@@ -8,18 +8,20 @@ from fastapi import HTTPException, status
 from sqlalchemy import Row
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..types import ModelType, RepoType, _RepoType
+from ..types import ModelType, RepoType
 
 
-class BaseCRUDTest(Generic[_RepoType]):
+class BaseCRUDTest(Generic[ModelType, RepoType]):
     """Тестирование базового CRUD класса."""
     msg_already_exists: str = 'Object with such a unique values already exists.'
     msg_not_found: str = 'Object(s) not found.'
-    model: ModelType
-    crud: RepoType
+    model: type[ModelType]
+    crud: type[RepoType]
     create_data: dict
     create_data_extra: dict
     update_data: dict
+
+# instance under test is called `_crud`
 
 # --- Fixtures ---
     @pytest.fixture(autouse=True)

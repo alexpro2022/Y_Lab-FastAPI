@@ -4,7 +4,6 @@ from fastapi import Depends
 from sqlalchemy import Select, distinct, func, select
 
 from app.models.models import Dish, Menu, Submenu
-from packages.generic_db_repo.dependencies import async_session
 from packages.generic_db_repo.generic_db_repository import BaseCRUD
 
 
@@ -17,9 +16,7 @@ class CRUD(BaseCRUD):
 class MenuCRUD(CRUD):
     msg_not_found = 'menu not found'
     msg_already_exists = 'Меню с таким заголовком уже существует.'
-
-    def __init__(self, session: async_session):
-        super().__init__(Menu, session)
+    model = Menu
 
     def get_statement(self, **kwargs) -> Select:
         return (
@@ -40,9 +37,7 @@ class MenuCRUD(CRUD):
 class SubmenuCRUD(CRUD):
     msg_not_found = 'submenu not found'
     msg_already_exists = 'Подменю с таким заголовком уже существует.'
-
-    def __init__(self, session: async_session):
-        super().__init__(Submenu, session)
+    model = Submenu
 
     def get_statement(self, **kwargs) -> Select:
         return (
@@ -62,9 +57,7 @@ class SubmenuCRUD(CRUD):
 class DishCRUD(CRUD):
     msg_not_found = 'dish not found'
     msg_already_exists = 'Блюдо с таким заголовком уже существует.'
-
-    def __init__(self, session: async_session):
-        super().__init__(Dish, session)
+    model = Dish
 
 
 menu_crud = Annotated[MenuCRUD, Depends()]

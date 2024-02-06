@@ -1,9 +1,10 @@
+import uuid
+
 import pytest
 import pytest_asyncio
 
 from app.models import Dish, Menu, Submenu
-from app.repositories.db_repository import (CRUD, DishCRUD, MenuCRUD,
-                                            SubmenuCRUD)
+from app.repositories.db_repository import CRUD, DishCRUD, MenuCRUD, SubmenuCRUD
 from packages.generic_db_repo.testing_tools.testing_lib import BaseCRUDTest
 from tests.fixtures import data as d
 
@@ -38,11 +39,11 @@ class TestSubmenuCRUD(BaseCRUDTest):
     update_data = d.SUBMENU_PATCH_PAYLOAD
 
     @pytest_asyncio.fixture
-    async def get_obj(self, submenu):
+    async def get_obj(self, submenu: Submenu) -> Submenu:
         return submenu
 
     @pytest.fixture
-    def get_create_data_extra(self, menu):
+    def get_create_data_extra(self, menu: Menu) -> dict[str, uuid.UUID]:
         return {'menu_id': menu.id}
 
 
@@ -55,9 +56,9 @@ class TestDishCRUD(BaseCRUDTest):
     update_data = d.DISH_PATCH_PAYLOAD
 
     @pytest_asyncio.fixture
-    async def get_obj(self, dish):
+    async def get_obj(self, dish: Dish) -> Dish:
         return dish
 
     @pytest.fixture
-    def get_create_data_extra(self, submenu):
+    def get_create_data_extra(self, submenu: Submenu) -> dict[str, uuid.UUID]:
         return {'submenu_id': submenu.id}
