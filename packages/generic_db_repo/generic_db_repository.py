@@ -1,13 +1,12 @@
-from typing import Generic, TypeAlias, TypeVar
+from typing import Generic, TypeVar
 
 from fastapi import HTTPException, status
-from sqlalchemy import Row, Select, exc, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import Select, exc, select
 
 from .base import Base
+from .dependencies import async_session
 
 ModelType = TypeVar('ModelType', bound=Base)
-Response: TypeAlias = Row | ModelType
 
 
 class BaseCRUD(Generic[ModelType]):
@@ -17,9 +16,9 @@ class BaseCRUD(Generic[ModelType]):
     is_delete_allowed_not_in_use: bool = False
     is_update_allowed_not_in_use: bool = False
     has_permission_not_in_use: bool = False
+    model: ModelType
 
-    def __init__(self, model: type[ModelType], session: AsyncSession) -> None:
-        self.model = model
+    def __init__(self, session: async_session) -> None:
         self.session = session
         self.__scalars = False
 
@@ -28,7 +27,6 @@ class BaseCRUD(Generic[ModelType]):
         self.__scalars = True
         return select(self.model).filter_by(**kwargs)
 
-    # list[Response] | Response | None:
     async def get(self, exception: bool = False, **kwargs) -> list[ModelType] | ModelType | None:
         statement = self.get_statement(**kwargs)
         method = self.session.scalars if self.__scalars else self.session.execute

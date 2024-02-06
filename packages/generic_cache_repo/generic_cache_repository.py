@@ -1,7 +1,7 @@
 import pickle
 from typing import Any
 
-from redis import asyncio as aioredis  # type: ignore [import]
+from .dependencies import redis
 
 
 class BaseRedis:
@@ -10,7 +10,7 @@ class BaseRedis:
     redis_expire: int = 3600
     serializer = pickle
 
-    def __init__(self, redis: aioredis.Redis) -> None:
+    def __init__(self, redis: redis) -> None:
         self.redis = redis
 
     def _get_key(self, key: Any) -> str:
