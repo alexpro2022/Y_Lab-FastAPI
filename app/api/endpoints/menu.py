@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter
 
 from app.api.endpoints import const as u
+from app.api.endpoints.responses import get_400, get_404
 from app.core.config import settings
 from app.models import Menu
 from app.schemas import schemas
@@ -30,6 +31,7 @@ async def get_all_(menu_service: menu_service) -> list[Menu]:
 @router.post('',
              status_code=201,
              response_model=schemas.MenuOut,
+             responses={**get_400('Меню')},
              summary=SUM_CREATE_ITEM,
              description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
 async def create_(payload: schemas.MenuIn, menu_service: menu_service) -> Menu:
@@ -38,6 +40,7 @@ async def create_(payload: schemas.MenuIn, menu_service: menu_service) -> Menu:
 
 @router.get('/{item_id}',
             response_model=schemas.MenuOut,
+            responses={**get_404('menu')},
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
 async def get_(item_id: UUID, menu_service: menu_service) -> Menu:
@@ -46,6 +49,7 @@ async def get_(item_id: UUID, menu_service: menu_service) -> Menu:
 
 @router.patch('/{item_id}',
               response_model=schemas.MenuOut,
+              responses={**get_404('menu')},
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service) -> Menu:
@@ -55,6 +59,8 @@ async def update_(item_id: UUID, payload: schemas.MenuPatch, menu_service: menu_
 
 
 @router.delete('/{item_id}',
+               response_model=schemas.Delete,
+               responses={**get_404('menu')},
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_(item_id: UUID, menu_service: menu_service) -> dict[str, bool | str]:

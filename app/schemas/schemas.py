@@ -12,17 +12,17 @@ PRICE = '12.50'
 
 # --- MIXINS ---
 class TitleDescriptionMixin(BaseModel):
-    title: str = Field(max_length=256, example=TITLE)
-    description: str = Field(max_length=2000, example=DESCRIPTION)
+    title: str = Field(max_length=256, examples=[TITLE])
+    description: str = Field(max_length=2000, examples=[DESCRIPTION])
 
 
 class TitleDescriptionPatchMixin(BaseModel):
     title: str | None = Field(None, max_length=256, example=TITLE)
-    description: str | None = Field(None, max_length=2000, example=DESCRIPTION)
+    description: str | None = Field(None, max_length=2000, examples=[DESCRIPTION])
 
 
 class PriceMixin(BaseModel):
-    price: str = Field(example=PRICE)
+    price: str = Field(examples=[PRICE])
 
     @field_validator('price')
     def validate_price_gte_zero(cls, value: str) -> str:
@@ -30,7 +30,7 @@ class PriceMixin(BaseModel):
 
 
 class PricePatchMixin(BaseModel):
-    price: str | None = Field(None, example=PRICE)
+    price: str | None = Field(None, examples=[PRICE])
 
     @field_validator('price')
     def validate_price_gte_zero(cls, value: str) -> str:
@@ -80,4 +80,9 @@ class SubmenuOut(BaseOut, SubmenuIn):
 
 
 class DishOut(BaseOut, TitleDescriptionMixin):
-    price: str
+    price: str = Field(examples=[PRICE])
+
+
+class Delete(BaseModel):
+    status: bool = True
+    message: str = Field('The item has been deleted')

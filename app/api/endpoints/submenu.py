@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter
 
 from app.api.endpoints import const as u
+from app.api.endpoints.responses import get_400, get_404
 from app.core.config import settings
 from app.models import Submenu
 from app.schemas import schemas
@@ -28,6 +29,7 @@ async def get_all_(menu_id: UUID, submenu_service: submenu_service) -> list[Subm
 
 @router.post('/{menu_id}/submenus',
              status_code=201,
+             responses={**get_400('Подменю')},
              response_model=schemas.SubmenuOut,
              summary=SUM_CREATE_ITEM,
              description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
@@ -39,6 +41,7 @@ async def create_(menu_id: UUID,
 
 @router.get('/{menu_id}/submenus/{item_id}',
             response_model=schemas.SubmenuOut,
+            responses={**get_404('submenu')},
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
 async def get_(item_id: UUID, submenu_service: submenu_service) -> Submenu:
@@ -47,6 +50,7 @@ async def get_(item_id: UUID, submenu_service: submenu_service) -> Submenu:
 
 @router.patch('/{menu_id}/submenus/{item_id}',
               response_model=schemas.SubmenuOut,
+              responses={**get_404('submenu')},
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_(item_id: UUID,
@@ -58,6 +62,8 @@ async def update_(item_id: UUID,
 
 
 @router.delete('/{menu_id}/submenus/{item_id}',
+               response_model=schemas.Delete,
+               responses={**get_404('submenu')},
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_(item_id: UUID, submenu_service: submenu_service) -> dict[str, bool | str]:

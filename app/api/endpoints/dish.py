@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter
 
 from app.api.endpoints import const as u
+from app.api.endpoints.responses import get_400, get_404
 from app.core.config import settings
 from app.models import Dish
 from app.schemas import schemas
@@ -28,6 +29,7 @@ async def get_all_(submenu_id: str, dish_service: dish_service) -> list[Dish]:
 
 @router.post('/{menu_id}/submenus/{submenu_id}/dishes',
              status_code=201,
+             responses={**get_400('Блюдо')},
              response_model=schemas.DishOut,
              summary=SUM_CREATE_ITEM,
              description=(f'{settings.AUTH_ONLY} {SUM_CREATE_ITEM}'))
@@ -39,6 +41,7 @@ async def create_(submenu_id: str,
 
 @router.get('/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
             response_model=schemas.DishOut,
+            responses={**get_404('dish')},
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
 async def get_(item_id: UUID, dish_service: dish_service) -> Dish:
@@ -47,6 +50,7 @@ async def get_(item_id: UUID, dish_service: dish_service) -> Dish:
 
 @router.patch('/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
               response_model=schemas.DishOut,
+              responses={**get_404('dish')},
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_(item_id: UUID,
@@ -58,6 +62,8 @@ async def update_(item_id: UUID,
 
 
 @router.delete('/{menu_id}/submenus/{submenu_id}/dishes/{item_id}',
+               response_model=schemas.Delete,
+               responses={**get_404('dish')},
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_(item_id: UUID, dish_service: dish_service) -> dict[str, bool | str]:
