@@ -12,7 +12,7 @@ class Service(BaseService):
 
     async def delete(self, **kwargs) -> dict[str, bool | str]:  # type: ignore [override]
         _ = await super().delete(id=kwargs.get('id'))
-        return {'status': True, 'message': f'The {self.db.model.__name__.lower()} has been deleted'}
+        return {'message': f'The {self.db.model.__name__.lower()} has been deleted'}
 
 
 class MenuService(Service):
