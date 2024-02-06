@@ -58,7 +58,7 @@
 ☑ Описать ручки API в соответствий c `OpenAPI`
 
 ☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
-    Пример использования в интеграционных тестах API: [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/a304af7b073b1271b45d1a2364fb1b743658819c/tests/integration_tests/test_submenu_crud.py#L26)
+    Пример использования в интеграционных тестах API: [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/1373c04c09592456559f6e0f1b905f6ece971a0f/tests/integration_tests/test_menu_crud.py#L26)
 
 **Требования:**
   - Код должен проходить все линтеры.
