@@ -2,11 +2,11 @@ from typing import Callable, Generic
 
 from fastapi import BackgroundTasks
 
-from packages.generic_cache_repo.types import CacheType, _CacheType
-from packages.generic_db_repo.types import ModelType, RepoType, _RepoType
+from packages.generic_cache_repo.types import CacheType
+from packages.generic_db_repo.types import ModelType, RepoType
 
 
-class BaseService(Generic[_CacheType, _RepoType]):
+class BaseService(Generic[CacheType, RepoType]):
     """Base abstract service class."""
 
     def __init__(self,
@@ -23,7 +23,7 @@ class BaseService(Generic[_CacheType, _RepoType]):
     async def refresh(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         obj = await self.db.get(exception=exception, **kwargs)
         await self._add_bg_task_or_execute(self.cache.set, obj)
-        return obj
+        return obj  # type: ignore [return-value]
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         return (await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*')) or  # noqa

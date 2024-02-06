@@ -1,5 +1,6 @@
 from httpx import AsyncClient
 
+from app.api.endpoints import menu
 from app.models.models import Menu
 from app.repositories.db_repository import MenuCRUD
 from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
@@ -7,7 +8,7 @@ from tests.fixtures import data as d
 
 
 class TestMenuAPI(GenericAPITests):
-    base_url = d.ENDPOINT_MENU
+    router = menu.router
     msg_not_found = 'menu not found'
     msg_already_exists = 'Меню с таким заголовком уже существует.'
     patch_payload = d.MENU_PATCH_PAYLOAD
@@ -22,19 +23,25 @@ class TestMenuAPI(GenericAPITests):
     }
 
     async def test_get_all_returns_empty_list(self, init_db, async_client: AsyncClient) -> None:
-        assert await self.get_test(async_client) == []
+        url = self.reverse('get_all_menus')
+        assert await self.get_test(async_client, url) == []
 
     async def test_get_all(self, menu: Menu, menu_repo: MenuCRUD, async_client: AsyncClient) -> None:
-        assert await self.get_test(async_client, menu_repo)
-
-    async def test_get(self, menu: Menu, menu_repo: MenuCRUD, async_client: AsyncClient) -> None:
-        assert await self.get_test(async_client, menu_repo, menu.id)
+        url = self.reverse('get_all_menus')
+        assert await self.get_test(async_client, url, menu_repo)
 
     async def test_post(self, init_db, menu_repo: MenuCRUD, async_client: AsyncClient):
-        assert await self.post_test(async_client, menu_repo)
+        url = self.reverse('create_menu')
+        assert await self.post_test(async_client, url, menu_repo)
+
+    async def test_get(self, menu: Menu, menu_repo: MenuCRUD, async_client: AsyncClient) -> None:
+        url = self.reverse('get_menu').format(menu_id=menu.id)
+        assert await self.get_test(async_client, url, menu_repo)
 
     async def test_patch(self, menu: Menu, menu_repo: MenuCRUD, async_client: AsyncClient) -> None:
-        assert await self.patch_test(async_client, menu_repo, menu.id)
+        url = self.reverse('update_menu').format(menu_id=menu.id)
+        assert await self.patch_test(async_client, url, menu_repo)
 
     async def test_delete(self, menu: Menu, menu_repo: MenuCRUD, async_client: AsyncClient) -> None:
-        assert await self.delete_test(async_client, menu_repo, menu.id)
+        url = self.reverse('delete_menu').format(menu_id=menu.id)
+        assert await self.delete_test(async_client, url, menu_repo)

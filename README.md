@@ -35,25 +35,30 @@
 ☑ Если FastAPI синхронное - тесты синхронные, если асинхронное - тесты асинхронные.
 
 ☑ Реализовать вывод количества подменю  и блюд для Меню через один (сложный) ORM запрос:
-    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/219261c0d5e61b4172a441b4725879841af8f77b/app/repositories/db_repository.py#L24)
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/app/repositories/db_repository.py#L21)
 
 ☑ Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из `Postman` с помощью `pytest`.
 
 <h1></h1>
 </details>
 
-<details><summary>ДЗ №3</summary>
-<h1></h1>
+<!--details><summary>ДЗ №3</summary>
+<h1></h1-->
+
+ДЗ №3
 
 ☑ Вынести бизнес логику и запросы в БД в отдельные слои приложения.
 
-☑ Добавить кэширование запросов к API с использованием Redis. Не забыть про инвалидацию кэша.
+☑ Добавить кэширование запросов к API с использованием `Redis`. Не забыть про инвалидацию кэша.
 
 ☑ Добавить pre-commit хуки в проект. Файл yaml будет прикреплен к ДЗ.
 
 ☑ Покрыть проект type hints (тайпхинтами)
 
-<!--☑ Описать ручки API в соответствий c OpenAPI-->
+☑ Описать ручки API в соответствий c `OpenAPI`
+
+☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
+    Пример использования в интеграционных тестах API: [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/1373c04c09592456559f6e0f1b905f6ece971a0f/tests/integration_tests/test_menu_crud.py#L26)
 
 **Требования:**
   - Код должен проходить все линтеры.
@@ -66,8 +71,8 @@
 
 Контейнеры с проектом и с тестами запускаются разными командами.
 
-<h1></h1>
-</details>
+<!--h1></h1>
+</details-->
 
 <br>
 
@@ -93,6 +98,7 @@
 [![asyncpg](https://img.shields.io/badge/-asyncpg-464646?logo=PostgreSQL)](https://pypi.org/project/asyncpg/)
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-v2.0-blue?logo=sqlalchemy)](https://www.sqlalchemy.org/)
 [![Alembic](https://img.shields.io/badge/-Alembic-464646?logo=alembic)](https://alembic.sqlalchemy.org/en/latest/)
+[![aioredis](https://img.shields.io/badge/-aioredis-464646?logo=redis)](https://aioredis.readthedocs.io/en/latest/)
 [![Uvicorn](https://img.shields.io/badge/-Uvicorn-464646?logo=Uvicorn)](https://www.uvicorn.org/)
 [![docker_compose](https://img.shields.io/badge/-Docker%20Compose-464646?logo=docker)](https://docs.docker.com/compose/)
 [![Nginx](https://img.shields.io/badge/-NGINX-464646?logo=NGINX)](https://nginx.org/ru/)
@@ -100,7 +106,7 @@
 [![Pytest](https://img.shields.io/badge/-Pytest-464646?logo=Pytest)](https://docs.pytest.org/en/latest/)
 [![Pytest-asyncio](https://img.shields.io/badge/-Pytest--asyncio-464646?logo=Pytest-asyncio)](https://pypi.org/project/pytest-asyncio/)
 [![pytest-cov](https://img.shields.io/badge/-pytest--cov-464646?logo=codecov)](https://pytest-cov.readthedocs.io/en/latest/)
-
+[![pre-commit](https://img.shields.io/badge/-pre--commit-464646?logo=pre-commit)](https://pre-commit.com/)
 
 [⬆️Оглавление](#оглавление)
 

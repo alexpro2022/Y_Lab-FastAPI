@@ -1,5 +1,6 @@
 from httpx import AsyncClient
 
+from app.api.endpoints import submenu
 from app.models.models import Menu, Submenu
 from app.repositories.db_repository import SubmenuCRUD
 from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
@@ -7,8 +8,7 @@ from tests.fixtures import data as d
 
 
 class TestSubmenuAPI(GenericAPITests):
-    base_url = d.ENDPOINT_SUBMENU_DEFAULT
-    """Needs in parent class for invalid_uuid testing."""
+    router = submenu.router
     msg_not_found = 'submenu not found'
     msg_already_exists = 'Подменю с таким заголовком уже существует.'
     patch_payload = d.SUBMENU_PATCH_PAYLOAD
@@ -23,25 +23,25 @@ class TestSubmenuAPI(GenericAPITests):
     }
 
     async def test_get_all_returns_empty_list(self, menu: Menu, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=menu.id)
-        assert await self.get_test(async_client) == []
+        url = self.reverse('get_all_submenus').format(menu_id=menu.id)
+        assert await self.get_test(async_client, url) == []
 
     async def test_get_all(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.get_test(async_client, submenu_repo)
-
-    async def test_get(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.get_test(async_client, submenu_repo, submenu.id)
+        url = self.reverse('get_all_submenus').format(menu_id=submenu.menu_id)
+        assert await self.get_test(async_client, url, submenu_repo)
 
     async def test_post(self, menu: Menu, submenu_repo: SubmenuCRUD, async_client: AsyncClient):
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=menu.id)
-        assert await self.post_test(async_client, submenu_repo)
+        url = self.reverse('get_all_submenus').format(menu_id=menu.id)
+        assert await self.post_test(async_client, url, submenu_repo)
+
+    async def test_get(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
+        url = self.reverse('get_submenu').format(menu_id=submenu.menu_id, submenu_id=submenu.id)
+        assert await self.get_test(async_client, url, submenu_repo)
 
     async def test_patch(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.patch_test(async_client, submenu_repo, submenu.id)
+        url = self.reverse('get_submenu').format(menu_id=submenu.menu_id, submenu_id=submenu.id)
+        assert await self.patch_test(async_client, url, submenu_repo)
 
     async def test_delete(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.delete_test(async_client, submenu_repo, submenu.id)
+        url = self.reverse('get_submenu').format(menu_id=submenu.menu_id, submenu_id=submenu.id)
+        assert await self.delete_test(async_client, url, submenu_repo)
