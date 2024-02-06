@@ -45,30 +45,3 @@ class TestSubmenuAPI(GenericAPITests):
     async def test_delete(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
         url = self.reverse('get_submenu').format(menu_id=submenu.menu_id, submenu_id=submenu.id)
         assert await self.delete_test(async_client, url, submenu_repo)
-
-
-'''
-    async def test_get_all_returns_empty_list(self, menu: Menu, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=menu.id)
-        assert await self.get_test(async_client) == []
-
-    async def test_get_all(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.get_test(async_client, submenu_repo)
-
-    async def test_get(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.get_test(async_client, submenu_repo, submenu.id)
-
-    async def test_post(self, menu: Menu, submenu_repo: SubmenuCRUD, async_client: AsyncClient):
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=menu.id)
-        assert await self.post_test(async_client, submenu_repo)
-
-    async def test_patch(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.patch_test(async_client, submenu_repo, submenu.id)
-
-    async def test_delete(self, submenu: Submenu, submenu_repo: SubmenuCRUD, async_client: AsyncClient) -> None:
-        self.base_url = d.ENDPOINT_SUBMENU.format(id=submenu.menu_id)
-        assert await self.delete_test(async_client, submenu_repo, submenu.id)
-'''
