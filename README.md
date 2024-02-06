@@ -35,7 +35,7 @@
 ☑ Если FastAPI синхронное - тесты синхронные, если асинхронное - тесты асинхронные.
 
 ☑ Реализовать вывод количества подменю  и блюд для Меню через один (сложный) ORM запрос:
-    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/219261c0d5e61b4172a441b4725879841af8f77b/app/repositories/db_repository.py#L24)
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/app/repositories/db_repository.py#L21)
 
 ☑ Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из `Postman` с помощью `pytest`.
 
@@ -57,7 +57,7 @@
 
 ☑ Описать ручки API в соответствий c `OpenAPI`
 
-☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI`
+☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38)
 
 **Требования:**
   - Код должен проходить все линтеры.
