@@ -22,8 +22,8 @@ class BaseService(Generic[CacheType, RepoType]):
 
     async def refresh(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         obj = await self.db.get(exception=exception, **kwargs)
-        await self.cache.set(obj)
-        # await self._add_bg_task_or_execute(self.cache.set, obj)
+        # await self.cache.set(obj)
+        await self._add_bg_task_or_execute(self.cache.set, obj)
         return obj  # type: ignore [return-value]
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
@@ -31,19 +31,11 @@ class BaseService(Generic[CacheType, RepoType]):
         return (await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*')) or  # noqa
                 await self.refresh(exception=exception, **kwargs))
 
-    async def __get_from_cache(self, obj=None) -> ModelType | None:
-        if obj:
-            print('=========================================')
-            print('obj', obj)
-        from_cache = await self.cache.get()
-        print('from_cache', from_cache)
-        return from_cache
-
     async def create(self, **kwargs) -> ModelType:
         obj = await self.db.create(**kwargs)
-        assert await self.__get_from_cache(obj) is None
+        # assert not await self.__check_cache(obj)
         await self._add_bg_task_or_execute(self.set_cache_on_create, obj)
-        assert await self.__get_from_cache()
+        # assert await self.__check_cache(obj)
         return obj
 
     async def update(self, **kwargs) -> ModelType:
@@ -53,7 +45,9 @@ class BaseService(Generic[CacheType, RepoType]):
 
     async def delete(self, **kwargs) -> ModelType:
         obj = await self.db.delete(**kwargs)
+        # assert await self.__check_cache(obj)
         await self._add_bg_task_or_execute(self.set_cache_on_delete, obj)
+        # assert not await self.__check_cache(obj)
         return obj
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
@@ -64,3 +58,20 @@ class BaseService(Generic[CacheType, RepoType]):
 
     async def set_cache_on_delete(self, obj: ModelType) -> None:
         await self.cache.delete(obj)
+
+
+'''
+    async def __show_cache(self, obj=None):
+        print('=========================================')
+        if obj:
+            print('obj', obj)
+        cache = await self.cache.get()
+        print('cache', cache)
+
+    async def __check_cache(self, obj) -> bool:
+        cache = await self.cache.get(obj.id)
+        if cache is not None:
+            return cache.id == obj.id
+        return bool(cache)
+
+'''
