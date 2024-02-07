@@ -17,21 +17,33 @@ class BaseService(Generic[CacheType, RepoType]):
         self.cache = redis
         self.bg_tasks = bg_tasks
 
-    async def _add_bg_task_or_execute(self, method: Callable, entity: ModelType | list[ModelType]) -> None:
-        self.bg_tasks.add_task(method, entity) if self.bg_tasks is not None else await method(entity)
+    async def _add_bg_task_or_execute(self, func: Callable, *args, **kwargs) -> None:
+        self.bg_tasks.add_task(func, *args, **kwargs) if self.bg_tasks is not None else await func(*args, **kwargs)
 
     async def refresh(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         obj = await self.db.get(exception=exception, **kwargs)
-        await self._add_bg_task_or_execute(self.cache.set, obj)
+        await self.cache.set(obj)
+        # await self._add_bg_task_or_execute(self.cache.set, obj)
         return obj  # type: ignore [return-value]
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
+        # works well: setting the cache for the first time
         return (await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*')) or  # noqa
                 await self.refresh(exception=exception, **kwargs))
 
+    async def __get_from_cache(self, obj=None) -> ModelType | None:
+        if obj:
+            print('=========================================')
+            print('obj', obj)
+        from_cache = await self.cache.get()
+        print('from_cache', from_cache)
+        return from_cache
+
     async def create(self, **kwargs) -> ModelType:
         obj = await self.db.create(**kwargs)
+        assert await self.__get_from_cache(obj) is None
         await self._add_bg_task_or_execute(self.set_cache_on_create, obj)
+        assert await self.__get_from_cache()
         return obj
 
     async def update(self, **kwargs) -> ModelType:

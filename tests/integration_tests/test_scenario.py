@@ -121,6 +121,7 @@ async def test_scenario(init_db, async_client: AsyncClient) -> None:
     await post_dish(async_client, menu_id, submenu_id)
     await post_dish(  # must use different payload as the title is unique, so check_func also different
         async_client, menu_id, submenu_id, d.DISH_PATCH_PAYLOAD, check_dish_updated)
+    assert 0
     await get_menu(async_client, menu_id, submenus_count=1, dishes_count=2)
     await get_submenu(async_client, menu_id, submenu_id, dishes_count=2)
     await del_submenu(async_client, menu_id, submenu_id)
