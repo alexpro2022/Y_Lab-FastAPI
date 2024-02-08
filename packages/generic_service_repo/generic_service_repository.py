@@ -18,7 +18,9 @@ class BaseService(Generic[CacheType, RepoType]):
         self.bg_tasks = bg_tasks
 
     async def _add_bg_task_or_execute(self, func: Callable, *args, **kwargs) -> None:
-        self.bg_tasks.add_task(func, *args, **kwargs) if self.bg_tasks is not None else await func(*args, **kwargs)
+        (self.bg_tasks.add_task(func, *args, **kwargs)
+         if isinstance(self.bg_tasks, BackgroundTasks)
+         else await func(*args, **kwargs))
 
     async def refresh(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         obj = await self.db.get(exception=exception, **kwargs)

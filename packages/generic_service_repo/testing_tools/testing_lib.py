@@ -7,9 +7,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from packages.generic_cache_repo.generic_cache_repository import BaseRedis
 from packages.generic_db_repo.generic_db_repository import BaseCRUD
 from packages.generic_service_repo.generic_service_repository import BaseService
+from .utils import compare, compare_lists
 
-BACKGROUND_TASKS_DATA = ('background_tasks', (None, BackgroundTasks()))
-SINGLE_MULTIPLE_DATA = ('args', ('single', 'multiple'))
+# BACKGROUND_TASKS_DATA = ('background_tasks', (None, BackgroundTasks()))
+SINGLE_PLURAL_ARGS = ('args', ('single', 'plural'))
 PK_DATA = ('pk', (None, 1))
 
 
@@ -21,9 +22,12 @@ class BaseServiceTest:
     cache: BaseRedis
     create_data: dict
 
+# Instance under test is called _service    
+
+# --- Fixtures ---
     @pytest_asyncio.fixture(autouse=True)
-    async def init(self, get_test_session: AsyncSession, get_test_redis: FakeRedis) -> None:
-        self._service = self.service(
+    async def init(self, init_db, get_test_session: AsyncSession, get_test_redis: FakeRedis) -> None:
+        self._service: BaseService = self.service(
             self.db(get_test_session),
             self.cache(get_test_redis),
         )
@@ -36,27 +40,27 @@ class BaseServiceTest:
         assert isinstance(self._service.cache, self.cache)
         # assert self.base_service.bg_tasks is None
 
-    '''@pytest_asyncio.fixture()
-    async def get_service(self, get_test_session: AsyncSession, get_test_redis: FakeRedis) -> None:
-        self.service = Service(CRUD(self.model, get_test_session),
-                               RedisBaseRepository(get_test_redis))
-
-    def test_get_service_fixture(self, get_service) -> None:
-        assert isinstance(self.service, Service)
-        assert isinstance(self.service.db, CRUD)
-        assert isinstance(self.service.redis, RedisBaseRepository)
-        assert self.service.bg_tasks is None  '''
-
-
-'''
     @pytest_asyncio.fixture
-    async def get_obj_in_db(self) -> Model:
-        return await self._service.db.create(self.create_schema(**self.create_payload))
+    async def get_obj_db(self):
+        return await self._service.db.create(**self.create_data)
 
-    @pytest_mark_anyio
-    async def test_get_obj_in_db_fixture(self, get_obj_in_db) -> None:
+    async def test_get_db_obj_fixture(self, get_obj_db) -> None:
         assert not await self._db_empty()
         assert await self._cache_empty()
+        self._compare(get_obj_db, self.create_data)
+
+    @pytest.fixture
+    def get_test_obj(self):
+        return self._service.db.model(**self.create_data)
+
+    def test_get_test_obj_fixture(self, get_test_obj) -> None:
+        assert isinstance(get_test_obj, self._service.db.model)
+
+# --- Utils ---
+    def _compare(self, obj, data: dict) -> None:
+        assert isinstance(obj, self._service.db.model)
+        for key in data:
+            assert getattr(obj, key) == data[key]
 
     async def _db_empty(self) -> bool:
         return await self._service.db.get() is None
@@ -66,15 +70,46 @@ class BaseServiceTest:
 
     async def _check_cache_equals_db(self) -> None:
         db = await self._service.db.get()
-        cache = await self._service.redis.get()
+        cache = await self._service.cache.get()
         compare_lists(db, cache)
 
-    @pytest_mark_anyio
+# --- Tests ---
+    @pytest.mark.parametrize(*SINGLE_PLURAL_ARGS)
+    async def test_add_bg_task_or_execute_executes(self, get_test_obj, args) -> None:
+        self._service.bg_tasks = None
+        test_func = self._service.cache.set
+        test_args = [get_test_obj] if args == 'plural' else get_test_obj
+
+        assert await self._cache_empty()
+        await self._service._add_bg_task_or_execute(test_func, test_args)
+        assert not await self._cache_empty()
+        from_cache = await self._service.cache.get()
+        compare(from_cache[0], get_test_obj)
+
+    @pytest.mark.parametrize(*SINGLE_PLURAL_ARGS)
+    async def test_add_bg_task_or_execute_adds(self, monkeypatch, get_test_obj, args) -> None:
+        def mock(_self, func, *args, **kwargs):
+            assert isinstance(_self, BackgroundTasks)
+            assert func == test_func, (func, test_func)
+            assert isinstance(args, tuple)
+            assert args[0] == test_args, (args, test_args)
+            raise NotImplementedError(mock_msg)
+
+        self._service.bg_tasks = BackgroundTasks()
+        test_func = self._service.cache.set
+        monkeypatch.setattr(BackgroundTasks, 'add_task', mock)
+        test_args = [get_test_obj] if args == 'plural' else get_test_obj
+        mock_msg = 'Mocked background_tasks'
+
+        with pytest.raises(NotImplementedError, match=mock_msg):
+            await self._service._add_bg_task_or_execute(test_func, test_args)
+
+'''
     @pytest.mark.parametrize(*SINGLE_MULTIPLE_DATA)
-    async def test_set_cache(self, get_test_obj, args) -> None:
+    async def test_service_set_cache(self, get_test_obj, args) -> None:
         args = [get_test_obj] if args == 'multiple' else get_test_obj
         assert await self._cache_empty()
-        await self.base_service.set_cache(args)
+        await self._service.set(args)
         assert not await self._cache_empty()
 
     @pytest_mark_anyio
@@ -142,18 +177,7 @@ class BaseServiceTest:
         objs: list[Model] = await method()  # type: ignore [assignment]
         compare(objs[0], obj)
 
-    @pytest_mark_anyio
-    @pytest.mark.parametrize(*BACKGROUND_TASKS_DATA)
-    @pytest.mark.parametrize(*SINGLE_MULTIPLE_DATA)
-    async def test_add_bg_task_or_execute(self, get_test_obj, background_tasks, args) -> None:
-        self.base_service.bg_tasks = background_tasks
-        args = [get_test_obj] if args == 'multiple' else get_test_obj
-        assert await self._cache_empty()
-        await self.base_service._add_bg_task_or_execute(self.base_service.set_cache, args)
-        if self.base_service.bg_tasks:  # adding the method set_cache to background but cannot run it as it works via DI
-            assert await self._cache_empty()
-        else:  # executing the method set_cache directly bypassing bg_tasks
-            assert not await self._cache_empty()
+
 
     @pytest_mark_anyio
     @pytest.mark.parametrize(*BACKGROUND_TASKS_DATA)
@@ -244,3 +268,14 @@ class BaseServiceTest:
         # cannot run task from background as it works via DI
         await self.base_service.__getattribute__(method_name)(*args)
 '''
+
+'''@pytest_asyncio.fixture()
+    async def get_service(self, get_test_session: AsyncSession, get_test_redis: FakeRedis) -> None:
+        self.service = Service(CRUD(self.model, get_test_session),
+                               RedisBaseRepository(get_test_redis))
+
+    def test_get_service_fixture(self, get_service) -> None:
+        assert isinstance(self.service, Service)
+        assert isinstance(self.service.db, CRUD)
+        assert isinstance(self.service.redis, RedisBaseRepository)
+        assert self.service.bg_tasks is None  '''
