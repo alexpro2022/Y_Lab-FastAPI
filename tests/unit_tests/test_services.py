@@ -1,12 +1,10 @@
 from app.repositories.cache_repository import MenuCache
 from app.repositories.db_repository import MenuCRUD
-from packages.generic_service_repo.generic_service_repository import BaseService
 from packages.generic_service_repo.testing_tools.testing_lib import BaseServiceTest
 from tests.fixtures import data as d
 
 
 class TestBaseServicewithMenu(BaseServiceTest):
-    service = BaseService
     db = MenuCRUD
     cache = MenuCache
     msg_not_found = 'menu not found'
