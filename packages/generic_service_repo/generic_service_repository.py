@@ -70,8 +70,8 @@ class BaseService(Generic[CacheType, RepoType]):
         await self.delete_orphans_cache(obj)
         await self.refresh_parent_cache(obj)
 
-    async def delete_orphans_cache(*args, **kwargs):
+    async def delete_orphans_cache(self, obj: ModelType):
         pass
 
-    async def refresh_parent_cache(*args, **kwargs):
+    async def refresh_parent_cache(self, obj: ModelType):
         pass

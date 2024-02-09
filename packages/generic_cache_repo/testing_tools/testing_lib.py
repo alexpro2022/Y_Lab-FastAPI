@@ -7,6 +7,7 @@ from redis import asyncio as aioredis  # type: ignore [import]
 
 from packages.generic_db_repo.generic_db_repository import ModelType
 from packages.testing_tools.base_testing_class import BaseTestingClass
+
 from ..dependencies import get_aioredis
 from ..types import CacheType
 

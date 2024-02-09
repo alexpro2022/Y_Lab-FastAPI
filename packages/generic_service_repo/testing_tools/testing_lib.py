@@ -1,3 +1,4 @@
+from typing import Generic
 from uuid import uuid4
 
 import pytest
@@ -6,8 +7,8 @@ from fakeredis import FakeRedis
 from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from packages.generic_cache_repo.generic_cache_repository import BaseRedis
-from packages.generic_db_repo.generic_db_repository import BaseCRUD
+from packages.generic_cache_repo.types import CacheType
+from packages.generic_db_repo.types import ModelType, RepoType
 from packages.generic_service_repo.generic_service_repository import BaseService
 from packages.testing_tools.base_testing_class import BaseTestingClass
 
@@ -16,10 +17,10 @@ SINGLE_PLURAL_ARGS = ('args', ('single', PLURAL))
 ID = uuid4()
 
 
-class BaseServiceTest(BaseTestingClass):
+class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass):
     service = BaseService
-    db: BaseCRUD
-    cache: BaseRedis
+    db: type[RepoType]
+    cache: type[CacheType]
 
 # Instance under test is called _service
 
@@ -118,7 +119,7 @@ class BaseServiceTest(BaseTestingClass):
         assert await self._db_empty()
         assert await self._cache_empty()
         with pytest.raises(HTTPException, match=self.get_regex_not_found()):
-            await self._service.get(exception=True, **kwargs)  # type: ignore  [attr-defined]
+            await self._service.get(exception=True, **kwargs)
 
     @pytest.mark.parametrize('method_name', ('refresh', 'get'))
     async def test_get_returns_obj_from_db_and_setup_cache(self, get_obj_db, method_name) -> None:
@@ -136,25 +137,27 @@ class BaseServiceTest(BaseTestingClass):
 
     async def test_get_returns_obj_from_cache(self, get_obj_cache) -> None:
         assert await self._db_empty()
-        from_cache = await self._service.get(id=get_obj_cache.id)  # type: ignore  [attr-defined]
+        from_cache: ModelType | list[ModelType] = await self._service.get(id=get_obj_cache.id)
+        assert not isinstance(from_cache, list)
         self.compare_objs(from_cache, get_obj_cache)
 
     async def test_get_all_return_objs_from_cache(self, get_obj_cache) -> None:
         assert await self._db_empty()
-        from_cache = await self._service.get()  # type: ignore  [attr-defined]
+        from_cache: ModelType | list[ModelType] = await self._service.get()
+        assert isinstance(from_cache, list)
         self.compare_objs(from_cache[0], get_obj_cache)
 
     async def test_create_method(self) -> None:
         assert await self._db_empty()
         assert await self._cache_empty()
-        created = await self._service.create(**self.create_data)
+        created: ModelType = await self._service.create(**self.create_data)
         from_db = await self._service.db.get(id=created.id)
         self.compare_obj_data(from_db, self.create_data)
         assert await self._cache_equals_db()
 
     async def test_update_method(self, get_obj_db) -> None:
         assert await self._cache_empty()
-        updated = await self._service.update(id=get_obj_db.id, **self.update_data)
+        updated: ModelType = await self._service.update(id=get_obj_db.id, **self.update_data)
         from_db = await self._service.db.get(id=updated.id)
         self.compare_obj_data(from_db, self.update_data)
         assert await self._cache_equals_db()

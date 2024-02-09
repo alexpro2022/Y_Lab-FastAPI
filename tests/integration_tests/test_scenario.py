@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Callable, TypeAlias
+from typing import Any, AsyncGenerator, Callable, TypeAlias
 
 from httpx import AsyncClient
 
@@ -117,7 +117,7 @@ async def del_menu(async_client: AsyncClient, menu_id: str) -> None:
     await _del(async_client, endpoint, 'menu')
 
 
-async def test_scenario(init_db, async_client: AsyncClient) -> None:
+async def test_scenario(init_db: AsyncGenerator, async_client: AsyncClient) -> None:
     menu: Json = await post_menu(async_client)
     menu_id = menu['id']
     submenu: Json = await post_submenu(async_client, menu_id)
@@ -135,8 +135,8 @@ async def test_scenario(init_db, async_client: AsyncClient) -> None:
     await get_menus(async_client, [])
 
 
-async def testing_services(init_db, async_client: AsyncClient) -> None:
-    async def init():
+async def testing_services(init_db: AsyncGenerator, async_client: AsyncClient) -> None:
+    async def init() -> tuple[Any, ...]:
         menu: Json = await post_menu(async_client)
         menu_id = menu['id']
         submenu: Json = await post_submenu(async_client, menu_id)
@@ -149,7 +149,7 @@ async def testing_services(init_db, async_client: AsyncClient) -> None:
         await get_submenu(async_client, menu_id, submenu_id, dishes_count=2)
         return menu_id, submenu_id, dish['id']
 
-    async def cleanup():
+    async def cleanup() -> None:
         await del_menu(async_client, menu_id)
         await get_menus(async_client, [])
 
