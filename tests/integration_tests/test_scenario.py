@@ -102,6 +102,11 @@ async def _del(async_client: AsyncClient, endpoint: str, item_name: str) -> None
     assert response.json() == {'status': True, 'message': f'The {item_name} has been deleted'}
 
 
+async def del_dish(async_client: AsyncClient, submenu_id: str, dish_id: str) -> None:
+    endpoint = f'{d.ENDPOINT_DISH.format(id=submenu_id)}/{dish_id}'
+    await _del(async_client, endpoint, 'dish')
+
+
 async def del_submenu(async_client: AsyncClient, menu_id: str, submenu_id: str) -> None:
     endpoint = f'{d.ENDPOINT_SUBMENU.format(id=menu_id)}/{submenu_id}'
     await _del(async_client, endpoint, 'submenu')
@@ -112,7 +117,6 @@ async def del_menu(async_client: AsyncClient, menu_id: str) -> None:
     await _del(async_client, endpoint, 'menu')
 
 
-# === TEST SCENARIO ===
 async def test_scenario(init_db, async_client: AsyncClient) -> None:
     menu: Json = await post_menu(async_client)
     menu_id = menu['id']
@@ -129,3 +133,49 @@ async def test_scenario(init_db, async_client: AsyncClient) -> None:
     await get_menu(async_client, menu_id)
     await del_menu(async_client, menu_id)
     await get_menus(async_client, [])
+
+
+async def testing_services(init_db, async_client: AsyncClient) -> None:
+    async def init():
+        menu: Json = await post_menu(async_client)
+        menu_id = menu['id']
+        submenu: Json = await post_submenu(async_client, menu_id)
+        submenu_id = submenu['id']
+        dish: Json = await post_dish(async_client, menu_id, submenu_id)
+        await post_dish(  # must use different payload as the title is unique, so check_func also different
+            async_client, menu_id, submenu_id, d.DISH_PATCH_PAYLOAD, check_dish_updated)
+        # Testing refresh_parent_cache on create
+        await get_menu(async_client, menu_id, submenus_count=1, dishes_count=2)
+        await get_submenu(async_client, menu_id, submenu_id, dishes_count=2)
+        return menu_id, submenu_id, dish['id']
+
+    async def cleanup():
+        await del_menu(async_client, menu_id)
+        await get_menus(async_client, [])
+
+    # Testing menu delete orphans
+    menu_id, submenu_id, _ = await init()
+    await del_menu(async_client, menu_id)
+    await get_menus(async_client, [])
+    await get_submenus(async_client, menu_id, [])
+    await get_dishes(async_client, menu_id, submenu_id, [])
+
+    # Testing submenu delete orphans
+    menu_id, submenu_id, _ = await init()
+    await del_submenu(async_client, menu_id, submenu_id)
+    await get_submenus(async_client, menu_id, [])
+    await get_dishes(async_client, menu_id, submenu_id, [])
+    await cleanup()
+
+    # Testing refresh_parent_cache on delete submenu
+    menu_id, submenu_id, _ = await init()
+    await del_submenu(async_client, menu_id, submenu_id)
+    await get_menu(async_client, menu_id)  # submenus_count=0, dishes_count=0 by default
+    await cleanup()
+
+    # Testing refresh_parent_cache on delete dish
+    menu_id, submenu_id, dish_id = await init()
+    await del_dish(async_client, submenu_id, dish_id)
+    await get_menu(async_client, menu_id, submenus_count=1, dishes_count=1)
+    await get_submenu(async_client, menu_id, submenu_id, dishes_count=1)
+    await cleanup()
