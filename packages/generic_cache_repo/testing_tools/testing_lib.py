@@ -3,19 +3,18 @@ from typing import Any, Generic
 
 import pytest
 import pytest_asyncio
-from deepdiff import DeepDiff
 from redis import asyncio as aioredis  # type: ignore [import]
 
 from packages.generic_db_repo.generic_db_repository import ModelType
+from packages.testing_tools.base_testing_class import BaseTestingClass
 
 from ..dependencies import get_aioredis
 from ..types import CacheType
 
 
-class BaseRedisTest(Generic[CacheType, ModelType]):
+class BaseRedisTest(Generic[CacheType, ModelType], BaseTestingClass):
     cache: type[CacheType]
     model: type[ModelType]
-    create_data: dict
     time_expire: int = 1
 
 # instance under test is called `_cache`
@@ -52,7 +51,11 @@ class BaseRedisTest(Generic[CacheType, ModelType]):
 
     async def test_set_cache_fixture(self, set_cache) -> None:
         from_cache = await self._cache.get(set_cache.id)
-        self._compare(from_cache, set_cache)
+        self.compare_objs(from_cache, set_cache)
+
+# --- Utils ---
+    async def _cache_empty(self) -> bool:
+        return await self._is_empty(self._cache)
 
 # --- Tests ---
     @pytest.mark.parametrize('suffix', (1, 1.2, '1', [1, 2], (1, 2), {1, 1, 2}, {'1': 300}))
@@ -78,7 +81,7 @@ class BaseRedisTest(Generic[CacheType, ModelType]):
             assert self._cache._deserialize(obj) == obj
         else:
             cache = self._cache.serializer.dumps(obj)
-            self._compare(self._cache._deserialize(cache), obj)
+            self.compare_objs(self._cache._deserialize(cache), obj)
 
     @pytest.mark.parametrize('entity', ('single', 'list', 'tuple'))
     async def test_set_obj(self, init, get_test_obj, entity) -> None:
@@ -92,7 +95,7 @@ class BaseRedisTest(Generic[CacheType, ModelType]):
         assert await self._cache_empty()
         await self._cache.set(arg)
         from_cache = await self._cache.get(get_test_obj.id)
-        self._compare(from_cache, get_test_obj)
+        self.compare_objs(from_cache, get_test_obj)
 
     async def test_cache_expire(self, init_expire, get_test_obj) -> None:
         await self._cache.set([get_test_obj])
@@ -110,22 +113,12 @@ class BaseRedisTest(Generic[CacheType, ModelType]):
 
     async def test_get_returns_obj(self, set_cache) -> None:
         from_cache = await self._cache.get(set_cache.id)
-        self._compare(from_cache, set_cache)
+        self.compare_objs(from_cache, set_cache)
 
     async def test_get_returns_list(self, set_cache) -> None:
         from_cache = await self._cache.get()
         assert isinstance(from_cache, list)
-        self._compare(from_cache[0], set_cache)
+        self.compare_objs(from_cache[0], set_cache)
 
     async def test_get_aioredis(self) -> None:
         assert isinstance(get_aioredis(), aioredis.Redis)
-
-# --- Utils ---
-    async def _cache_empty(self) -> bool:
-        return await self._cache.get() is None
-
-    @staticmethod
-    def _compare(left: Any, right: Any) -> None:
-        assert isinstance(left, type(right))
-        diff = DeepDiff(left, right, exclude_paths='_sa_instance_state')
-        assert not diff, diff

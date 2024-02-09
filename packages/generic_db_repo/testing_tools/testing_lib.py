@@ -1,25 +1,20 @@
-import re
 from typing import Any, Generic
 from uuid import uuid4
 
 import pytest
 import pytest_asyncio
-from fastapi import HTTPException, status
-from sqlalchemy import Row
+from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from packages.testing_tools.base_testing_class import BaseTestingClass
 
 from ..types import ModelType, RepoType
 
 
-class BaseCRUDTest(Generic[ModelType, RepoType]):
+class BaseCRUDTest(Generic[ModelType, RepoType], BaseTestingClass):
     """Тестирование базового CRUD класса."""
-    msg_already_exists: str = 'Object with such a unique values already exists.'
-    msg_not_found: str = 'Object(s) not found.'
     model: type[ModelType]
     crud: type[RepoType]
-    create_data: dict
-    create_data_extra: dict
-    update_data: dict
 
 # instance under test is called `_crud`
 
@@ -37,7 +32,7 @@ class BaseCRUDTest(Generic[ModelType, RepoType]):
         return await self._crud._save(self._crud.model(**self.create_data))
 
     def test_get_obj_fixture(self, get_obj) -> None:
-        self._compare(get_obj, self.create_data)
+        self.compare_obj_data(get_obj, self.create_data)
 
     @pytest.fixture
     def get_create_data_extra(self) -> dict[str, Any]:
@@ -82,18 +77,18 @@ class BaseCRUDTest(Generic[ModelType, RepoType]):
 
     async def test_get_method_returns_obj(self, get_obj) -> None:
         obj = await self._crud.get(id=get_obj.id)
-        self._compare(obj, self.create_data)
+        self.compare_obj_data(obj, self.create_data)
 
     async def test_get_all_method_returns_list(self, get_obj) -> None:
         obj = await self._crud.get()
         assert isinstance(obj, list)
-        self._compare(obj[0], self.create_data)
+        self.compare_obj_data(obj[0], self.create_data)
 
     async def test_create_method(self, get_create_data_extra) -> None:
         data = {**self.create_data, **get_create_data_extra}
         created = await self._crud.create(**data)
         obj = await self._crud.get(id=created.id)
-        self._compare(obj, data)
+        self.compare_obj_data(obj, data)
 
     async def test_unique_constraint(self, get_obj, get_create_data_extra) -> None:
         with pytest.raises(HTTPException, match=self.get_regex_already_exists()):
@@ -106,7 +101,7 @@ class BaseCRUDTest(Generic[ModelType, RepoType]):
     async def test_update_method(self, get_obj) -> None:
         updated = await self._crud.update(id=get_obj.id, **self.update_data)
         obj = await self._crud.get(id=updated.id)
-        self._compare(obj, self.update_data)
+        self.compare_obj_data(obj, self.update_data)
 
     async def test_delete_raises_not_found_exceptions(self) -> None:
         with pytest.raises(HTTPException, match=self.get_regex_not_found()):
@@ -116,20 +111,3 @@ class BaseCRUDTest(Generic[ModelType, RepoType]):
         await self._crud.delete(id=get_obj.id)
         with pytest.raises(HTTPException, match=self.get_regex_not_found()):
             await self._crud.delete(id=get_obj.id)
-
-# --- Utils ---
-    @staticmethod
-    def get_regex(expected_msg: str, expected_error_code: int | None = None) -> str:
-        error_code = '' if expected_error_code is None else f'{expected_error_code}: '
-        return re.escape(f'{error_code}{expected_msg}')
-
-    def get_regex_already_exists(self) -> str:
-        return self.get_regex(self.msg_already_exists, status.HTTP_400_BAD_REQUEST)
-
-    def get_regex_not_found(self) -> str:
-        return self.get_regex(self.msg_not_found, status.HTTP_404_NOT_FOUND)
-
-    def _compare(self, obj, data: dict) -> None:
-        assert isinstance(obj, self._crud.model) or isinstance(obj, Row)
-        for key in data:
-            assert getattr(obj, key) == data[key]
