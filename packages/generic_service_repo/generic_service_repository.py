@@ -60,9 +60,18 @@ class BaseService(Generic[CacheType, RepoType]):
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
         await self.refresh(id=obj.id)
+        await self.refresh_parent_cache(obj)
 
     async def set_cache_on_update(self, obj: ModelType) -> None:
         await self.refresh(id=obj.id)
 
     async def set_cache_on_delete(self, obj: ModelType) -> None:
         await self.cache.delete(obj)
+        await self.delete_orphans_cache(obj)
+        await self.refresh_parent_cache(obj)
+
+    async def delete_orphans_cache(*args, **kwargs):
+        pass
+
+    async def refresh_parent_cache(*args, **kwargs):
+        pass
