@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import BackgroundTasks, Depends
 
 from app.models import Dish, Menu, Submenu
 from app.repositories.cache_repository import dish_cache, menu_cache, submenu_cache
@@ -17,8 +17,10 @@ class Service(BaseService):
 
 class MenuService(Service):
 
-    def __init__(self, db: menu_crud, redis: menu_cache, submenu_cache: submenu_cache, dish_cache: dish_cache):
-        super().__init__(db, redis)
+    def __init__(self, db: menu_crud, redis: menu_cache,
+                 submenu_cache: submenu_cache, dish_cache: dish_cache,
+                 bg_tasks: BackgroundTasks) -> None:
+        super().__init__(db, redis, bg_tasks)
         self.submenu_cache = submenu_cache
         self.dish_cache = dish_cache
 
@@ -41,8 +43,10 @@ menu_service = Annotated[MenuService, Depends()]
 
 class SubmenuService(Service):
 
-    def __init__(self, db: submenu_crud, redis: submenu_cache, menu_service: menu_service, dish_cache: dish_cache):
-        super().__init__(db, redis)
+    def __init__(self, db: submenu_crud, redis: submenu_cache,
+                 menu_service: menu_service, dish_cache: dish_cache,
+                 bg_tasks: BackgroundTasks) -> None:
+        super().__init__(db, redis, bg_tasks)
         self.dish_cache = dish_cache
         self.menu_service = menu_service
 
@@ -61,8 +65,10 @@ submenu_service = Annotated[SubmenuService, Depends()]
 
 class DishService(Service):
 
-    def __init__(self, db: dish_crud, redis: dish_cache, menu_service: menu_service, submenu_service: submenu_service):
-        super().__init__(db, redis)
+    def __init__(self, db: dish_crud, redis: dish_cache,
+                 menu_service: menu_service, submenu_service: submenu_service,
+                 bg_tasks: BackgroundTasks) -> None:
+        super().__init__(db, redis, bg_tasks)
         self.menu_service = menu_service
         self.submenu_service = submenu_service
 

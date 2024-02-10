@@ -28,10 +28,7 @@ class BaseService(Generic[CacheType, RepoType]):
         """Gets result from DB. Sets the cache in background. Returns result."""
         entity = await self.db.get(exception=exception, **kwargs)
         if entity:
-            if in_background:
-                await self._add_bg_task_or_execute(self.cache.set, entity)
-            else:
-                await self.cache.set(entity)
+            await self._add_bg_task_or_execute(self.cache.set, entity)
         return entity  # type: ignore [return-value]
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
@@ -43,32 +40,23 @@ class BaseService(Generic[CacheType, RepoType]):
     async def create(self, **kwargs) -> ModelType:
         """Creates the object in db and sets the cache in background."""
         obj = await self.db.create(**kwargs)
-        await self._add_bg_task_or_execute(self.set_cache_on_create, obj)
+        await self.refresh(id=obj.id)
+        await self.refresh_parent_cache(obj)
         return obj
 
     async def update(self, **kwargs) -> ModelType:
         """Updates the object in db and sets the cache in background."""
         obj = await self.db.update(**kwargs)
-        await self._add_bg_task_or_execute(self.set_cache_on_update, obj)
+        await self.refresh(id=obj.id)
         return obj
 
     async def delete(self, **kwargs) -> ModelType:
         """Deletes the object in db and sets the cache in background."""
         obj = await self.db.delete(**kwargs)
-        await self._add_bg_task_or_execute(self.set_cache_on_delete, obj)
+        await self._add_bg_task_or_execute(self.cache.delete, obj)
+        await self._add_bg_task_or_execute(self.delete_orphans_cache, obj)
+        await self.refresh_parent_cache(obj)
         return obj
-
-    async def set_cache_on_create(self, obj: ModelType) -> None:
-        await self.refresh(id=obj.id)
-        await self.refresh_parent_cache(obj)
-
-    async def set_cache_on_update(self, obj: ModelType) -> None:
-        await self.refresh(id=obj.id)
-
-    async def set_cache_on_delete(self, obj: ModelType) -> None:
-        await self.cache.delete(obj)
-        await self.delete_orphans_cache(obj)
-        await self.refresh_parent_cache(obj)
 
     async def delete_orphans_cache(self, obj: ModelType):
         pass

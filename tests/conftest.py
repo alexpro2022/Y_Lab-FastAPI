@@ -23,8 +23,8 @@ async def override_get_async_session() -> AsyncGenerator[Any, None]:
 
 async def override_get_aioredis() -> AsyncGenerator[FakeRedis, Any]:
     r = FakeRedis()
-    yield r
     await r.flushall()
+    return r
 
 
 app.dependency_overrides[get_async_session] = override_get_async_session

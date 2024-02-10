@@ -6,7 +6,7 @@ from packages.generic_cache_repo.generic_cache_repository import BaseRedis
 
 
 class MenuCache(BaseRedis):
-    key_prefix = 'menu:'
+    key_prefix = 'menu'
 
 
 class SubmenuCache(BaseRedis):

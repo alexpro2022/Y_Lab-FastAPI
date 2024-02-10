@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from pathlib import Path
 
 from openpyxl import load_workbook
-from redis import asyncio as aioredis
+from redis import asyncio as aioredis  # type: ignore [import]
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.core import settings
@@ -10,13 +10,13 @@ from app.schemas.schemas import DishIn, MenuIn, SubmenuIn
 from app.services.services import DishService, MenuService, SubmenuService
 from packages.generic_cache_repo.dependencies import get_aioredis
 from packages.generic_db_repo.base import Base
-from packages.generic_db_repo.dependencies import AsyncSessionLocal, engine
+from packages.generic_db_repo.dependencies import engine  # AsyncSessionLocal
 
 FILE_PATH = Path('admin/Menu.xlsx')
 TIME_INTERVAL = settings.celery_task_period
 
 
-def read_file(fname: Path = FILE_PATH) -> tuple[list[dict]]:
+def read_file(fname: Path = FILE_PATH) -> tuple[dict[str, str], ...]:
     wb = load_workbook(filename=fname)
     ws = wb['Лист1']
     menus, submenus, dishes = [], [], []
@@ -74,11 +74,11 @@ async def fill_repos(menus: list[dict],
                                    description=dish['description'], price=dish['price']), extra_data=created_submenu.id)
 
 
-async def task() -> str | list:
+async def task() -> str | dict[str, str] | None:
     if not is_modified():
         return 'Меню не изменялось. Выход из фоновой задачи...'
-    menus, _, _ = read_file(FILE_PATH)
-    if not menus:
+    menus, _, _ = read_file(FILE_PATH)  # type:ignore [misc]
+    if not menus:  # type: ignore [has-type]
         return None
     redis: aioredis.Redis = get_aioredis()
     await redis.flushall()
