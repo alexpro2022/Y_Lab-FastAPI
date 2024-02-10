@@ -24,7 +24,7 @@ class BaseService(Generic[CacheType, RepoType]):
          else await func(*args, **kwargs))
 
     async def refresh(
-            self, exception: bool = False, in_background: bool = False, **kwargs) -> ModelType | list[ModelType]:
+            self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         """Gets result from DB. Sets the cache in background. Returns result."""
         entity = await self.db.get(exception=exception, **kwargs)
         if entity:
@@ -34,8 +34,8 @@ class BaseService(Generic[CacheType, RepoType]):
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         """Gets result from cache or from db if cache is None. Sets the cache in background if necessary and
            returns result."""
-        return (await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*')) or  # noqa
-                await self.refresh(exception=exception, in_background=True, **kwargs))
+        return (await self.cache.get(key=kwargs.get('id')) or  # noqa
+                await self.refresh(exception=exception, **kwargs))
 
     async def create(self, **kwargs) -> ModelType:
         """Creates the object in db and sets the cache in background."""
