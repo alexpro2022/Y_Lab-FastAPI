@@ -150,7 +150,6 @@ async def testing_services(init_db: AsyncGenerator, async_client: AsyncClient) -
         return menu_id, submenu_id, dish['id']
 
     async def cleanup() -> None:
-        # await get_menus(async_client, [])
         await del_menu(async_client, menu_id)
         await get_menus(async_client, [])
 

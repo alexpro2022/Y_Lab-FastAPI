@@ -1,5 +1,5 @@
 from typing import Callable, Generic
-# import uuid
+
 from fastapi import BackgroundTasks
 
 from packages.generic_cache_repo.types import CacheType
@@ -17,11 +17,17 @@ class BaseService(Generic[CacheType, RepoType]):
         self.cache = redis
         self.bg_tasks = bg_tasks
 
-    async def delete_orphans_cache(self, obj: ModelType):
+    async def set_cache_on_create(self, obj: ModelType) -> None:
         pass
 
-    async def refresh_parent_cache(self, obj: ModelType):
-        pass
+    async def set_cache_on_update(self, obj: dict, cache_obj: dict) -> None:
+        for key in obj:
+            if cache_obj[key] != obj[key]:
+                cache_obj[key] = obj[key]
+        await self.cache.set(cache_obj)
+
+    async def set_cache_on_delete(self, obj: ModelType) -> None:
+        await self.cache.delete(obj)
 
     async def _add_bg_task_or_execute(self, func: Callable, *args, **kwargs) -> None:
         """Executes the `func` either in background or directly depending on self.bg_task attribute."""
@@ -29,7 +35,7 @@ class BaseService(Generic[CacheType, RepoType]):
          if isinstance(self.bg_tasks, BackgroundTasks)
          else await func(*args, **kwargs))
 
-    async def refresh(
+    async def _refresh(
             self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         """Gets result from DB. Sets the cache in background. Returns result."""
         entity = await self.db.get(exception=exception, **kwargs)
@@ -37,35 +43,31 @@ class BaseService(Generic[CacheType, RepoType]):
             await self._add_bg_task_or_execute(self.cache.set, entity)
         return entity  # type: ignore [return-value]
 
-    '''def pop_cache_key(**kwargs) -> str | uuid.UUID:
-        return kwargs.pop('cache_key') '''
-
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         """Gets result from cache or from db if cache is None. Sets the cache in background if necessary and
            returns result."""
         return (await self.cache.get(key=kwargs.get('id')) or  # noqa
-                await self.refresh(exception=exception, **kwargs))
+                await self._refresh(exception=exception, **kwargs))
 
     async def create(self, **kwargs) -> ModelType:
         """Creates the object in db and sets the cache in background."""
         obj = await self.db.create(**kwargs)
-        await self.refresh(id=obj.id)
-        await self.refresh_parent_cache(obj)
+        await self._refresh(id=obj.id)
+        await self._add_bg_task_or_execute(self.set_cache_on_create, obj)
         return obj
 
     async def update(self, **kwargs) -> ModelType:
         """Updates the object in db and sets the cache in background."""
         obj = await self.db.update(**kwargs)
-        await self.refresh(id=obj.id)
+        cache_obj = await self.cache.get(obj.id)
+        if cache_obj:
+            await self._add_bg_task_or_execute(self.set_cache_on_update, obj._asdict(), cache_obj)
+        else:
+            await self._refresh(id=obj.id)
         return obj
 
     async def delete(self, **kwargs) -> ModelType:
         """Deletes the object in db and sets the cache in background."""
-        async def delete_operations():
-            await self.cache.delete(obj)
-            await self.delete_orphans_cache(obj)
-
         obj = await self.db.delete(**kwargs)
-        await self._add_bg_task_or_execute(delete_operations)
-        await self.refresh_parent_cache(obj)
+        await self._add_bg_task_or_execute(self.set_cache_on_delete, obj)
         return obj

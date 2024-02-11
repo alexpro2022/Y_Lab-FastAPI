@@ -24,7 +24,7 @@ SUM_DELETE_ITEM = u.SUM_DELETE_ITEM.format(NAME)
             summary=SUM_ALL_ITEMS,
             description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
 async def get_all_submenus(menu_id: UUID, submenu_service: submenu_service) -> list[Submenu]:
-    return await submenu_service.get(menu_id=menu_id, cache_key=menu_id)
+    return await submenu_service.get(menu_id=menu_id)
 
 
 @router.post('/{menu_id}/submenus',
@@ -36,8 +36,7 @@ async def get_all_submenus(menu_id: UUID, submenu_service: submenu_service) -> l
 async def create_submenu(menu_id: UUID,
                          payload: schemas.SubmenuIn,
                          submenu_service: submenu_service) -> Submenu:
-    return await submenu_service.create(menu_id=menu_id, cache_key=menu_id,
-                                        **payload.model_dump())
+    return await submenu_service.create(**payload.model_dump(), menu_id=menu_id)
 
 
 @router.get('/{menu_id}/submenus/{submenu_id}',
@@ -45,9 +44,8 @@ async def create_submenu(menu_id: UUID,
             responses={**get_404('submenu')},
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
-async def get_submenu(menu_id: UUID, submenu_id: UUID, submenu_service: submenu_service) -> Submenu:
-    cache_key = f'{menu_id}:{submenu_id}'
-    return await submenu_service.get(id=submenu_id, cache_key=cache_key, exception=True)  # type: ignore [return-value]
+async def get_submenu(submenu_id: UUID, submenu_service: submenu_service) -> Submenu:
+    return await submenu_service.get(id=submenu_id, exception=True)  # type: ignore [return-value]
 
 
 @router.patch('/{menu_id}/submenus/{submenu_id}',
@@ -55,14 +53,12 @@ async def get_submenu(menu_id: UUID, submenu_id: UUID, submenu_service: submenu_
               responses={**get_404('submenu')},
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
-async def update_submenu(menu_id: UUID, submenu_id: UUID,
+async def update_submenu(submenu_id: UUID,
                          payload: schemas.SubmenuPatch,
                          submenu_service: submenu_service) -> Submenu:
-    cache_key = f'{menu_id}:{submenu_id}'
-    return await submenu_service.update(id=submenu_id, cache_key=cache_key,
-                                        **payload.model_dump(exclude_defaults=True,
-                                                             exclude_none=True,
-                                                             exclude_unset=True))
+    return await submenu_service.update(id=submenu_id, **payload.model_dump(exclude_defaults=True,
+                                                                            exclude_none=True,
+                                                                            exclude_unset=True))
 
 
 @router.delete('/{menu_id}/submenus/{submenu_id}',
@@ -70,6 +66,5 @@ async def update_submenu(menu_id: UUID, submenu_id: UUID,
                responses={**get_404('submenu')},
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
-async def delete_submenu(menu_id: UUID, submenu_id: UUID, submenu_service: submenu_service) -> dict[str, bool | str]:
-    cache_key = f'{menu_id}:{submenu_id}'
-    return await submenu_service.delete(id=submenu_id, cache_key=cache_key)
+async def delete_submenu(submenu_id: UUID, submenu_service: submenu_service) -> dict[str, bool | str]:
+    return await submenu_service.delete(id=submenu_id)

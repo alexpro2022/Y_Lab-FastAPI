@@ -1,10 +1,9 @@
 import pickle
 from typing import Any
+
 from redis import asyncio as aioredis  # type: ignore [import]
 
 from .dependencies import redis
-
-# KeyType: TypeAlias = str | uuid.UUID
 
 
 class BaseRedis:
@@ -53,11 +52,9 @@ class BaseRedis:
     async def set(self, entity: Any | list[Any]) -> None:
         """Sets the obj(s) to cache as a dict(s)."""
         async def set_obj(obj: Any) -> None:
-            parent_id = getattr(obj, self.parent_id_field_name, None)
-            # create the cache key proto as: obj_id:parent_id
-            key = obj.id if parent_id is None else f'{obj.id}:{parent_id}'
             obj = obj if isinstance(obj, dict) else obj._asdict()
-            # obj = self._asdict(obj)
+            parent_id = obj.get(self.parent_id_field_name)
+            key = obj['id'] if parent_id is None else f"{obj['id']}:{parent_id}"
             await self.redis.set(self._get_key(key), self._serialize(obj), ex=self.redis_expire)
 
         if isinstance(entity, (list, tuple)):
@@ -66,12 +63,13 @@ class BaseRedis:
         else:
             await set_obj(entity)
 
-    async def delete(self, obj: Any) -> None:
-        # the cache key for that obj might contain the parent id, so need to get it via pattern
-        keys = await self.get_keys(self.redis, f'{self._get_key(obj.id)}*')
-        if keys:
-            await self.redis.delete(self._get_key(keys[0]))
-
-    '''@staticmethod
-    def _asdict(obj: Any) -> dict[str, Any]:
-        return obj if isinstance(obj, dict) else obj._asdict()'''
+    async def delete(self, *names) -> None:  # obj: Any | list[str]) -> None:
+        if len(names) > 0:
+            if isinstance(names[0], str):
+                await self.redis.delete(*names)
+            else:
+                obj = names[0]
+                # the cache key for that obj might contain the parent id, so need to get it via pattern
+                keys = await self.get_keys(self.redis, f"{self._get_key(getattr(obj, 'id', None) or obj.get('id'))}*")
+                if keys:
+                    await self.redis.delete(self._get_key(keys[0]))

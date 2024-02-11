@@ -124,14 +124,14 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
         with pytest.raises(HTTPException, match=self.get_regex_not_found()):
             await self._service.get(exception=True, **kwargs)
 
-    @pytest.mark.parametrize('method_name', ('refresh', 'get'))
+    @pytest.mark.parametrize('method_name', ('_refresh', 'get'))
     async def test_get_returns_obj_from_db_and_setup_cache(self, get_obj_db, method_name) -> None:
         assert await self._cache_empty()
         from_db = await self._service.__getattribute__(method_name)(id=get_obj_db.id)
         self.compare_objs(from_db, get_obj_db)
         assert await self._cache_equals_db()
 
-    @pytest.mark.parametrize('method_name', ('refresh', 'get'))
+    @pytest.mark.parametrize('method_name', ('_refresh', 'get'))
     async def test_get_all_return_objs_from_db_and_setup_cache(self, get_obj_db, method_name) -> None:
         assert await self._cache_empty()
         from_db = await self._service.__getattribute__(method_name)()
@@ -158,8 +158,17 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
         self.compare_obj_data(from_db, self.create_data)
         assert await self._cache_equals_db()
 
-    async def test_update_method(self, get_obj_db) -> None:
+    async def test_update_method_sets_cache(self, get_obj_db) -> None:
         assert await self._cache_empty()
+        updated: ModelType = await self._service.update(id=get_obj_db.id, **self.update_data)
+        from_db = await self._service.db.get(id=updated.id)
+        self.compare_obj_data(from_db, self.update_data)
+        assert await self._cache_equals_db()
+
+    async def test_update_method_updates_cache(self, get_obj_db) -> None:
+        assert await self._cache_empty()
+        await self._service._refresh(id=get_obj_db.id)
+        assert not await self._cache_empty()
         updated: ModelType = await self._service.update(id=get_obj_db.id, **self.update_data)
         from_db = await self._service.db.get(id=updated.id)
         self.compare_obj_data(from_db, self.update_data)
@@ -167,7 +176,7 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
 
     async def test_delete_method(self, get_obj_db) -> None:
         assert not await self._db_empty()
-        await self._service.refresh(id=get_obj_db.id)
+        await self._service._refresh(id=get_obj_db.id)
         assert await self._cache_equals_db()
         await self._service.delete(id=get_obj_db.id)
         assert await self._db_empty()
