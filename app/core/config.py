@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     app_title: str = DEFAULT_STR
     app_description: str = DEFAULT_STR
     secret_key: SecretStr = DEFAULT_STR
+    rabbitmq_port: int = 5672
+    celery_broker_url: str = f'amqp://guest:guest@rabbitmq:{rabbitmq_port}//'
+    celery_task_period: int = 15
 
 
 settings = Settings()

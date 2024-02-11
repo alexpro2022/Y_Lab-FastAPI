@@ -60,15 +60,12 @@ class BaseRedisTest(Generic[CacheType, ModelType], BaseTestingClass):
         return await self._is_empty(self._cache)
 
 # --- Tests ---
-    @pytest.mark.parametrize('suffix', (1, 1.2, '1', [1, 2], (1, 2), {1, 1, 2}, {'1': 300}))
-    def test_get_key(self, init, suffix: Any) -> None:
-        key = self._cache._get_key(suffix)
-        assert isinstance(key, str)
-        expected = (f'{self._cache.key_prefix}{self._cache.delimeter}{suffix}'
-                    if self._cache.parent_id_field_name is None else
-                    (f'{self._cache.key_prefix}{self._cache.delimeter}{suffix}'
-                     f'{self._cache.delimeter}{self._cache.parent_id_field_name}'))
-        assert key == expected, (key, expected)
+    @pytest.mark.parametrize('key', (1, 1.2, '1', [1, 2], (1, 2), {1, 1, 2}, {'1': 300}))
+    def test_get_key(self, init, key: Any) -> None:
+        actual_key = self._cache._get_key(key)
+        assert isinstance(actual_key, str)
+        assert actual_key == f'{self._cache.key_prefix}{self._cache.delimeter}{key}'
+        assert self._cache._get_key(actual_key) == actual_key
 
     @pytest.mark.parametrize('obj', (b'str', 1, 2.2, 'str', 'get_test_obj'))
     def test_serialize(self, init, obj, request) -> None:
