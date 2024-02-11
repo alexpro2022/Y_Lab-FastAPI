@@ -5,3 +5,7 @@ pydantic-settings
 redis
 sqlalchemy
 uvicorn[standard]
+celery
+flower
+rabbitmq
+openpyxl

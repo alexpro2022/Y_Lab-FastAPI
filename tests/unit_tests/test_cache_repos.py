@@ -17,10 +17,10 @@ class TestMenuCache(BaseRedisTest):
 class TestSubmenuCache(BaseRedisTest):
     cache = SubmenuCache
     model = Submenu
-    create_data = {**ID, **d.SUBMENU_POST_PAYLOAD}
+    create_data = {**ID, **d.SUBMENU_POST_PAYLOAD, 'menu_id': uuid4()}
 
 
 class TestDishCache(BaseRedisTest):
     cache = DishCache
     model = Dish
-    create_data = {**ID, **d.DISH_POST_PAYLOAD}
+    create_data = {**ID, **d.DISH_POST_PAYLOAD, 'submenu_id': uuid4()}
