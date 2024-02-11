@@ -69,6 +69,7 @@ class BaseRedis:
                 await self.redis.delete(*names)
             else:
                 # the cache key for that obj might contain the parent id, so need to get it via pattern
-                keys = await self.get_keys(self.redis, f"{self._get_key(getattr(names[0], 'id', None) or names[0].get('id'))}*")
+                keys = await self.get_keys(self.redis,
+                                           f"{self._get_key(getattr(names[0], 'id', None) or names[0].get('id'))}*")
                 if keys:
                     await self.redis.delete(self._get_key(keys[0]))
