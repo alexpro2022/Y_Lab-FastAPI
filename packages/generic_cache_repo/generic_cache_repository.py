@@ -33,26 +33,25 @@ class BaseRedis:
             return key
         return f'{self.key_prefix}{self.delimeter}{key}'
 
+    async def get_keys(self, redis: aioredis.Redis, pattern: str):
+        return [key.decode('utf-8') for key in await redis.keys(pattern)]
+
     async def get(self, key: Any | None = None, pattern: str = '*') -> Any | list[Any] | None:
         async def get_obj(key: Any) -> Any | None:
             cache = await self.redis.get(key)
             return self._deserialize(cache) if cache else None
 
-        if key is None:
-            result_old = [await get_obj(key.decode('utf-8')) for key in
-                          await self.redis.keys(f'{self.key_prefix}{pattern}')]
+        if key is None:  # get all from the group specified by self.key_prefix
             result = [await get_obj(key) for key in await self.get_keys(self.redis, f'{self.key_prefix}{pattern}')]
-            #assert result == result_old, (result, result_old)
             return result if result and None not in result else None
-        pattern = f'{self._get_key(key)}*'
-        keys_old = [key.decode('utf-8') for key in await self.redis.keys(pattern)]
-        keys = await self.get_keys(self.redis, pattern)
-        assert keys == keys_old
+        # the cache key for that obj might contain the parent id, so need to get it via pattern
+        keys = await self.get_keys(self.redis, f'{self._get_key(key)}*')
         return None if not keys else await get_obj(keys[0])
 
     async def set(self, entity: Any | list[Any]) -> None:
         async def set_obj(obj: Any) -> None:
             parent_id = getattr(obj, self.parent_id_field_name, None)
+            # create the cache key proto as: obj_id:parent_id
             key = obj.id if parent_id is None else f'{obj.id}:{parent_id}'
             await self.redis.set(self._get_key(key), self._serialize(obj), ex=self.redis_expire)
 
@@ -63,12 +62,7 @@ class BaseRedis:
             await set_obj(entity)
 
     async def delete(self, obj: Any) -> None:
-        pattern = f'{self._get_key(obj.id)}*'
-        keys_old = [key.decode('utf-8') for key in await self.redis.keys(pattern)]
-        keys = await self.get_keys(self.redis, pattern)
-        assert keys == keys_old
+        # the cache key for that obj might contain the parent id, so need to get it via pattern
+        keys = await self.get_keys(self.redis, f'{self._get_key(obj.id)}*')
         if keys:
             await self.redis.delete(self._get_key(keys[0]))
-
-    async def get_keys(self, redis: aioredis.Redis, pattern: str):
-        return [key.decode('utf-8') for key in await redis.keys(pattern)]

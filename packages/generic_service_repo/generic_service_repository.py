@@ -17,6 +17,12 @@ class BaseService(Generic[CacheType, RepoType]):
         self.cache = redis
         self.bg_tasks = bg_tasks
 
+    async def delete_orphans_cache(self, obj: ModelType):
+        pass
+
+    async def refresh_parent_cache(self, obj: ModelType):
+        pass
+
     async def _add_bg_task_or_execute(self, func: Callable, *args, **kwargs) -> None:
         """Executes the `func` either in background or directly depending on self.bg_task attribute."""
         (self.bg_tasks.add_task(func, *args, **kwargs)
@@ -52,14 +58,11 @@ class BaseService(Generic[CacheType, RepoType]):
 
     async def delete(self, **kwargs) -> ModelType:
         """Deletes the object in db and sets the cache in background."""
+        async def delete_operations():
+            await self.cache.delete(obj)
+            await self.delete_orphans_cache(obj)
+
         obj = await self.db.delete(**kwargs)
-        await self._add_bg_task_or_execute(self.cache.delete, obj)
-        await self._add_bg_task_or_execute(self.delete_orphans_cache, obj)
+        await self._add_bg_task_or_execute(delete_operations)
         await self.refresh_parent_cache(obj)
         return obj
-
-    async def delete_orphans_cache(self, obj: ModelType):
-        pass
-
-    async def refresh_parent_cache(self, obj: ModelType):
-        pass

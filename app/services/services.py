@@ -21,17 +21,16 @@ class MenuService(Service):
         super().__init__(db, redis, bg_tasks)
 
     async def delete_orphans_cache(self, obj: Menu) -> None:
-        # submenu_names = [key.decode('utf-8') for key in await self.cache.redis.keys(f'*{obj.id}')]
-        submenu_names = await self.cache.get_keys(self.cache.redis, f'*{obj.id}')
-        if submenu_names:
-            await self.cache.redis.delete(*submenu_names)
-            for submenu_name in submenu_names:
-                submenu_name = submenu_name.split(':')[1]
-                # dish_names = [key.decode('utf-8') for key in await self.cache.redis.keys(f'*{submenu_name}')]
-                dish_names = await self.cache.get_keys(self.cache.redis, f'*{submenu_name}')
-
-                if dish_names:
-                    await self.cache.redis.delete(*dish_names)
+        # find all the childs by the parent_id
+        submenu_keys = await self.cache.get_keys(self.cache.redis, f'*{obj.id}')
+        if submenu_keys:
+            await self.cache.redis.delete(*submenu_keys)
+            for submenu_key in submenu_keys:
+                submenu_id = submenu_key.split(':')[1]
+                # find all the childs by the parent_id
+                dish_keys = await self.cache.get_keys(self.cache.redis, f'*{submenu_id}')
+                if dish_keys:
+                    await self.cache.redis.delete(*dish_keys)
 
 
 menu_service = Annotated[MenuService, Depends()]
@@ -49,11 +48,10 @@ class SubmenuService(Service):
         await self.menu_service.refresh(id=submenu.menu_id)
 
     async def delete_orphans_cache(self, obj: Submenu) -> None:
-        # dish_names_old = [key.decode('utf-8') for key in await self.cache.redis.keys(f'*{obj.id}')]
-        dish_names = await self.cache.get_keys(self.cache.redis, f'*{obj.id}')
-        # assert dish_names == dish_names_old
-        if dish_names:
-            await self.cache.redis.delete(*dish_names)
+        # find all the childs by the parent_id
+        dish_keys = await self.cache.get_keys(self.cache.redis, f'*{obj.id}')
+        if dish_keys:
+            await self.cache.redis.delete(*dish_keys)
 
 
 submenu_service = Annotated[SubmenuService, Depends()]
