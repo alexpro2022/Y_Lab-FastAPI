@@ -43,6 +43,7 @@ class SubmenuService(Service):
 
     async def set_cache_on_create(self, obj: Submenu) -> None:
         menu = await self.menu_cache.get(key=obj.menu_id)
+        # self.menu_cache.redis.hincrby('submenus_count', 1)
         if menu:
             menu['submenus_count'] += 1
             await self.menu_cache.set(menu)

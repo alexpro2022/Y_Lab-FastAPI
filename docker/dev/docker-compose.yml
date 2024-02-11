@@ -45,8 +45,6 @@ services:
     build:
       context: ../..
       dockerfile: docker/dev/dev.Dockerfile
-    #environment:
-    #  - DOCKER_BUILDKIT=1
     command: bash -c "uvicorn app.main:app --reload --host=0.0.0.0"
     # command: bash -c "alembic upgrade head && uvicorn app.main:app --host=0.0.0.0"
     restart: always
@@ -66,8 +64,6 @@ services:
     build:
       context: ../..
       dockerfile: docker/dev/dev.Dockerfile
-    #environment:
-    #  - DOCKER_BUILDKIT=1
     command: bash -c "celery -A app.celery_tasks.celery_app worker -B --loglevel=info"
     links:
       - rabbitmq
