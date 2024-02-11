@@ -23,3 +23,11 @@ def test_model_repr(model, data: dict[str, str], attrs: str) -> None:
     representation = repr(model(**data))
     for attr_name in attrs:
         assert representation.find(attr_name) != -1
+
+
+@parametrize
+def test_asdict(model, data: dict[str, str], attrs: str) -> None:
+    obj = model(**data)._asdict()
+    assert isinstance(obj, dict)
+    for key in data:
+        assert obj[key] == data[key]

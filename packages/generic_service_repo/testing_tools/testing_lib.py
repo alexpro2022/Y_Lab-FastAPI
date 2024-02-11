@@ -56,7 +56,7 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
 
     async def test_get_obj_cache_fixture(self, get_obj_cache):
         from_cache = await self._service.cache.get(key=get_obj_cache.id)
-        self.compare_objs(from_cache, get_obj_cache)
+        self.compare_objs(from_cache, get_obj_cache._asdict())
 
 # --- Utils ---
     async def _db_empty(self) -> bool:
@@ -68,8 +68,11 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
     async def _cache_equals_db(self) -> bool:
         db = await self._service.db.get()
         cache = await self._service.cache.get()
-        assert db and cache
-        self.compare_lists(db, cache)
+        assert db and isinstance(db, list)
+        assert cache and isinstance(cache, list)
+        assert len(db) == len(cache)
+        for i in range(len(db)):
+            self.compare_objs(db[i]._asdict(), cache[i])
         return True
 
 # --- Tests ---
@@ -84,7 +87,7 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
         assert not await self._cache_empty()
         from_cache = await self._service.cache.get()
         assert isinstance(from_cache, list)
-        self.compare_objs(from_cache[0], get_obj_db)
+        self.compare_objs(from_cache[0], get_obj_db._asdict())
 
     @pytest.mark.parametrize(*SINGLE_PLURAL_ARGS)
     async def test_add_bg_task_or_execute_adds(self, monkeypatch, get_obj_db, args) -> None:
@@ -139,13 +142,13 @@ class BaseServiceTest(Generic[CacheType, ModelType, RepoType], BaseTestingClass)
         assert await self._db_empty()
         from_cache: ModelType | list[ModelType] = await self._service.get(id=get_obj_cache.id)
         assert not isinstance(from_cache, list)
-        self.compare_objs(from_cache, get_obj_cache)
+        self.compare_objs(from_cache, get_obj_cache._asdict())
 
     async def test_get_all_return_objs_from_cache(self, get_obj_cache) -> None:
         assert await self._db_empty()
         from_cache: ModelType | list[ModelType] = await self._service.get()
         assert isinstance(from_cache, list)
-        self.compare_objs(from_cache[0], get_obj_cache)
+        self.compare_objs(from_cache[0], get_obj_cache._asdict())
 
     async def test_create_method(self) -> None:
         assert await self._db_empty()

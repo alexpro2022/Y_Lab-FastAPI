@@ -44,7 +44,7 @@ async def create_menu(payload: schemas.MenuIn, menu_service: menu_service) -> Me
             summary=SUM_ITEM,
             description=(f'{settings.ALL_USERS} {SUM_ITEM}'))
 async def get_menu(menu_id: UUID, menu_service: menu_service) -> Menu:
-    return await menu_service.get(id=menu_id, exception=True)  # type: ignore [return-value]
+    return await menu_service.get(id=menu_id, cache_key=menu_id, exception=True)  # type: ignore [return-value]
 
 
 @router.patch('/{menu_id}',
@@ -53,9 +53,10 @@ async def get_menu(menu_id: UUID, menu_service: menu_service) -> Menu:
               summary=SUM_UPDATE_ITEM,
               description=(f'{settings.AUTH_ONLY} {SUM_UPDATE_ITEM}'))
 async def update_menu(menu_id: UUID, payload: schemas.MenuPatch, menu_service: menu_service) -> Menu:
-    return await menu_service.update(id=menu_id, **payload.model_dump(exclude_defaults=True,
-                                                                      exclude_none=True,
-                                                                      exclude_unset=True))
+    return await menu_service.update(id=menu_id, cache_key=menu_id,
+                                     **payload.model_dump(exclude_defaults=True,
+                                                          exclude_none=True,
+                                                          exclude_unset=True))
 
 
 @router.delete('/{menu_id}',
@@ -64,4 +65,4 @@ async def update_menu(menu_id: UUID, payload: schemas.MenuPatch, menu_service: m
                summary=SUM_DELETE_ITEM,
                description=(f'{settings.SUPER_ONLY} {SUM_DELETE_ITEM}'))
 async def delete_menu(menu_id: UUID, menu_service: menu_service) -> dict[str, bool | str]:
-    return await menu_service.delete(id=menu_id)
+    return await menu_service.delete(id=menu_id, cache_key=menu_id)

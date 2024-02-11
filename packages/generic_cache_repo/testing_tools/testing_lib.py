@@ -43,14 +43,16 @@ class BaseRedisTest(Generic[CacheType, ModelType], BaseTestingClass):
         assert isinstance(get_test_obj, self.model)
 
     @pytest_asyncio.fixture
-    async def set_cache(self, init, get_test_obj) -> ModelType:
+    async def set_cache(self, init, get_test_obj) -> dict[str, Any]:
         assert await self._cache_empty()
         await self._cache.set(get_test_obj)
         assert not await self._cache_empty()
-        return get_test_obj
+        return get_test_obj._asdict()
 
-    async def test_set_cache_fixture(self, set_cache) -> None:
-        from_cache = await self._cache.get(set_cache.id)
+    async def test_set_cache_fixture(self, set_cache, get_test_obj) -> None:
+        from_cache = await self._cache.get(get_test_obj.id)
+        self.compare_objs(from_cache, set_cache)
+        from_cache = await self._cache.get(set_cache['id'])
         self.compare_objs(from_cache, set_cache)
 
 # --- Utils ---
@@ -62,7 +64,11 @@ class BaseRedisTest(Generic[CacheType, ModelType], BaseTestingClass):
     def test_get_key(self, init, suffix: Any) -> None:
         key = self._cache._get_key(suffix)
         assert isinstance(key, str)
-        assert key == f'{self._cache.key_prefix}{self._cache.delimeter}{suffix}'
+        expected = (f'{self._cache.key_prefix}{self._cache.delimeter}{suffix}'
+                    if self._cache.parent_id_field_name is None else
+                    (f'{self._cache.key_prefix}{self._cache.delimeter}{suffix}'
+                     f'{self._cache.delimeter}{self._cache.parent_id_field_name}'))
+        assert key == expected, (key, expected)
 
     @pytest.mark.parametrize('obj', (b'str', 1, 2.2, 'str', 'get_test_obj'))
     def test_serialize(self, init, obj, request) -> None:
@@ -95,7 +101,7 @@ class BaseRedisTest(Generic[CacheType, ModelType], BaseTestingClass):
         assert await self._cache_empty()
         await self._cache.set(arg)
         from_cache = await self._cache.get(get_test_obj.id)
-        self.compare_objs(from_cache, get_test_obj)
+        self.compare_objs(from_cache, get_test_obj._asdict())
 
     async def test_cache_expire(self, init_expire, get_test_obj) -> None:
         await self._cache.set([get_test_obj])
@@ -112,7 +118,7 @@ class BaseRedisTest(Generic[CacheType, ModelType], BaseTestingClass):
         assert await self._cache.get(get_test_obj.id) is None
 
     async def test_get_returns_obj(self, set_cache) -> None:
-        from_cache = await self._cache.get(set_cache.id)
+        from_cache = await self._cache.get(set_cache['id'])
         self.compare_objs(from_cache, set_cache)
 
     async def test_get_returns_list(self, set_cache) -> None:

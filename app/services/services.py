@@ -46,10 +46,13 @@ class SubmenuService(Service):
         self.dish_cache = dish_cache
         self.menu_service = menu_service
 
-    async def refresh_parent_cache(self, submenu: Submenu) -> None:
-        await self.menu_service.refresh(id=submenu.menu_id)
+    async def refresh_parent_cache(self, submenu: Submenu, *args, **kwargs) -> None:
+        menu = await self.menu_service.cache.get(key=submenu.menu_id)
+        menu['submenus_count'] += args[0]
+        await self.menu_service.cache.set(menu)
 
     async def delete_orphans_cache(self, obj: Submenu) -> None:
+        dish_names = self.dish_cache.keys(f'{self.dish_cache.key_prefix}*{pattern}')
         dishes = await self.dish_cache.get()
         if dishes is not None:
             dish_names = [self.dish_cache._get_key(dish.id) for dish in dishes if dish.submenu_id == obj.id]
@@ -66,9 +69,15 @@ class DishService(Service):
         self.menu_service = menu_service
         self.submenu_service = submenu_service
 
-    async def refresh_parent_cache(self, dish: Dish) -> None:
-        submenu = await self.submenu_service.refresh(id=dish.submenu_id)  # type: ignore [var-annotated]
-        await self.menu_service.refresh(id=submenu.menu_id)  # type: ignore [attr-defined]
+    async def refresh_parent_cache(self, dish: Dish,  *args, **kwargs) -> None:
+        #submenu = await self.submenu_service.refresh(id=dish.submenu_id)  # type: ignore [var-annotated]
+        submenu = await self.submenu_service.cache.get(key=dish.submenu_id)
+        submenu['dishes_count'] += args[0]
+        await self.submenu_service.cache.set(submenu)
+        # await self.menu_service.refresh(id=submenu.menu_id)  # type: ignore [attr-defined]
+        menu = await self.menu_service.cache.get(key=submenu['menu_id'])
+        menu['dishes_count'] += args[0]
+        await self.menu_service.cache.set(menu)
 
 
 dish_service = Annotated[DishService, Depends()]

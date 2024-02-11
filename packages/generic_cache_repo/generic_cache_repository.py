@@ -1,7 +1,10 @@
 import pickle
-from typing import Any
+import uuid
+from typing import Any, TypeAlias
 
 from .dependencies import redis
+
+KeyType: TypeAlias = str | uuid.UUID
 
 
 class BaseRedis:
@@ -13,8 +16,9 @@ class BaseRedis:
     def __init__(self, redis: redis) -> None:
         self.redis = redis
 
-    def _get_key(self, key: Any) -> str:
-        return f'{self.key_prefix}{self.delimeter}{key}'
+    def _get_key(self, key: KeyType) -> str:
+        return (key if (isinstance(key, str) and key.startswith(self.key_prefix)) else
+                f'{self.key_prefix}{self.delimeter}{key}')
 
     def _serialize(self, obj) -> bytes | str | int | float:
         """Pickle if an object is not of type of a bytes, string, int or float."""
@@ -29,10 +33,10 @@ class BaseRedis:
         except pickle.UnpicklingError:
             return cache
 
-    async def get(self, key: Any | None = None, pattern: str = '*') -> Any | list[Any] | None:
-        async def get_obj(key: Any) -> Any | None:
-            key = (key if (isinstance(key, str) and key.startswith(self.key_prefix))
-                   else self._get_key(key))
+    async def get(self, key: KeyType | None = None, pattern: str = '*') -> Any | list[Any] | None:
+        async def get_obj(key: KeyType) -> Any | None:
+            key = self._get_key(key)
+            print(key)
             cache = await self.redis.get(key)
             return self._deserialize(cache) if cache else None
 
@@ -42,9 +46,16 @@ class BaseRedis:
             return result if result and None not in result else None
         return await get_obj(key)
 
+    @staticmethod
+    def create_key(obj: dict[str, Any]) -> str:
+        return f"{obj['id']}"
+
     async def set(self, entity: Any | list[Any]) -> None:
+        """Sets the obj(s) to cache as a dict(s)."""
         async def set_obj(obj: Any) -> None:
-            await self.redis.set(self._get_key(obj.id), self._serialize(obj), ex=self.redis_expire)
+            obj = self._asdict(obj)
+            key = self.create_key()
+            await self.redis.set(self._get_key(key), self._serialize(obj), ex=self.redis_expire)
 
         if isinstance(entity, (list, tuple)):
             for obj in entity:
@@ -53,4 +64,8 @@ class BaseRedis:
             await set_obj(entity)
 
     async def delete(self, obj: Any) -> None:
-        await self.redis.delete(self._get_key(obj.id))
+        await self.redis.delete(self._get_key(self._asdict(obj)['id']))
+
+    @staticmethod
+    def _asdict(obj: Any) -> dict[str, Any]:
+        return obj if isinstance(obj, dict) else obj._asdict()

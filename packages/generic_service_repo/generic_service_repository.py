@@ -1,5 +1,5 @@
 from typing import Callable, Generic
-
+import uuid
 from fastapi import BackgroundTasks
 
 from packages.generic_cache_repo.types import CacheType
@@ -24,26 +24,27 @@ class BaseService(Generic[CacheType, RepoType]):
          else await func(*args, **kwargs))
 
     async def refresh(
-            self, exception: bool = False, in_background: bool = False, **kwargs) -> ModelType | list[ModelType]:
+            self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         """Gets result from DB. Sets the cache in background. Returns result."""
         entity = await self.db.get(exception=exception, **kwargs)
         if entity:
-            if in_background:
-                await self._add_bg_task_or_execute(self.cache.set, entity)
-            else:
-                await self.cache.set(entity)
+            await self._add_bg_task_or_execute(self.cache.set, entity)
         return entity  # type: ignore [return-value]
+
+    def pop_cache_key(**kwargs) -> str | uuid.UUID:
+        return kwargs.pop('cache_key')
 
     async def get(self, exception: bool = False, **kwargs) -> ModelType | list[ModelType]:
         """Gets result from cache or from db if cache is None. Sets the cache in background if necessary and
            returns result."""
-        return (await self.cache.get(key=kwargs.get('id'), pattern=kwargs.get('pattern', '*')) or  # noqa
+        return (await self.cache.get(key=self.pop_cache_key(*kwargs)) or  # noqa
                 await self.refresh(exception=exception, in_background=True, **kwargs))
 
     async def create(self, **kwargs) -> ModelType:
         """Creates the object in db and sets the cache in background."""
         obj = await self.db.create(**kwargs)
-        await self._add_bg_task_or_execute(self.set_cache_on_create, obj)
+
+        # await self._add_bg_task_or_execute(self.set_cache_on_create, obj)
         return obj
 
     async def update(self, **kwargs) -> ModelType:
@@ -60,7 +61,7 @@ class BaseService(Generic[CacheType, RepoType]):
 
     async def set_cache_on_create(self, obj: ModelType) -> None:
         await self.refresh(id=obj.id)
-        await self.refresh_parent_cache(obj)
+        await self.refresh_parent_cache(obj, 1)
 
     async def set_cache_on_update(self, obj: ModelType) -> None:
         await self.refresh(id=obj.id)
@@ -68,10 +69,10 @@ class BaseService(Generic[CacheType, RepoType]):
     async def set_cache_on_delete(self, obj: ModelType) -> None:
         await self.cache.delete(obj)
         await self.delete_orphans_cache(obj)
-        await self.refresh_parent_cache(obj)
+        await self.refresh_parent_cache(obj, -1)
 
     async def delete_orphans_cache(self, obj: ModelType):
         pass
 
-    async def refresh_parent_cache(self, obj: ModelType):
+    async def refresh_parent_cache(self, obj: ModelType, *args, **kwargs):
         pass
