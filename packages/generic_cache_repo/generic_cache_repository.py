@@ -63,13 +63,12 @@ class BaseRedis:
         else:
             await set_obj(entity)
 
-    async def delete(self, *names) -> None:  # obj: Any | list[str]) -> None:
+    async def delete(self, *names) -> None:
         if len(names) > 0:
             if isinstance(names[0], str):
                 await self.redis.delete(*names)
             else:
-                obj = names[0]
                 # the cache key for that obj might contain the parent id, so need to get it via pattern
-                keys = await self.get_keys(self.redis, f"{self._get_key(getattr(obj, 'id', None) or obj.get('id'))}*")
+                keys = await self.get_keys(self.redis, f"{self._get_key(getattr(names[0], 'id', None) or names[0].get('id'))}*")
                 if keys:
                     await self.redis.delete(self._get_key(keys[0]))
