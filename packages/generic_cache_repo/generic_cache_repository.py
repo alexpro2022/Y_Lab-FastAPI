@@ -1,5 +1,6 @@
 import pickle
 from typing import Any
+from redis import asyncio as aioredis  # type: ignore [import]
 
 from .dependencies import redis
 
@@ -38,11 +39,15 @@ class BaseRedis:
             return self._deserialize(cache) if cache else None
 
         if key is None:
-            result = [await get_obj(key.decode('utf-8')) for key in
-                      await self.redis.keys(f'{self.key_prefix}{pattern}')]
+            result_old = [await get_obj(key.decode('utf-8')) for key in
+                          await self.redis.keys(f'{self.key_prefix}{pattern}')]
+            result = [await get_obj(key) for key in await self.get_keys(self.redis, f'{self.key_prefix}{pattern}')]
+            #assert result == result_old, (result, result_old)
             return result if result and None not in result else None
         pattern = f'{self._get_key(key)}*'
-        keys = [key.decode('utf-8') for key in await self.redis.keys(pattern)]
+        keys_old = [key.decode('utf-8') for key in await self.redis.keys(pattern)]
+        keys = await self.get_keys(self.redis, pattern)
+        assert keys == keys_old
         return None if not keys else await get_obj(keys[0])
 
     async def set(self, entity: Any | list[Any]) -> None:
@@ -59,7 +64,11 @@ class BaseRedis:
 
     async def delete(self, obj: Any) -> None:
         pattern = f'{self._get_key(obj.id)}*'
-        keys = [key.decode('utf-8') for key in await self.redis.keys(pattern)]
-        print(keys)
+        keys_old = [key.decode('utf-8') for key in await self.redis.keys(pattern)]
+        keys = await self.get_keys(self.redis, pattern)
+        assert keys == keys_old
         if keys:
             await self.redis.delete(self._get_key(keys[0]))
+
+    async def get_keys(self, redis: aioredis.Redis, pattern: str):
+        return [key.decode('utf-8') for key in await redis.keys(pattern)]
