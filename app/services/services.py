@@ -63,10 +63,10 @@ class SubmenuService(Service):
 class DishService(Service):
 
     def __init__(self, db: dish_crud, redis: dish_cache,
-                 menu_cahe: menu_cache, submenu_cache: submenu_cache,
+                 menu_cache: menu_cache, submenu_cache: submenu_cache,
                  bg_tasks: BackgroundTasks) -> None:
         super().__init__(db, redis, bg_tasks)
-        self.menu_cache = menu_cahe
+        self.menu_cache = menu_cache
         self.submenu_cache = submenu_cache
 
     async def refresh_parent_cache(self, dish: Dish, counter: int) -> None:
