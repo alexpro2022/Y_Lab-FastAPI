@@ -86,3 +86,11 @@ class DishOut(BaseOut, TitleDescriptionMixin):
 class Delete(BaseModel):
     status: bool = True
     message: str = Field('The item has been deleted')
+
+
+class SubmenuJoined(BaseOut, SubmenuIn):
+    dishes: list[DishOut]
+
+
+class FullList(BaseOut, MenuIn):
+    submenus: list[SubmenuJoined]

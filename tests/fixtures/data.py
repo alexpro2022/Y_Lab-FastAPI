@@ -59,3 +59,29 @@ UPDATED_DISH = {'title': 'My updated dish 1',
                 'description': 'My updated dish description 1',
                 'price': '14.50'}
 DELETED_DISH = {'status': True, 'message': 'The dish has been deleted'}
+
+FULL_LIST_DATA = [
+    {
+        'id': 'b8c2b0eb-8c8a-42b8-8da7-d5a84062258f',
+        'title': 'My menu 1',
+        'description': 'My menu description 1',
+        # 'submenus_count': 0,
+        # 'dishes_count': 0,
+        'submenus': [
+            {
+                'id': 'bc80f3bf-0432-4e2e-8f3a-1e14051de8ec',
+                'title': 'My submenu 1',
+                'description': 'My submenu description 1',
+                # 'dishes_count': 0,
+                'dishes': [
+                    {
+                        'description': 'My dish description 1',
+                        'id': '880e0e03-49fc-4f08-995a-dec3da621d17',
+                        'price': '12.50',
+                        'title': 'My dish 1',
+                    },
+                ],
+            },
+        ],
+    },
+]

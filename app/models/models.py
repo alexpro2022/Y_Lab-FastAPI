@@ -11,7 +11,7 @@ class Common(Base):
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title: Mapped[str] = mapped_column(String(256), unique=True, index=True)
-    description: Mapped[str] = mapped_column(String(2000))
+    description: Mapped[str] = mapped_column(String(2000), unique=True, index=True)
 
     def __repr__(self) -> str:
         return (f'\nid: {self.id}'

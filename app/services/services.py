@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Any, TypeAlias
 
 from fastapi import BackgroundTasks, Depends
 
@@ -6,6 +6,8 @@ from app.models import Dish, Menu, Submenu
 from app.repositories.cache_repository import dish_cache, menu_cache, submenu_cache
 from app.repositories.db_repository import dish_crud, menu_crud, submenu_crud
 from packages.generic_service_repo.generic_service_repository import BaseService
+
+Dict: TypeAlias = dict[str, Any]
 
 
 class Service(BaseService):
@@ -42,7 +44,8 @@ class SubmenuService(Service):
         self.menu_cache = menu_cache
 
     async def set_cache_on_create(self, obj: Submenu) -> None:
-        menu = await self.menu_cache.get(key=obj.menu_id)
+        menu: Dict = await self.menu_cache.get(key=obj.menu_id)  # type: ignore [assignment]
+        # self.menu_cache.redis.hincrby('submenus_count', 1)
         if menu:
             menu['submenus_count'] += 1
             await self.menu_cache.set(menu)
@@ -53,7 +56,7 @@ class SubmenuService(Service):
         dish_keys = await self.cache.get_keys(self.cache.redis, f'*{obj.id}')
         await self.cache.delete(*dish_keys)
         # Refresh parent cache
-        menu = await self.menu_cache.get(key=obj.menu_id)
+        menu: Dict = await self.menu_cache.get(key=obj.menu_id)  # type: ignore [assignment]
         if menu:
             menu['submenus_count'] -= 1
             menu['dishes_count'] -= len(dish_keys)
@@ -70,11 +73,11 @@ class DishService(Service):
         self.submenu_cache = submenu_cache
 
     async def refresh_parent_cache(self, dish: Dish, counter: int) -> None:
-        submenu = await self.submenu_cache.get(key=dish.submenu_id)
+        submenu: Dict = await self.submenu_cache.get(key=dish.submenu_id)  # type: ignore [assignment]
         if submenu:
             submenu['dishes_count'] += counter
             await self.submenu_cache.set(submenu)
-            menu = await self.menu_cache.get(key=submenu['menu_id'])
+            menu: Dict = await self.menu_cache.get(key=submenu['menu_id'])  # type: ignore [assignment]
             if menu:
                 menu['dishes_count'] += counter
                 await self.menu_cache.set(menu)

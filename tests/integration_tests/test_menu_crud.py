@@ -1,7 +1,10 @@
+from http import HTTPStatus
+
+from deepdiff import DeepDiff
 from httpx import AsyncClient
 
 from app.api.endpoints import menu
-from app.models.models import Menu
+from app.models.models import Dish, Menu
 from app.repositories.db_repository import MenuCRUD
 from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
 from tests.fixtures import data as d
@@ -21,6 +24,16 @@ class TestMenuAPI(GenericAPITests):
         HTTPMethods.PATCH: d.UPDATED_MENU,
         HTTPMethods.POST: d.CREATED_MENU,
     }
+
+    async def test_full_list(self, dish: Dish, async_client: AsyncClient) -> None:
+        url = self.reverse('get_full_list_')
+        response = await async_client.get(url)
+        assert response.status_code == HTTPStatus.OK
+        diff = DeepDiff(response.json(),
+                        d.FULL_LIST_DATA, exclude_paths=["root[0]['id']",
+                                                         "root[0]['submenus'][0]['id']",
+                                                         "root[0]['submenus'][0]['dishes'][0]['id']"])
+        assert not diff, diff
 
     async def test_get_all_returns_empty_list(self, init_db, async_client: AsyncClient) -> None:
         url = self.reverse('get_all_menus')
