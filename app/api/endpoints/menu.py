@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter
-
+from app.celery_tasks.utils import load_data
 from app.api.endpoints import const as u
 from app.api.endpoints.responses import get_400, get_404
 from app.core.config import settings
@@ -27,16 +27,15 @@ SUM_FULL_LIST = f'Полный список {NAME}.'
             summary=SUM_ALL_ITEMS,
             description=(f'{settings.ALL_USERS} {SUM_ALL_ITEMS}'))
 async def get_all_menus(menu_service: menu_service) -> list[Menu]:
+    await load_data()
     return await menu_service.get()
 
 
 @router.get('-full-list',
-            # response_model=list[schemas.FullList],
+            response_model=list[schemas.FullList],
             summary=SUM_FULL_LIST,
             description=(f'{settings.SUPER_ONLY} {SUM_FULL_LIST}'))
 async def get_full_list_(menu_crud: menu_crud):
-    from app.celery_tasks.utils import load_data
-    await load_data()
     return await get_full_list(menu_crud)
 
 
