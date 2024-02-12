@@ -7,6 +7,26 @@
 
 [Тестовое задание](https://learning-platform.ylab.website/my-homeworks/16)
 
+<details><summary>Задания со звездочкой</summary>
+<h1></h1>
+
+☑ Реализовать вывод количества подменю  и блюд для Меню через один (сложный) ORM запрос:
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/app/repositories/db_repository.py#L21)
+
+☑ Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из `Postman` с помощью `pytest`.
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/30035e5429a3e2d3606d3784149e1b236317914f/tests/integration_tests/test_scenario.py#L120)
+
+☑ Описать ручки API в соответствий c `OpenAPI`. 
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/tree/main/app/api/endpoints)
+
+☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
+    Пример использования в интеграционных тестах API: [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/1373c04c09592456559f6e0f1b905f6ece971a0f/tests/integration_tests/test_menu_crud.py#L26)
+
+<h1></h1>
+</details>
+
+<br>
+
 <details><summary>ДЗ №1</summary>
 <h1></h1>
 
@@ -38,6 +58,7 @@
     [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/app/repositories/db_repository.py#L21)
 
 ☑ Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из `Postman` с помощью `pytest`.
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/30035e5429a3e2d3606d3784149e1b236317914f/tests/integration_tests/test_scenario.py#L120)
 
 <h1></h1>
 </details>
@@ -53,7 +74,8 @@
 
 ☑ Покрыть проект type hints (тайпхинтами)
 
-☑ Описать ручки API в соответствий c `OpenAPI`
+☑ Описать ручки API в соответствий c `OpenAPI`. 
+    [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/tree/main/app/api/endpoints)
 
 ☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
     Пример использования в интеграционных тестах API: [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/1373c04c09592456559f6e0f1b905f6ece971a0f/tests/integration_tests/test_menu_crud.py#L26)
@@ -126,6 +148,9 @@
 [![SQLAlchemy](https://img.shields.io/badge/SQLAlchemy-v2.0-blue?logo=sqlalchemy)](https://www.sqlalchemy.org/)
 [![Alembic](https://img.shields.io/badge/-Alembic-464646?logo=alembic)](https://alembic.sqlalchemy.org/en/latest/)
 [![aioredis](https://img.shields.io/badge/-aioredis-464646?logo=redis)](https://aioredis.readthedocs.io/en/latest/)
+[![celery](https://img.shields.io/badge/-Celery-464646?logo=celery)](https://docs.celeryq.dev/en/stable/)
+[![flower](https://img.shields.io/badge/-Flower-464646?logo=flower)](https://flower.readthedocs.io/en/latest/)
+[![rabbitmq](https://img.shields.io/badge/-RabbitMQ-464646?logo=rabbitmq)](https://www.rabbitmq.com/)
 [![Uvicorn](https://img.shields.io/badge/-Uvicorn-464646?logo=Uvicorn)](https://www.uvicorn.org/)
 [![docker_compose](https://img.shields.io/badge/-Docker%20Compose-464646?logo=docker)](https://docs.docker.com/compose/)
 [![Nginx](https://img.shields.io/badge/-NGINX-464646?logo=NGINX)](https://nginx.org/ru/)
@@ -133,6 +158,8 @@
 [![Pytest](https://img.shields.io/badge/-Pytest-464646?logo=Pytest)](https://docs.pytest.org/en/latest/)
 [![Pytest-asyncio](https://img.shields.io/badge/-Pytest--asyncio-464646?logo=Pytest-asyncio)](https://pypi.org/project/pytest-asyncio/)
 [![pytest-cov](https://img.shields.io/badge/-pytest--cov-464646?logo=codecov)](https://pytest-cov.readthedocs.io/en/latest/)
+[![deepdiff](https://img.shields.io/badge/-deepdiff-464646?logo=deepdiff)](https://zepworks.com/deepdiff/6.3.1/diff.html)
+[![openpyxl](https://img.shields.io/badge/-openpyxl-464646?logo=openpyxl)](https://openpyxl.readthedocs.io/en/stable/)
 [![pre-commit](https://img.shields.io/badge/-pre--commit-464646?logo=pre-commit)](https://pre-commit.com/)
 
 [⬆️Оглавление](#оглавление)
