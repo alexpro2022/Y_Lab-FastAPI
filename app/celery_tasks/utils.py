@@ -1,27 +1,25 @@
 from datetime import datetime as dt
 from pathlib import Path
 
+from fastapi import HTTPException
 from openpyxl import load_workbook
 from redis import asyncio as aioredis  # type: ignore [import]
-from sqlalchemy.ext.asyncio import AsyncEngine
-
+# from sqlalchemy.ext.asyncio import AsyncEngine
+# from deepdiff import DeepDiff
 from app.core import settings
 from app.repositories.cache_repository import (DishCache, MenuCache,
                                                SubmenuCache)
 from app.repositories.db_repository import DishCRUD, MenuCRUD, SubmenuCRUD
 from app.services.services import DishService, MenuService, SubmenuService
 from packages.generic_cache_repo.dependencies import get_aioredis
-from packages.generic_db_repo.base import Base
-from packages.generic_db_repo.dependencies import AsyncSessionLocal, engine
+# from packages.generic_db_repo.base import Base
+from packages.generic_db_repo.dependencies import AsyncSessionLocal  # , engine
+# import logging
+
+# logging.basicConfig(level=logging.INFO)
 
 FILE_PATH = Path('admin/Menu.xlsx')
 TIME_INTERVAL = settings.celery_task_period
-
-
-async def db_flush(engine: AsyncEngine = engine) -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
-        await conn.run_sync(Base.metadata.create_all)
 
 
 def is_modified(fname: Path = FILE_PATH) -> bool:
@@ -29,37 +27,32 @@ def is_modified(fname: Path = FILE_PATH) -> bool:
     return (dt.now() - mod_time).total_seconds() <= TIME_INTERVAL
 
 
-'''
-async def submenu_dealer(service: SubmenuService, **kwargs) -> None:
-    obj = await service.get(kwargs)
-    if obj is None:
-        obj = await service.create(**kwargs)
-    return obj.id
-
-
-async def dish_dealer(service: DishService, **kwargs) -> None:
-    obj = await service.get(kwargs)
-    if obj is None:
-        obj = await service.create(**kwargs)
-    return obj.id
-'''
-
-
 async def _dealer(service: MenuService | SubmenuService | DishService, **kwargs) -> None:
-    return await service.create(**kwargs)
-    '''obj = await service.get(kwargs)
-    if obj is None:
+    service = service.db
+    try:
         return await service.create(**kwargs)
-    return obj.id'''
+    except HTTPException:  # something in DB
+        obj = await service.get(**kwargs)
+        if obj:  # nothing to update
+            return obj[0]
+        for field in kwargs:
+            obj = await service.get(**{field: kwargs[field]})
+            if obj:
+                break
+        if not obj:
+            raise ValueError("Couldn't retrieve the object")
+        return await service.update(**kwargs, id=obj[0].id)
+
+
+def get_rows(fname: str = FILE_PATH):
+    return load_workbook(filename=fname)['Лист1'].values
 
 
 async def fill_repos(menu_service: MenuService,
                      submenu_service: SubmenuService,
                      dish_service: DishService,
                      fname: Path = FILE_PATH) -> None:
-    wb = load_workbook(filename=fname)
-    ws = wb['Лист1']
-    for row in ws.values:
+    for row in get_rows(fname):
         if row[0] is not None:
             menu = await _dealer(menu_service, title=row[1], description=row[2])
         elif row[1] is not None:
@@ -69,9 +62,10 @@ async def fill_repos(menu_service: MenuService,
 
 
 async def load_data() -> str:
+    # Rows.rows = get_rows(FILE_PATH)
     redis: aioredis.Redis = get_aioredis()
+    # await db_flush()
     await redis.flushall()
-    await db_flush()
     async with AsyncSessionLocal() as session:
         menu_crud = MenuCRUD(session)
         menu_cache = MenuCache(redis)
@@ -88,8 +82,12 @@ async def load_data() -> str:
 async def task() -> str | dict[str, str] | None:
     if not is_modified():
         return 'Меню не изменялось. Выход из фоновой задачи...'
-    return await load_data()
-    '''menus, _, _ = read_file(FILE_PATH)  # type:ignore [misc]
+    return 'Меню изменялось.'
+    # return await load_data()
+
+
+'''
+    menus, _, _ = read_file(FILE_PATH)  # type:ignore [misc]
     if not menus:  # type: ignore [has-type]
         return None
     redis: aioredis.Redis = get_aioredis()
@@ -100,11 +98,41 @@ async def task() -> str | dict[str, str] | None:
                          MenuService(session, redis, None),
                          SubmenuService(session, redis, None),
                          DishService(session, redis, None))
-    return menus'''
+    return menus
 
 
+
+async def submenu_dealer(service: SubmenuService, **kwargs) -> None:
+    obj = await service.get(kwargs)
+    if obj is None:
+        obj = await service.create(**kwargs)
+    return obj.id
+
+
+async def dish_dealer(service: DishService, **kwargs) -> None:
+    obj = await service.get(kwargs)
+    if obj is None:
+        obj = await service.create(**kwargs)
+    return obj.id
 '''
 
+'''
+class Rows:
+    rows = None
+
+
+async def db_flush(engine: AsyncEngine = engine) -> None:
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+
+
+def periodic_task():
+    rows = list(get_rows())
+    # print(rows)
+    for row
+    diff = DeepDiff(Rows.rows, rows)
+    return diff
 
 def is_text(value: Any) -> bool:
     try:

@@ -31,10 +31,12 @@ async def get_all_menus(menu_service: menu_service) -> list[Menu]:
 
 
 @router.get('-full-list',
-            response_model=list[schemas.FullList],
+            # response_model=list[schemas.FullList],
             summary=SUM_FULL_LIST,
             description=(f'{settings.SUPER_ONLY} {SUM_FULL_LIST}'))
 async def get_full_list_(menu_crud: menu_crud):
+    from app.celery_tasks.utils import load_data
+    await load_data()
     return await get_full_list(menu_crud)
 
 
