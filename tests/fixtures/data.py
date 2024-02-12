@@ -65,14 +65,14 @@ FULL_LIST_DATA = [
         'id': 'b8c2b0eb-8c8a-42b8-8da7-d5a84062258f',
         'title': 'My menu 1',
         'description': 'My menu description 1',
-        'submenus_count': 0,
-        'dishes_count': 0,
+        # 'submenus_count': 0,
+        # 'dishes_count': 0,
         'submenus': [
             {
                 'id': 'bc80f3bf-0432-4e2e-8f3a-1e14051de8ec',
                 'title': 'My submenu 1',
                 'description': 'My submenu description 1',
-                'dishes_count': 0,
+                # 'dishes_count': 0,
                 'dishes': [
                     {
                         'description': 'My dish description 1',

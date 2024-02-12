@@ -88,9 +88,9 @@ class Delete(BaseModel):
     message: str = Field('The item has been deleted')
 
 
-class SubmenuJoined(SubmenuOut):
+class SubmenuJoined(BaseOut, SubmenuIn):
     dishes: list[DishOut]
 
 
-class FullList(MenuOut):
+class FullList(BaseOut, MenuIn):
     submenus: list[SubmenuJoined]
