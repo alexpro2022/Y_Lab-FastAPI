@@ -3,11 +3,21 @@ from typing import Any, AsyncGenerator
 from httpx import AsyncClient
 
 from tests.fixtures import data as d
-from tests.integration_tests.utils import (Json, check_dish_updated, del_dish,
-                                           del_menu, del_submenu, get_dishes,
-                                           get_menu, get_menus, get_submenu,
-                                           get_submenus, post_dish, post_menu,
-                                           post_submenu)
+from tests.integration_tests.utils import (
+    Json,
+    check_dish_updated,
+    del_dish,
+    del_menu,
+    del_submenu,
+    get_dishes,
+    get_menu,
+    get_menus,
+    get_submenu,
+    get_submenus,
+    post_dish,
+    post_menu,
+    post_submenu,
+)
 
 
 async def test_scenario(init_db: AsyncGenerator, async_client: AsyncClient) -> None:

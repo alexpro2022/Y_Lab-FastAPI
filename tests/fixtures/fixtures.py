@@ -7,12 +7,16 @@ from httpx import AsyncClient
 from app.main import app
 from app.models import Dish, Menu, Submenu
 from app.repositories.db_repository import DishCRUD, MenuCRUD, SubmenuCRUD
-from packages.generic_cache_repo.testing_tools.fixtures import \
-    get_test_redis  # noqa
+from packages.generic_cache_repo.testing_tools.fixtures import get_test_redis  # noqa
 from packages.generic_db_repo.testing_tools.fixtures import (  # noqa
-    get_test_session, init_db)
-from tests.fixtures.data import (DISH_POST_PAYLOAD, MENU_POST_PAYLOAD,
-                                 SUBMENU_POST_PAYLOAD)
+    get_test_session,
+    init_db,
+)
+from tests.fixtures.data import (
+    DISH_POST_PAYLOAD,
+    MENU_POST_PAYLOAD,
+    SUBMENU_POST_PAYLOAD,
+)
 
 
 @pytest_asyncio.fixture(scope='session')

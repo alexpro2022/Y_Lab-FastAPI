@@ -4,8 +4,7 @@ import pytest
 import pytest_asyncio
 
 from app.models import Dish, Menu, Submenu
-from app.repositories.db_repository import (CRUD, DishCRUD, MenuCRUD,
-                                            SubmenuCRUD)
+from app.repositories.db_repository import CRUD, DishCRUD, MenuCRUD, SubmenuCRUD
 from packages.generic_db_repo.testing_tools.testing_lib import BaseCRUDTest
 from tests.fixtures import data as d
 

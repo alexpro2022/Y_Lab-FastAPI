@@ -1,7 +1,6 @@
 from app.repositories.cache_repository import MenuCache
 from app.repositories.db_repository import MenuCRUD
-from packages.generic_service_repo.testing_tools.testing_lib import \
-    BaseServiceTest
+from packages.generic_service_repo.testing_tools.testing_lib import BaseServiceTest
 from tests.fixtures import data as d
 
 
