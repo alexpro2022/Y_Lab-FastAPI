@@ -16,7 +16,7 @@
 ☑ Реализовать тестовый сценарий «Проверка кол-ва блюд и подменю в меню» из `Postman` с помощью `pytest`.
     [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/30035e5429a3e2d3606d3784149e1b236317914f/tests/integration_tests/test_scenario.py#L120)
 
-☑ Описать ручки API в соответствий c `OpenAPI`. 
+☑ Описать ручки API в соответствий c `OpenAPI`.
     [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/tree/main/app/api/endpoints)
 
 ☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
@@ -74,7 +74,7 @@
 
 ☑ Покрыть проект type hints (тайпхинтами)
 
-☑ Описать ручки API в соответствий c `OpenAPI`. 
+☑ Описать ручки API в соответствий c `OpenAPI`.
     [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/tree/main/app/api/endpoints)
 
 ☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
