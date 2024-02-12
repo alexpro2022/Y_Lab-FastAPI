@@ -3,9 +3,11 @@ from typing import Annotated
 from fastapi import BackgroundTasks, Depends
 
 from app.models import Dish, Menu, Submenu
-from app.repositories.cache_repository import dish_cache, menu_cache, submenu_cache
+from app.repositories.cache_repository import (dish_cache, menu_cache,
+                                               submenu_cache)
 from app.repositories.db_repository import dish_crud, menu_crud, submenu_crud
-from packages.generic_service_repo.generic_service_repository import BaseService
+from packages.generic_service_repo.generic_service_repository import \
+    BaseService
 
 
 class Service(BaseService):

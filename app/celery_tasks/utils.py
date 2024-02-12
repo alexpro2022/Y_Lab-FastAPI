@@ -1,16 +1,18 @@
 from datetime import datetime as dt
 from pathlib import Path
+
 from openpyxl import load_workbook
 from redis import asyncio as aioredis  # type: ignore [import]
 from sqlalchemy.ext.asyncio import AsyncEngine
+
 from app.core import settings
-from app.repositories.cache_repository import DishCache, MenuCache, SubmenuCache
+from app.repositories.cache_repository import (DishCache, MenuCache,
+                                               SubmenuCache)
 from app.repositories.db_repository import DishCRUD, MenuCRUD, SubmenuCRUD
 from app.services.services import DishService, MenuService, SubmenuService
 from packages.generic_cache_repo.dependencies import get_aioredis
-from packages.generic_db_repo.dependencies import AsyncSessionLocal
 from packages.generic_db_repo.base import Base
-from packages.generic_db_repo.dependencies import engine
+from packages.generic_db_repo.dependencies import AsyncSessionLocal, engine
 
 FILE_PATH = Path('admin/Menu.xlsx')
 TIME_INTERVAL = settings.celery_task_period

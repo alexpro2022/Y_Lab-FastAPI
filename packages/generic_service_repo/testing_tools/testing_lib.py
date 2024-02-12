@@ -9,7 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.generic_cache_repo.types import CacheType
 from packages.generic_db_repo.types import ModelType, RepoType
-from packages.generic_service_repo.generic_service_repository import BaseService
+from packages.generic_service_repo.generic_service_repository import \
+    BaseService
 from packages.testing_tools.base_testing_class import BaseTestingClass
 
 PLURAL = 'plural'
