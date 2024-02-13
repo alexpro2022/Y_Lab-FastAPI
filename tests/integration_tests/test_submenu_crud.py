@@ -3,11 +3,12 @@ from httpx import AsyncClient
 from app.api.endpoints import submenu
 from app.models.models import Menu, Submenu
 from app.repositories.db_repository import SubmenuCRUD
-from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
+from packages.generic_api.testing_lib import HTTPMethods
 from tests.fixtures import data as d
+from tests.integration_tests.utils import AppGenericAPITests
 
 
-class TestSubmenuAPI(GenericAPITests):
+class TestSubmenuAPI(AppGenericAPITests):
     router = submenu.router
     msg_not_found = 'submenu not found'
     msg_already_exists = 'Подменю с таким заголовком уже существует.'

@@ -1,8 +1,14 @@
 import uuid
+from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+# import pickle
+from app.celery_tasks.utils import get_discount_from_cache
 from app.schemas.validators import price_gte_zero_validator
+
+# from packages.generic_cache_repo.dependencies import get_redis
+
 
 # constants for examples
 TITLE = 'My menu/submenu/dish #1'
@@ -81,6 +87,15 @@ class SubmenuOut(BaseOut, SubmenuIn):
 
 class DishOut(BaseOut, TitleDescriptionMixin):
     price: str = Field(examples=[PRICE])
+
+    @model_validator(mode='after')
+    def apply_discount_(self) -> 'DishOut':
+        discount = get_discount_from_cache().get(self.id, 0)
+        if discount > 100:
+            discount = 100
+        p = float(self.price) * (100 - discount) / 100
+        self.price = str(round(Decimal(p), 2))
+        return self
 
 
 class Delete(BaseModel):

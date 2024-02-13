@@ -20,7 +20,7 @@ from tests.integration_tests.utils import (
 )
 
 
-async def test_scenario(init_db: AsyncGenerator, async_client: AsyncClient) -> None:
+async def test_scenario(init_db: AsyncGenerator, async_client: AsyncClient, mock_dish_discount) -> None:
     menu: Json = await post_menu(async_client)
     menu_id = menu['id']
     submenu: Json = await post_submenu(async_client, menu_id)
@@ -38,7 +38,7 @@ async def test_scenario(init_db: AsyncGenerator, async_client: AsyncClient) -> N
     await get_menus(async_client, [])
 
 
-async def test_services(init_db: AsyncGenerator, async_client: AsyncClient) -> None:
+async def test_services(init_db: AsyncGenerator, async_client: AsyncClient, mock_dish_discount) -> None:
     async def init() -> tuple[Any, ...]:
         menu: Json = await post_menu(async_client)
         menu_id = menu['id']
