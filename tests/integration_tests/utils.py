@@ -2,12 +2,21 @@ from http import HTTPStatus
 from typing import Any, Callable, TypeAlias
 from uuid import UUID
 
+import pytest
 from httpx import AsyncClient
 
+from packages.generic_api.testing_lib import GenericAPITests
 from tests.fixtures import data as d
 
 Json: TypeAlias = dict[str, Any]
 callable: TypeAlias = Callable[[Json], str]
+
+
+class AppGenericAPITests(GenericAPITests):
+
+    @pytest.fixture(autouse=True)
+    def mock_dish_discount_(self, mock_dish_discount):
+        pass
 
 
 def _check_response(response_json: Json | list[Json], expected_result: Json | list[Json]) -> str:
