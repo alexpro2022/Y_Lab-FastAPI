@@ -1,11 +1,9 @@
 import pickle
 import uuid
-from datetime import datetime as dt
-from pathlib import Path
 
-from openpyxl import load_workbook
 from redis import asyncio as aioredis  # type: ignore [import]
 
+from app.celery_tasks.wb_loaders import google_load_workbook, local_load_workbook
 from app.core import settings
 from app.models.models import Dish, Menu, Submenu
 from app.repositories.db_repository import DishCRUD, MenuCRUD, SubmenuCRUD
@@ -13,7 +11,6 @@ from packages.generic_cache_repo.dependencies import get_aioredis, get_redis
 from packages.generic_db_repo.dependencies import AsyncSessionLocal
 from packages.generic_db_repo.types import ModelType, RepoType
 
-FILE_PATH = Path('admin/Menu.xlsx')
 TIME_INTERVAL = settings.celery_task_period
 DISCOUNTS = 'discounts'
 
@@ -22,11 +19,6 @@ class Ids:
     menu_ids: set[uuid.UUID] = set()
     submenu_ids: set[uuid.UUID] = set()
     dish_ids: set[uuid.UUID] = set()
-
-
-def is_modified(fname: Path = FILE_PATH) -> bool:
-    mod_time = dt.fromtimestamp(fname.stat().st_mtime)
-    return (dt.now() - mod_time).total_seconds() <= TIME_INTERVAL
 
 
 async def _dealer(crud: type[RepoType], **kwargs) -> ModelType:
@@ -67,11 +59,15 @@ async def clean_repo(crud: type[RepoType], ids: set) -> None:
 async def load_data() -> str:
     discounts = {}
     menu_ids, submenu_ids, dish_ids = set(), set(), set()
-    for row in load_workbook(filename=FILE_PATH)['Лист1'].values:
-        if row[0] is not None:
+    if settings.google_sheets:
+        rows = await google_load_workbook()
+    else:
+        rows = local_load_workbook()
+    for row in rows:
+        if row[0]:
             menu: Menu = await _dealer(MenuCRUD, title=row[1], description=row[2])
             menu_ids.add(menu.id)
-        elif row[1] is not None:
+        elif row[1]:
             submenu: Submenu = await _dealer(SubmenuCRUD, title=row[2], description=row[3], menu_id=menu.id)
             submenu_ids.add(submenu.id)
         else:
@@ -79,8 +75,8 @@ async def load_data() -> str:
                 DishCRUD, title=row[3], description=row[4], price=str(row[5]), submenu_id=submenu.id)
             dish_ids.add(dish.id)
             try:
-                discounts[dish.id] = row[6] or 0
-            except IndexError:
+                discounts[dish.id] = int(row[6])
+            except (IndexError, TypeError, ValueError):
                 discounts[dish.id] = 0
 
     await clean_repo(MenuCRUD, menu_ids)

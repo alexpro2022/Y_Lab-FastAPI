@@ -21,5 +21,19 @@ class Settings(BaseSettings):
     celery_broker_url: str = f'amqp://guest:guest@rabbitmq:{rabbitmq_port}//'
     celery_task_period: int = 15
 
+    # Переменные для Google API
+    google_sheets: bool = False
+    type: str | None = None
+    project_id: str | None = None
+    private_key_id: str | None = None
+    private_key: str | None = None
+    client_email: str | None = None
+    client_id: str | None = None
+    auth_uri: str | None = None
+    token_uri: str | None = None
+    auth_provider_x509_cert_url: str | None = None
+    client_x509_cert_url: str | None = None
+    spreadsheet_title: str | None = None
+
 
 settings = Settings()

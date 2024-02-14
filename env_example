@@ -30,3 +30,21 @@ CELERY_TASK_PERIOD=15
 
 # FLOWER
 FLOWER_PORT=5555
+
+
+GOOGLE_SHEETS=False
+# Укажите данные для работы ваших Python-приложений с подключёнными Google API
+# Эти данные передаются платформой (Google Cloud Platform) в json-файле
+# при создании ключа доступа к вашему сервисному аккаунту
+TYPE=Service_account
+PROJECT_ID=
+PRIVATE_KEY_ID=
+PRIVATE_KEY=
+CLIENT_EMAIL=
+CLIENT_ID=
+AUTH_URI=https://accounts.google.com/o/oauth2/auth
+TOKEN_URI=https://oauth2.googleapis.com/token
+AUTH_PROVIDER_X509_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
+CLIENT_X509_CERT_URL=
+
+SPREADSHEET_TITLE=Menu_YLab

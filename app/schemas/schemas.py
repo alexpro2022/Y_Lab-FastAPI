@@ -93,7 +93,7 @@ class DishOut(BaseOut, TitleDescriptionMixin):
         discount = get_discount_from_cache().get(self.id, 0)
         if discount > 100:
             discount = 100
-        p = float(self.price) * (100 - discount) / 100
+        p = float(self.price.replace(',', '.')) * (100 - discount) / 100
         self.price = str(round(Decimal(p), 2))
         return self
 
