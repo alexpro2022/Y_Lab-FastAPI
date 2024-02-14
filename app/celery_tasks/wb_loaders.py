@@ -31,13 +31,11 @@ service_account_info = {
 
 def get_creds() -> Credentials:
     creds = Credentials.from_service_account_info(service_account_info)
-    Credentials.token_state
-    scoped = creds.with_scopes([
+    return creds.with_scopes([
         'https://spreadsheets.google.com/feeds',
         'https://www.googleapis.com/auth/spreadsheets',
         'https://www.googleapis.com/auth/drive',
     ])
-    return scoped
 
 
 agcm = AsyncioGspreadClientManager(get_creds)
@@ -63,9 +61,9 @@ async def google_get_mod_timestamp() -> float:
     return dt.now().timestamp()
 
 
-async def is_modified() -> bool:
-    if settings.google_sheets:
-        timestamp = await google_get_mod_timestamp()
-    else:
-        timestamp = FILE_PATH.stat().st_mtime
+def local_get_mod_timestamp() -> float:
+    return FILE_PATH.stat().st_mtime
+
+
+def is_modified(timestamp: float) -> bool:
     return (dt.now() - dt.fromtimestamp(timestamp)).total_seconds() <= settings.celery_task_period
