@@ -1,13 +1,16 @@
+import logging
+from datetime import datetime as dt
+from pathlib import Path
+
+from google.oauth2.service_account import Credentials
 from gspread_asyncio import AsyncioGspreadClientManager, AsyncioGspreadSpreadsheet
 from openpyxl import load_workbook
-from google.oauth2.service_account import Credentials
-from googleapiclient import discovery
 
 from app.core.config import settings
-from pathlib import Path
-from datetime import datetime as dt
-import httpx
-import logging
+
+# import httpx
+# from googleapiclient import discovery
+
 logging.basicConfig(level=logging.INFO)
 
 FILE_PATH = Path('admin/Menu.xlsx')
@@ -30,9 +33,9 @@ def get_creds() -> Credentials:
     creds = Credentials.from_service_account_info(service_account_info)
     Credentials.token_state
     scoped = creds.with_scopes([
-        "https://spreadsheets.google.com/feeds",
-        "https://www.googleapis.com/auth/spreadsheets",
-        "https://www.googleapis.com/auth/drive",
+        'https://spreadsheets.google.com/feeds',
+        'https://www.googleapis.com/auth/spreadsheets',
+        'https://www.googleapis.com/auth/drive',
     ])
     return scoped
 
@@ -56,13 +59,7 @@ def local_load_workbook():
 
 
 async def google_get_mod_timestamp() -> float:
-    '''ss = await get_ss()
-    revisions_uri = f'https://www.googleapis.com/drive/v3/files/{ss.id }/revisions'
-    headers = {'Authorization': f'Bearer {creds.token}'}
-    async with httpx.AsyncClient as client:
-        response = await client.get(revisions_uri, headers=headers).json()
-    logging.info(response)  # ['revisions'][-1]['modifiedTime'])
-    raise ValueError(response) '''
+    # TODO:
     return dt.now().timestamp()
 
 

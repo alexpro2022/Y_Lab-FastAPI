@@ -3,12 +3,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-# import pickle
 from app.celery_tasks.utils import get_discount_from_cache
 from app.schemas.validators import price_gte_zero_validator
-
-# from packages.generic_cache_repo.dependencies import get_redis
-
 
 # constants for examples
 TITLE = 'My menu/submenu/dish #1'
