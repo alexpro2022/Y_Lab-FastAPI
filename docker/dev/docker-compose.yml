@@ -50,6 +50,8 @@ services:
     restart: always
     volumes:
       - ../..:/app
+    ports:
+      - 8000:8000
     depends_on:
       - db
       - redis
@@ -74,16 +76,6 @@ services:
       - ../../admin:/app/admin
     env_file:
       - ../../.env
-
-  nginx:
-    image: nginx:1.21.3-alpine
-    restart: always
-    depends_on:
-      - web
-    ports:
-      - 8000:8000
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
 
 
 volumes:

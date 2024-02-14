@@ -6,11 +6,12 @@ from httpx import AsyncClient
 from app.api.endpoints import menu
 from app.models.models import Dish, Menu
 from app.repositories.db_repository import MenuCRUD
-from packages.generic_api.testing_lib import GenericAPITests, HTTPMethods
+from packages.generic_api.testing_lib import HTTPMethods
 from tests.fixtures import data as d
+from tests.integration_tests.utils import AppGenericAPITests
 
 
-class TestMenuAPI(GenericAPITests):
+class TestMenuAPI(AppGenericAPITests):
     router = menu.router
     msg_not_found = 'menu not found'
     msg_already_exists = 'Меню с таким заголовком уже существует.'

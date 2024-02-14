@@ -19,6 +19,11 @@ from tests.fixtures.data import (
 )
 
 
+@pytest.fixture
+def mock_dish_discount(monkeypatch):
+    monkeypatch.setattr('app.schemas.schemas.get_discount_from_cache', lambda: {})
+
+
 @pytest_asyncio.fixture(scope='session')
 async def async_client() -> AsyncGenerator[AsyncClient, Any]:
     async with AsyncClient(app=app, base_url='http://test') as ac:
