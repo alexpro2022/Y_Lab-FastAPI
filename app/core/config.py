@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     celery_task_period: int = 15
 
     # Переменные для Google API
-    google_sheets: bool
+    google_sheets: bool = False
     type: str | None = None
     project_id: str | None = None
     private_key_id: str | None = None
