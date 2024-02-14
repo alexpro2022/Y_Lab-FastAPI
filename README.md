@@ -22,6 +22,12 @@
 ☑ Реализовать в тестах аналог `Django` reverse() для `FastAPI` [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/316124c6cdd8dd0f52224d1552c9fcff4e1aef6f/packages/generic_api/testing_lib.py#L38).
     Пример использования в интеграционных тестах API: [ссылка](https://github.com/alexpro2022/Y_Lab-FastAPI/blob/1373c04c09592456559f6e0f1b905f6ece971a0f/tests/integration_tests/test_menu_crud.py#L26)
 
+☑
+    [ссылка]()
+
+☑
+    [ссылка]()
+
 <h1></h1>
 </details>
 
@@ -153,7 +159,7 @@
 [![rabbitmq](https://img.shields.io/badge/-RabbitMQ-464646?logo=rabbitmq)](https://www.rabbitmq.com/)
 [![Uvicorn](https://img.shields.io/badge/-Uvicorn-464646?logo=Uvicorn)](https://www.uvicorn.org/)
 [![docker_compose](https://img.shields.io/badge/-Docker%20Compose-464646?logo=docker)](https://docs.docker.com/compose/)
-[![Nginx](https://img.shields.io/badge/-NGINX-464646?logo=NGINX)](https://nginx.org/ru/)
+[![gspread_asyncio](https://img.shields.io/badge/-gspread_asyncio-464646?logo=gspred)](https://gspread-asyncio.readthedocs.io/en/latest/api.html)
 [![httpx](https://img.shields.io/badge/-httpx-464646?logo=httpx)](https://www.python-httpx.org/)
 [![Pytest](https://img.shields.io/badge/-Pytest-464646?logo=Pytest)](https://docs.pytest.org/en/latest/)
 [![Pytest-asyncio](https://img.shields.io/badge/-Pytest--asyncio-464646?logo=Pytest-asyncio)](https://pypi.org/project/pytest-asyncio/)

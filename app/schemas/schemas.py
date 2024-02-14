@@ -3,12 +3,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-# import pickle
 from app.celery_tasks.utils import get_discount_from_cache
 from app.schemas.validators import price_gte_zero_validator
-
-# from packages.generic_cache_repo.dependencies import get_redis
-
 
 # constants for examples
 TITLE = 'My menu/submenu/dish #1'
@@ -93,7 +89,7 @@ class DishOut(BaseOut, TitleDescriptionMixin):
         discount = get_discount_from_cache().get(self.id, 0)
         if discount > 100:
             discount = 100
-        p = float(self.price) * (100 - discount) / 100
+        p = float(self.price.replace(',', '.')) * (100 - discount) / 100
         self.price = str(round(Decimal(p), 2))
         return self
 

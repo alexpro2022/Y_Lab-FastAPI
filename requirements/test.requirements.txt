@@ -4,6 +4,9 @@ pydantic-settings
 sqlalchemy
 uvicorn[standard]
 openpyxl
+google-api-python-client
+gspread-asyncio
+httpx
 
 # tests
 aiosqlite

@@ -9,3 +9,6 @@ celery
 flower
 rabbitmq
 openpyxl
+gspread-asyncio
+# google-api-python-client
+# httpx
